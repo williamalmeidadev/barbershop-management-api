@@ -4,7 +4,6 @@ export function initDatabase() {
   db.serialize(() => {
     db.run('PRAGMA foreign_keys = ON')
 
-    // ===================== ADMINS =====================
     db.run(`
       CREATE TABLE IF NOT EXISTS admins (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,7 +20,6 @@ export function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_admins_email ON admins(email);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_admins_ativo ON admins(ativo);`)
 
-    // ===================== CLIENTES =====================
     db.run(`
       CREATE TABLE IF NOT EXISTS clientes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +35,6 @@ export function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_clientes_email ON clientes(email);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_clientes_ativo ON clientes(ativo);`)
 
-    // ===================== BARBEIROS =====================
     db.run(`
       CREATE TABLE IF NOT EXISTS barbeiros (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,6 +47,77 @@ export function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_barbeiros_nome ON barbeiros(nome_profissional);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_barbeiros_ativo ON barbeiros(ativo);`)
 
-    console.log('SQLite tables initialized')
+    db.run(`
+      CREATE TABLE IF NOT EXISTS servicos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        descricao TEXT,
+        duracao_minutos INTEGER NOT NULL CHECK (duracao_minutos > 0),
+        preco_centavos INTEGER NOT NULL CHECK (preco_centavos >= 0),
+        ativo INTEGER DEFAULT 1 CHECK (ativo IN (0,1))
+      );
+    `)
+
+    db.run(`CREATE INDEX IF NOT EXISTS idx_servicos_ativo ON servicos(ativo);`)
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS vagas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        barbeiro_id INTEGER NOT NULL,
+        inicio DATETIME NOT NULL,
+        fim DATETIME NOT NULL,
+        status TEXT NOT NULL DEFAULT 'DISPONIVEL'
+          CHECK (status IN ('DISPONIVEL','RESERVADO','BLOQUEADO')),
+        FOREIGN KEY (barbeiro_id) REFERENCES barbeiros(id)
+      );
+    `)
+
+    db.run(`CREATE INDEX IF NOT EXISTS idx_vagas_barbeiro ON vagas(barbeiro_id);`)
+    db.run(`CREATE INDEX IF NOT EXISTS idx_vagas_inicio ON vagas(inicio);`)
+    db.run(`CREATE INDEX IF NOT EXISTS idx_vagas_status ON vagas(status);`)
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS agendamentos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cliente_id INTEGER NOT NULL,
+        barbeiro_id INTEGER NOT NULL,
+        inicio DATETIME NOT NULL,
+        fim DATETIME NOT NULL,
+        status TEXT NOT NULL DEFAULT 'AGENDADO'
+          CHECK (status IN ('AGENDADO','CANCELADO','CONCLUIDO')),
+        valor_total_centavos INTEGER NOT NULL DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+        FOREIGN KEY (barbeiro_id) REFERENCES barbeiros(id)
+      );
+    `)
+
+    db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_cliente ON agendamentos(cliente_id);`)
+    db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_barbeiro ON agendamentos(barbeiro_id);`)
+    db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_status ON agendamentos(status);`)
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS agendamento_servicos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        agendamento_id INTEGER NOT NULL,
+        servico_id INTEGER NOT NULL,
+        preco_centavos INTEGER NOT NULL,
+        duracao_minutos INTEGER NOT NULL,
+        FOREIGN KEY (agendamento_id) REFERENCES agendamentos(id) ON DELETE CASCADE,
+        FOREIGN KEY (servico_id) REFERENCES servicos(id)
+      );
+    `)
+
+    db.run(`CREATE INDEX IF NOT EXISTS idx_ag_serv_agendamento ON agendamento_servicos(agendamento_id);`)
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS agendamento_vagas (
+        agendamento_id INTEGER NOT NULL,
+        vaga_id INTEGER NOT NULL,
+        PRIMARY KEY (agendamento_id, vaga_id),
+        FOREIGN KEY (agendamento_id) REFERENCES agendamentos(id) ON DELETE CASCADE,
+        FOREIGN KEY (vaga_id) REFERENCES vagas(id) ON DELETE CASCADE
+      );
+    `)
   })
 }
