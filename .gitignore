@@ -1,0 +1,27 @@
+# Node
+node_modules/
+
+# Build
+dist/
+
+# Environment variables
+.env
+
+# SQLite database
+*.sqlite
+*.sqlite3
+database.sqlite
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# TypeScript cache
+*.tsbuildinfo

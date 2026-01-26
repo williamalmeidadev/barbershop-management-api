@@ -1,0 +1,33 @@
+{
+  "name": "barbershop-management-api",
+  "version": "1.0.0",
+  "description": "API REST e front-end para gerenciamento de uma barbearia/salão de beleza",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/williamalmeidadev/barbershop-management-api.git"
+  },
+  "keywords": [],
+  "author": "William Almeida",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/williamalmeidadev/barbershop-management-api/issues"
+  },
+  "homepage": "https://github.com/williamalmeidadev/barbershop-management-api#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.10",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}
