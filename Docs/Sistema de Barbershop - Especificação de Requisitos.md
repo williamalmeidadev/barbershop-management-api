@@ -16,5 +16,5 @@ Este documento descreve os requisitos funcionais e não funcionais para o desenv
 
 | ID | Nome | Descrição |
 | :--- | :--- | :--- |
-| **[RNF001]** | **Acessibilidade do Agendamento** | Referente ao **[RF004]**: O sistema deve permitir fluxo de agendamento otimizado. *(Nota: O requisito original mencionava "compra de ingressos", ajustado para contexto de agendamento).* |
+| **[RNF001]** | **Acessibilidade do Agendamento** | Referente ao **[RF004]**: O sistema deve permitir fluxo de agendamento otimizado. |
 | **[RNF002]** | **Segurança de Dados** | As senhas devem ser armazenadas com hash criptográfico (ex: bcrypt) e dados sensíveis devem ser protegidos. |
