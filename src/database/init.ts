@@ -3,6 +3,16 @@ import { db } from './sqlite'
 export function initDatabase() {
   db.serialize(() => {
     db.run('PRAGMA foreign_keys = ON')
+    
+    db.run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL
+      );
+    `)
+
+    db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);`)
 
     db.run(`
       CREATE TABLE IF NOT EXISTS admins (
