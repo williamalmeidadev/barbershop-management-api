@@ -5,6 +5,19 @@ export function initDatabase() {
     db.run('PRAGMA foreign_keys = ON')
 
     db.run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('admin', 'barbeiro', 'cliente')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ativo INTEGER DEFAULT 1 CHECK (ativo IN (0,1))
+      );
+    `)
+    db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);`)
+    db.run(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);`)
+
+    db.run(`
       CREATE TABLE IF NOT EXISTS admins (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         usuario TEXT UNIQUE NOT NULL,
