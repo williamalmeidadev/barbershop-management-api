@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import clienteRoutes from './clienteRoutes'
+import adminRoutes from './adminRoutes'
 import slotRoutes from './slotRoutes'
 import { BookingController } from '../controllers/bookingController'
 
@@ -11,8 +12,8 @@ routes.get('/teste', (_, res) => {
 })
 
 routes.post('/activities/:id/enroll', bookingController.enroll.bind(bookingController))
-routes.use('/clientes', clienteRoutes);
-
+routes.use('/clientes/register', clienteRoutes);
+routes.use('/admins', adminRoutes)
 routes.use(slotRoutes)
 
 export default routes
