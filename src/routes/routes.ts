@@ -12,6 +12,7 @@ routes.get('/teste', (_, res) => {
 })
 
 routes.post('/activities/:id/enroll', bookingController.enroll.bind(bookingController))
+routes.delete('/activities/:id/enroll', bookingController.cancel.bind(bookingController))
 routes.use('/clientes/register', clienteRoutes);
 routes.use('/admins', adminRoutes)
 routes.use(slotRoutes)
