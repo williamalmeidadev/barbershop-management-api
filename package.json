@@ -25,12 +25,14 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/chai": "^5.2.3",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.0.10",
     "chai": "^6.2.2",
@@ -41,8 +43,16 @@
     "typescript": "^5.9.3"
   },
   "nyc": {
-    "extension": [".ts"],
-    "reporter": ["text", "html"],
-    "exclude": ["tests/**", "node_modules/**"]
+    "extension": [
+      ".ts"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "exclude": [
+      "tests/**",
+      "node_modules/**"
+    ]
   }
 }
