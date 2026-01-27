@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts"
   },
   "repository": {
     "type": "git",
@@ -27,8 +28,13 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/chai": "^5.2.3",
     "@types/express": "^5.0.6",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^25.0.10",
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   }
