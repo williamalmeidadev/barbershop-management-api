@@ -10,7 +10,7 @@ const bookingController = new BookingController()
 routes.get('/teste', (_, res) => {
   res.json({ status: 'ok' })
 })
-
+routes.get('/my-activities', bookingController.myActivities.bind(bookingController))
 routes.post('/activities/:id/enroll', bookingController.enroll.bind(bookingController))
 routes.delete('/activities/:id/enroll', bookingController.cancel.bind(bookingController))
 routes.use('/clientes/register', clienteRoutes);

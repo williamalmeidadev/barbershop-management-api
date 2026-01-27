@@ -70,4 +70,31 @@ export class BookingController {
       });
     });
   }
+  async myActivities(req: Request, res: Response) {
+    const { cliente_id } = req.query;
+
+    if (!cliente_id) {
+      return res.status(400).json({ error: 'cliente_id é obrigatório' });
+    }
+
+    const query = `
+      SELECT
+      a.id,
+      a.inicio,
+      a.fim,
+      a.status,
+      b.nome_profissional as barbeiro
+    FROM agendamentos a
+    JOIN barbeiros b ON a.barbeiro_id = b.id
+    WHERE a.cliente_id = ?
+    ORDER BY a.inicio DESC
+    `;
+
+    db.all(query, [cliente_id], (err, rows) => {
+      if (err){
+         return res.status(500).json({ error: 'Erro ao buscar atividades' });
+      }
+      return res.json(rows);
+    });
+  }
 }
