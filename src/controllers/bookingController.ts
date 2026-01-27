@@ -1,39 +1,40 @@
-import { Request, Response } from 'express';
-import { db } from '../database/sqlite';
+import { Request, Response } from 'express'
+import { bookingService } from '../services/bookingService'
 
-export class BookingController {
-  async enroll(req: Request, res: Response) {
-    const { id } = req.params; 
-    const { cliente_id } = req.body; 
+export const bookingController = {
+  async criar(req: Request, res: Response) {
+    try {
+      const agendamento = await bookingService.criarAgendamento(req.body)
+      res.status(201).json(agendamento)
+    } catch (err: any) {
+      res.status(400).json({ error: err.message })
+    }
+  },
 
-    // Verify if the slot is still available
-    db.get('SELECT * FROM vagas WHERE id = ?', [id], (err, vaga: any) => {
-      if (err) return res.status(500).json({ error: 'Erro no banco de dados' });
-      if (!vaga) return res.status(404).json({ error: 'Vaga não encontrada' });
-      
-      if (vaga.status !== 'DISPONIVEL') {
-        return res.status(400).json({ error: 'Este horário não está mais disponível.' });
-      }
+  async listar(req: Request, res: Response) {
+    try {
+      const agendamentos = await bookingService.listarAgendamentos()
+      res.json(agendamentos)
+    } catch (err: any) {
+      res.status(500).json({ error: err.message })
+    }
+  },
 
-      const queryAgendamento = `
-        INSERT INTO agendamentos (cliente_id, barbeiro_id, inicio, fim, status)
-        VALUES (?, ?, ?, ?, 'AGENDADO')
-      `;
+  async cancelar(req: Request, res: Response) {
+    try {
+      await bookingService.cancelarAgendamento(Number(req.params.id))
+      res.status(204).send()
+    } catch (err: any) {
+      res.status(400).json({ error: err.message })
+    }
+  },
 
-      db.run(queryAgendamento, [cliente_id, vaga.barbeiro_id, vaga.inicio, vaga.fim], function(err) {
-        if (err) return res.status(500).json({ error: 'Erro ao criar agendamento' });
-
-        const agendamentoId = this.lastID;
-
-        db.run(`UPDATE vagas SET status = 'RESERVADO' WHERE id = ?`, [id], (err) => {
-          if (err) console.error('Erro ao atualizar status da vaga', err);
-        });
-
-        return res.status(201).json({ 
-          message: 'Inscrição/Agendamento realizado com sucesso!',
-          bookingId: agendamentoId
-        });
-      });
-    });
-  }
+  async concluir(req: Request, res: Response) {
+    try {
+      await bookingService.concluirAgendamento(Number(req.params.id))
+      res.status(204).send()
+    } catch (err: any) {
+      res.status(400).json({ error: err.message })
+    }
+  },
 }
