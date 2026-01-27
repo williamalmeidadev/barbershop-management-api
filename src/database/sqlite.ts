@@ -3,7 +3,7 @@ import path from 'path'
 
 sqlite3.verbose()
 
-const dbPath = path.resolve(__dirname, '../../barbershop.db')
+const dbPath = path.resolve(__dirname, '../../database.sqlite')
 
 export const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
