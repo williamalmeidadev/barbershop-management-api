@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "cross-env NODE_ENV=test mocha -r ts-node/register tests/**/*.test.ts",
-    "test:coverage": "nyc npm test"
+    "test:coverage": "nyc npm test",
+    "test:file": "cross-env NODE_ENV=test mocha -r ts-node/register"
   },
   "repository": {
     "type": "git",

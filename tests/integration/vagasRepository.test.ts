@@ -1,9 +1,9 @@
 import { expect } from 'chai'
 import { db } from '../../src/database/sqlite' 
-import { slotRepository } from '../../src/repositories/slotRepository'
-import { SlotStatus } from '../../src/interfaces/slot'
+import { vagasRepository } from '../../src/repositories/vagasRepository' 
+import { StatusVaga } from '../../src/interfaces/vaga' 
 
-describe('SlotRepository (Integração)', () => {
+describe('VagasRepository (Integração)', () => {
     
     before(() => {
         if (process.env.NODE_ENV !== 'test') {
@@ -22,6 +22,7 @@ describe('SlotRepository (Integração)', () => {
                     CREATE TABLE barbeiros (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nome_profissional TEXT UNIQUE NOT NULL,
+                        bio TEXT,
                         ativo INTEGER DEFAULT 1
                     )
                 `)
@@ -45,48 +46,60 @@ describe('SlotRepository (Integração)', () => {
         })
     })
 
-    describe('createSlotsForBarbeiro', () => {
-        it('deve inserir slots no banco de dados', async () => {
-            await slotRepository.createSlotsForBarbeiro(1, '2026-02-01', '10:00', '12:00', 60)
+    describe('criarVagasParaBarbeiro', () => {
+        it('deve inserir vagas no banco de dados', async () => {
+            await vagasRepository.criarVagasParaBarbeiro(1, '2026-02-01', '10:00', '12:00', 60)
 
-            const slots = await slotRepository.findTodosByBarbeiroEData(1, '2026-02-01')
+            const vagas = await vagasRepository.buscarTodasPorBarbeiroEData(1, '2026-02-01')
             
-            expect(slots).to.have.lengthOf(2)
-            expect(slots[0].inicio).to.include('10:00')
-            expect(slots[0].status).to.equal(SlotStatus.DISPONIVEL)
+            expect(vagas).to.have.lengthOf(2)
+            expect(vagas[0].inicio).to.include('10:00')
+            expect(vagas[0].status).to.equal(StatusVaga.DISPONIVEL)
         })
     })
 
-    describe('updateStatusLote', () => {
-        it('deve atualizar o status de múltiplos slots', async () => {
+    describe('atualizarStatusLote', () => {
+        it('deve atualizar o status de múltiplas vagas', async () => {
             await new Promise<void>((resolve) => {
                 db.run(`INSERT INTO vagas (barbeiro_id, inicio, fim, status) VALUES 
                     (1, '2026-02-01T10:00:00.000Z', '2026-02-01T10:30:00.000Z', 'DISPONIVEL')`, resolve)
             })
 
-            const slots = await slotRepository.findTodosByBarbeiroEData(1, '2026-02-01')
-            const idParaAtualizar = slots[0].id
+            const vagas = await vagasRepository.buscarTodasPorBarbeiroEData(1, '2026-02-01')
+            const idParaAtualizar = vagas[0].id
 
-            await slotRepository.updateStatusLote([idParaAtualizar], SlotStatus.RESERVADO)
+            await vagasRepository.atualizarStatusLote([idParaAtualizar], StatusVaga.RESERVADO)
 
-            const slotsAtualizados = await slotRepository.findTodosByBarbeiroEData(1, '2026-02-01')
-            expect(slotsAtualizados[0].status).to.equal(SlotStatus.RESERVADO)
+            const vagasAtualizadas = await vagasRepository.buscarTodasPorBarbeiroEData(1, '2026-02-01')
+            expect(vagasAtualizadas[0].status).to.equal(StatusVaga.RESERVADO)
         })
     })
 
     describe('bloquearIntervalo', () => {
-        it('deve atualizar o status de múltiplos slots para Bloqueado', async () => {
+        it('deve atualizar o status de vagas para Bloqueado', async () => {
             await new Promise<void>((resolve) => {
                 db.run(`INSERT INTO vagas (barbeiro_id, inicio, fim, status) VALUES 
                     (1, '2026-02-01T10:00:00.000Z', '2026-02-01T10:30:00.000Z', 'DISPONIVEL')`, resolve)
             })
 
-            const slots = await slotRepository.findTodosByBarbeiroEData(1, '2026-02-01')
-
-            await slotRepository.bloquearIntervalo(1, '2026-02-01T10:00:00.000Z', '2026-02-01T10:30:00.000Z')
+            await vagasRepository.bloquearIntervalo(1, '2026-02-01T10:00:00.000Z', '2026-02-01T10:30:00.000Z')
             
-            const slotsAtualizados = await slotRepository.findTodosByBarbeiroEData(1, '2026-02-01')
-            expect(slotsAtualizados[0].status).to.equal(SlotStatus.BLOQUEADO)
+            const vagasAtualizadas = await vagasRepository.buscarTodasPorBarbeiroEData(1, '2026-02-01')
+            expect(vagasAtualizadas[0].status).to.equal(StatusVaga.BLOQUEADO)
+        })
+    })
+
+    describe('Cenários de Erro', () => {
+        it('deve lançar erro ao tentar criar vagas se a tabela não existir', async () => {
+            // Sabotagem
+            await new Promise<void>((resolve) => db.run("DROP TABLE vagas", () => resolve()))
+
+            try {
+                await vagasRepository.criarVagasParaBarbeiro(1, '2026-02-01', '10:00', '11:00', 60)
+                expect.fail('Deveria ter falhado')
+            } catch (err: any) {
+                expect(err).to.exist
+            }
         })
     })
 })
