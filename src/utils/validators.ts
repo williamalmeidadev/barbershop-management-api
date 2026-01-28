@@ -37,3 +37,8 @@ export function getMissingFields(  //funcao que verifica se tem campos obrigator
 
   return missing;
 }
+
+export function isIsoWithTimezone(value: string): boolean {
+  const isoTzRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[+-]\d{2}:\d{2})$/;
+  return isoTzRegex.test(value);
+}
