@@ -22,19 +22,28 @@ export const bookingController = {
 
   async cancelar(req: Request, res: Response) {
     try {
-      await bookingService.cancelarAgendamento(Number(req.params.id))
-      res.status(204).send()
+      const agendamento = await bookingService.cancelarAgendamento(Number(req.params.id))
+      res.status(200).json(agendamento)
     } catch (err: any) {
-      res.status(400).json({ error: err.message })
+      const status =
+        err.message?.includes('não encontrado') ? 404 :
+        err.message?.includes('já') ? 409 :
+        400
+      res.status(status).json({ error: err.message })
     }
   },
 
   async concluir(req: Request, res: Response) {
     try {
-      await bookingService.concluirAgendamento(Number(req.params.id))
-      res.status(204).send()
+      const { concluido_em } = req.body
+      const agendamento = await bookingService.concluirAgendamento(Number(req.params.id), concluido_em)
+      res.status(200).json(agendamento)
     } catch (err: any) {
-      res.status(400).json({ error: err.message })
+      const status =
+        err.message?.includes('não encontrado') ? 404 :
+        err.message?.includes('já') ? 409 :
+        400
+      res.status(status).json({ error: err.message })
     }
   },
 }

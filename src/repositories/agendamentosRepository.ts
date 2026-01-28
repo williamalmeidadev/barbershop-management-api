@@ -3,6 +3,15 @@ import { db } from '../database/sqlite'
 import { Vaga } from '../interfaces/vaga'
 
 export const agendamentosRepository = {
+  async buscarAgendamentoPorId(id: number): Promise<Agendamento | null> {
+    return await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM agendamentos WHERE id = ?', [id], (err, row) => {
+        if (err) return reject(err)
+        resolve((row as Agendamento) ?? null)
+      })
+    })
+  },
+
   async criarAgendamento(payload: {
     cliente_id: number,
     barbeiro_id: number,
@@ -60,29 +69,30 @@ export const agendamentosRepository = {
         resolve(rows as Agendamento[])
       })
     })
-    for (const agendamento of agendamentos) {
-      agendamento.servicos = await new Promise((resolve, reject) => {
-        db.all(
-          'SELECT servico_id, preco_centavos, duracao_minutos FROM agendamento_servicos WHERE agendamento_id = ?',
-          [agendamento.id],
-          (err, rows) => {
-            if (err) return reject(err)
-            resolve(rows as ServicoAgendamento[])
-          }
-        )
-      })
-      agendamento.vagas = await new Promise((resolve, reject) => {
-        db.all(
-          'SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?',
-          [agendamento.id],
-          (err, rows) => {
-            if (err) return reject(err)
-            resolve(rows.map((r: any) => r.vaga_id))
-          }
-        )
-      })
-    }
-    return agendamentos
+    return await hydrateAgendamentos(agendamentos)
+  },
+
+  async buscarAgendamentoCompleto(id: number): Promise<Agendamento | null> {
+    const agendamento = await this.buscarAgendamentoPorId(id)
+    if (!agendamento) return null
+    const completos = await hydrateAgendamentos([agendamento])
+    return completos[0] ?? null
+  },
+
+  async buscarVagasDoAgendamento(id: number): Promise<Vaga[]> {
+    return await new Promise((resolve, reject) => {
+      db.all(
+        `SELECT v.* FROM vagas v
+         INNER JOIN agendamento_vagas av ON av.vaga_id = v.id
+         WHERE av.agendamento_id = ?
+         ORDER BY v.inicio ASC`,
+        [id],
+        (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows as Vaga[])
+        }
+      )
+    })
   },
 
   async cancelarAgendamento(id: number): Promise<void> {
@@ -129,4 +139,30 @@ export const agendamentosRepository = {
       )
     })
   },
+}
+
+async function hydrateAgendamentos(agendamentos: Agendamento[]): Promise<Agendamento[]> {
+  for (const agendamento of agendamentos) {
+    agendamento.servicos = await new Promise((resolve, reject) => {
+      db.all(
+        'SELECT servico_id, preco_centavos, duracao_minutos FROM agendamento_servicos WHERE agendamento_id = ?',
+        [agendamento.id],
+        (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows as ServicoAgendamento[])
+        }
+      )
+    })
+    agendamento.vagas = await new Promise((resolve, reject) => {
+      db.all(
+        'SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?',
+        [agendamento.id],
+        (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows.map((r: any) => r.vaga_id))
+        }
+      )
+    })
+  }
+  return agendamentos
 }
