@@ -2,7 +2,7 @@ import { Agendamento, StatusAgendamento, ServicoAgendamento } from '../interface
 import { db } from '../database/sqlite'
 import { Vaga } from '../interfaces/vaga'
 
-export const bookingRepository = {
+export const agendamentosRepository = {
   async criarAgendamento(payload: {
     cliente_id: number,
     barbeiro_id: number,
@@ -24,11 +24,11 @@ export const bookingRepository = {
   },
 
   async adicionarServicosAoAgendamento(agendamentoId: number, servicos: any[]): Promise<void> {
-    for (const s of servicos) {
+    for (const servico of servicos) {
       await new Promise<void>((resolve, reject) => {
         db.run(
           `INSERT INTO agendamento_servicos (agendamento_id, servico_id, preco_centavos, duracao_minutos) VALUES (?, ?, ?, ?)`,
-          [agendamentoId, s.id, s.preco_centavos, s.duracao_minutos],
+          [agendamentoId, servico.id, servico.preco_centavos, servico.duracao_minutos],
           err => {
             if (err) return reject(err)
             resolve()
@@ -53,7 +53,7 @@ export const bookingRepository = {
     }
   },
 
-  async listarAgendamentosComServicosESlots(): Promise<Agendamento[]> {
+  async listarAgendamentosComServicosEVagas(): Promise<Agendamento[]> {
     const agendamentos: Agendamento[] = await new Promise((resolve, reject) => {
       db.all('SELECT * FROM agendamentos', [], (err, rows) => {
         if (err) return reject(err)
@@ -86,18 +86,18 @@ export const bookingRepository = {
   },
 
   async cancelarAgendamento(id: number): Promise<void> {
-    const slotIds: number[] = await new Promise((resolve, reject) => {
+    const vagaIds: number[] = await new Promise((resolve, reject) => {
       db.all('SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?', [id], (err, rows) => {
         if (err) return reject(err)
         resolve(rows.map((r: any) => r.vaga_id))
       })
     })
-    if (slotIds.length) {
+    if (vagaIds.length) {
       await new Promise<void>((resolve, reject) => {
-        const placeholders = slotIds.map(() => '?').join(',')
+        const placeholders = vagaIds.map(() => '?').join(',')
         db.run(
           `UPDATE vagas SET status = 'DISPONIVEL' WHERE id IN (${placeholders})`,
-          slotIds,
+          vagaIds,
           err => {
             if (err) return reject(err)
             resolve()

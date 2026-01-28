@@ -3,7 +3,7 @@ import { db } from '../database/sqlite'
 
 export const vagasRepository = {
 
-  async findVagasByIds(ids: number[]): Promise<Vaga[]> {
+  async buscarVagasPorIds(ids: number[]): Promise<Vaga[]> {
     if (!ids.length) return []
     const placeholders = ids.map(() => '?').join(',')
     return await new Promise<Vaga[]>((resolve, reject) => {
@@ -18,11 +18,11 @@ export const vagasRepository = {
     })
   },
 
-  async verificarAgendamentoNoSlot(slotId: number): Promise<boolean> {
+  async verificarAgendamentoNaVaga(vagaId: number): Promise<boolean> {
     return await new Promise<boolean>((resolve, reject) => {
       db.get(
         `SELECT 1 FROM agendamento_vagas WHERE vaga_id = ?`,
-        [slotId],
+        [vagaId],
         (err, row) => {
           if (err) return reject(err)
           resolve(!!row)
@@ -31,11 +31,11 @@ export const vagasRepository = {
     })
   },
 
-  async apagarSlot(slotId: number): Promise<boolean> {
+  async apagarVaga(vagaId: number): Promise<boolean> {
     return await new Promise<boolean>((resolve, reject) => {
       db.run(
         `DELETE FROM vagas WHERE id = ?`,
-        [slotId],
+        [vagaId],
         function (err) {
           if (err) return reject(err)
           resolve(this.changes > 0)
@@ -43,7 +43,7 @@ export const vagasRepository = {
       )
     })
   },
-  async findTodosByBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
+  async buscarTodasPorBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
     const inicioDia = `${data}T00:00:00.000Z`
     const proximoDia = new Date(inicioDia)
     proximoDia.setUTCDate(proximoDia.getUTCDate() + 1)
@@ -59,7 +59,7 @@ export const vagasRepository = {
     })
   },
 
-  async createVagasForBarbeiro(barbeiroId: number, data: string, inicioExpediente: string, fimExpediente: string, duracaoVaga: number): Promise<Vaga[]> {
+  async criarVagasParaBarbeiro(barbeiroId: number, data: string, inicioExpediente: string, fimExpediente: string, duracaoVaga: number): Promise<Vaga[]> {
     const vagas: Vaga[] = []
     const [ano, mes, dia] = data.split('-').map(Number)
     const [hIni, mIni] = inicioExpediente.split(':').map(Number)
@@ -103,10 +103,10 @@ export const vagasRepository = {
       })
       atual = vagaFim
     }
-    return this.findDisponiveisByBarbeiroEData(barbeiroId, data)
+    return this.buscarDisponiveisPorBarbeiroEData(barbeiroId, data)
   },
 
-  async findDisponiveisByBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
+  async buscarDisponiveisPorBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
     const inicioDia = `${data}T00:00:00.000Z`
     const proximoDia = new Date(inicioDia)
     proximoDia.setUTCDate(proximoDia.getUTCDate() + 1)
@@ -122,7 +122,7 @@ export const vagasRepository = {
     })
   },
 
-  async findSlotsConsecutivos(barbeiroId: number, inicio: string, quantidade: number): Promise<Vaga[]> {
+  async buscarVagasConsecutivas(barbeiroId: number, inicio: string, quantidade: number): Promise<Vaga[]> {
     return await new Promise<Vaga[]>((resolve, reject) => {
       db.all(
         `SELECT * FROM vagas WHERE barbeiro_id = ? AND inicio >= ? AND status = 'DISPONIVEL' ORDER BY inicio ASC LIMIT ?`,
@@ -135,13 +135,13 @@ export const vagasRepository = {
     })
   },
 
-  async updateStatusLote(slotIds: number[], status: StatusVaga): Promise<void> {
-    if (!slotIds.length) return
+  async atualizarStatusLote(vagaIds: number[], status: StatusVaga): Promise<void> {
+    if (!vagaIds.length) return
     await new Promise<void>((resolve, reject) => {
-      const placeholders = slotIds.map(() => '?').join(',')
+      const placeholders = vagaIds.map(() => '?').join(',')
       db.run(
         `UPDATE vagas SET status = ? WHERE id IN (${placeholders})`,
-        [status, ...slotIds],
+        [status, ...vagaIds],
         err => {
           if (err) return reject(err)
           resolve()
@@ -173,13 +173,13 @@ export const vagasRepository = {
     })
   },
 
-  async liberarSlots(slotIds: number[]): Promise<Vaga[]> {
-    if (!slotIds.length) return []
+  async liberarVagas(vagaIds: number[]): Promise<Vaga[]> {
+    if (!vagaIds.length) return []
     await new Promise<void>((resolve, reject) => {
-      const placeholders = slotIds.map(() => '?').join(',')
+      const placeholders = vagaIds.map(() => '?').join(',')
       db.run(
         `UPDATE vagas SET status = 'DISPONIVEL' WHERE id IN (${placeholders})`,
-        slotIds,
+        vagaIds,
         err => {
           if (err) return reject(err)
           resolve()
@@ -187,10 +187,10 @@ export const vagasRepository = {
       )
     })
     return await new Promise<Vaga[]>((resolve, reject) => {
-      const placeholders = slotIds.map(() => '?').join(',')
+      const placeholders = vagaIds.map(() => '?').join(',')
       db.all(
         `SELECT * FROM vagas WHERE id IN (${placeholders})`,
-        slotIds,
+        vagaIds,
         (err, rows) => {
           if (err) return reject(err)
           resolve(rows as Vaga[])

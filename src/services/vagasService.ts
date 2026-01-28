@@ -89,7 +89,7 @@ export const vagasService = {
     // Início da transação
     const sqlite3 = require('sqlite3')
     const db = require('../database/sqlite').db
-    return await new Promise<Slot[] | null>((resolve, reject) => {
+    return await new Promise<Vaga[] | null>((resolve, reject) => {
       db.serialize(async () => {
         db.run('BEGIN TRANSACTION')
         try {
@@ -145,7 +145,7 @@ export const vagasService = {
           return reject(err)
         }
       })
-        },
+    })
   },
 
   async bloquearHorario(barbeiroId: number, inicio: string, fim: string, motivo?: string): Promise<Vaga[]> {

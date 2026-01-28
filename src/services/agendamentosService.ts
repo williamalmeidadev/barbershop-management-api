@@ -1,7 +1,7 @@
 import { Agendamento, StatusAgendamento, CriarAgendamentoPayload, ServicoAgendamento } from '../interfaces/agendamento'
 import { servicoService } from './servicosService'
 import { vagasService } from './vagasService'
-import { bookingRepository } from '../repositories/agendamentosRepository'
+import { agendamentosRepository } from '../repositories/agendamentosRepository'
 
 export const bookingService = {
   async criarAgendamento(payload: CriarAgendamentoPayload): Promise<Agendamento> {
@@ -27,7 +27,7 @@ export const bookingService = {
     }
     const inicio = vagas[0].inicio
     const fim = vagas[vagas.length - 1].fim
-    const agendamentoId = await bookingRepository.criarAgendamento({
+    const agendamentoId = await agendamentosRepository.criarAgendamento({
       cliente_id: payload.cliente_id,
       barbeiro_id: payload.barbeiro_id,
       inicio,
@@ -35,8 +35,8 @@ export const bookingService = {
       status: StatusAgendamento.AGENDADO,
       valor_total_centavos: valorTotal
     })
-    await bookingRepository.adicionarServicosAoAgendamento(agendamentoId, servicos)
-    await bookingRepository.adicionarVagasAoAgendamento(agendamentoId, vagas)
+    await agendamentosRepository.adicionarServicosAoAgendamento(agendamentoId, servicos)
+    await agendamentosRepository.adicionarVagasAoAgendamento(agendamentoId, vagas)
     return {
       id: agendamentoId,
       cliente_id: payload.cliente_id,
@@ -57,17 +57,17 @@ export const bookingService = {
 
 
   async listarAgendamentos(): Promise<Agendamento[]> {
-    return bookingRepository.listarAgendamentosComServicosEVagas()
+    return agendamentosRepository.listarAgendamentosComServicosEVagas()
   },
 
 
   async cancelarAgendamento(id: number): Promise<void> {
     if (!id) throw new Error('O id do agendamento é obrigatório.')
-    await bookingRepository.cancelarAgendamento(id)
+    await agendamentosRepository.cancelarAgendamento(id)
   },
 
   async concluirAgendamento(id: number): Promise<void> {
     if (!id) throw new Error('O id do agendamento é obrigatório.')
-    await bookingRepository.concluirAgendamento(id)
+    await agendamentosRepository.concluirAgendamento(id)
   },
 }
