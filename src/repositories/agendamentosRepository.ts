@@ -143,6 +143,16 @@ export const agendamentosRepository = {
 
 async function hydrateAgendamentos(agendamentos: Agendamento[]): Promise<Agendamento[]> {
   for (const agendamento of agendamentos) {
+    agendamento.barbeiro = await new Promise((resolve, reject) => {
+      db.get(
+        'SELECT id, nome_profissional, bio FROM barbeiros WHERE id = ?',
+        [agendamento.barbeiro_id],
+        (err, row) => {
+          if (err) return reject(err)
+          resolve((row as any) ?? null)
+        }
+      )
+    })
     agendamento.servicos = await new Promise((resolve, reject) => {
       db.all(
         `SELECT 
