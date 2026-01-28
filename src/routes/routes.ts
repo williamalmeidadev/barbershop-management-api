@@ -11,7 +11,8 @@ routes.get('/teste', (_, res) => {
 
 routes.use('/clientes', clienteRoutes);
 
-routes.use('/agendamentos', bookingRoutes)
-routes.use(slotRoutes)
+routes.use('/agendamentos', bookingRoutes);
+
+routes.use('/vagas', slotRoutes);
 
 export default routes
