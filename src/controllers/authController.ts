@@ -13,28 +13,46 @@ export class AuthController {
       return res.status(400).json({ error: 'Email e senha são obrigatórios.' })
     }
 
-    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user: any) => {
-      if (err) return res.status(500).json({ error: 'Erro interno no servidor.' })
-      if (!user) return res.status(401).json({ error: 'Credenciais inválidas.' }) 
+    db.get(
+      'SELECT * FROM clientes WHERE email = ?',
+      [email],
+      async (err, user: any) => {
+        if (err) {
+          return res.status(500).json({ error: 'Erro interno no servidor.' })
+        }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password_hash)
-      
-      if (!isPasswordValid && password !== user.password_hash) {
-         return res.status(401).json({ error: 'Credenciais inválidas.' })
+        if (!user) {
+          return res.status(401).json({ error: 'Credenciais inválidas.' })
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+          password,
+          user.password_hash
+        )
+
+        if (!isPasswordValid) {
+          return res.status(401).json({ error: 'Credenciais inválidas.' })
+        }
+
+        const token = jwt.sign(
+          {
+            id: user.id,
+            email: user.email,
+            role: 'CLIENT'
+          },
+          SECRET_KEY,
+          { expiresIn: '1d' }
+        )
+
+        return res.status(200).json({
+          user: {
+            id: user.id,
+            email: user.email,
+            role: 'CLIENT'
+          },
+          token
+        })
       }
-
-      const role = 'Cliente';
-
-      const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        SECRET_KEY,
-        { expiresIn: '1d' }
-      )
-
-      return res.json({
-        user: { id: user.id, email: user.email, role: user.role },
-        token
-      })
-    })
+    )
   }
 }
