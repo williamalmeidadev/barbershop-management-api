@@ -90,4 +90,66 @@ describe('VagasService (Unitário)', () => {
             expect(updateStub.called).to.be.false 
         })
     })
+
+    describe('apagarVagaComValidacao', () => {
+        it('NÃO deve apagar a vaga se existir um agendamento vinculado (Regra de Integridade)', async () => {
+            const checkStub = sandbox.stub(vagasRepository, 'verificarAgendamentoNaVaga').resolves(true)
+            
+            const deleteStub = sandbox.stub(vagasRepository, 'apagarVaga').resolves(true)
+
+            const resultado = await vagasService.apagarVagaComValidacao(99)
+
+            expect(resultado.success).to.be.false
+            expect(resultado.message).to.include('existe agendamento')
+            
+            expect(checkStub.calledOnce).to.be.true
+            expect(deleteStub.called).to.be.false 
+        })
+
+        it('deve apagar a vaga se estiver livre', async () => {
+            sandbox.stub(vagasRepository, 'verificarAgendamentoNaVaga').resolves(false)
+            
+            sandbox.stub(vagasRepository, 'buscarVagasPorIds').resolves([
+                { id: 99, barbeiro_id: 1, inicio: '...', fim: '...', status: StatusVaga.DISPONIVEL }
+            ])
+            
+            const deleteStub = sandbox.stub(vagasRepository, 'apagarVaga').resolves(true)
+
+            const resultado = await vagasService.apagarVagaComValidacao(99)
+
+            expect(resultado.success).to.be.true
+            expect(deleteStub.calledOnce).to.be.true
+        })
+    })
+
+    describe('gerarAgendaDoDia', () => {
+        it('deve lançar erro se o horário de início for maior que o fim (Validação Lógica)', async () => {
+            try {
+                // Tentando criar agenda das 18:00 às 08:00 (Invertido)
+                await vagasService.gerarAgendaDoDia(1, '2026-02-01', '18:00', '08:00', 30)
+                expect.fail('Deveria ter lançado erro')
+            } catch (err: any) {
+                expect(err.message).to.include('início do expediente deve ser antes do fim')
+            }
+        })
+
+        it('deve lançar erro se o formato de hora for inválido (Validação Regex)', async () => {
+            try {
+                // Passando "8 horas" em vez de "08:00"
+                await vagasService.gerarAgendaDoDia(1, '2026-02-01', '8 horas', '18:00', 30)
+                expect.fail('Deveria ter lançado erro')
+            } catch (err: any) {
+                expect(err.message).to.include('Horário inválido')
+            }
+        })
+
+        it('deve chamar o repositório para criar vagas se tudo estiver correto', async () => {
+            const createStub = sandbox.stub(vagasRepository, 'criarVagasParaBarbeiro').resolves([])
+
+            await vagasService.gerarAgendaDoDia(1, '2026-02-01', '08:00', '12:00', 30)
+
+            expect(createStub.calledOnce).to.be.true
+            expect(createStub.calledWith(1, '2026-02-01', '08:00', '12:00', 30)).to.be.true
+        })
+    })
 })
