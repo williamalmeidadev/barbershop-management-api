@@ -93,6 +93,7 @@ export function initDatabase() {
         barbeiro_id INTEGER NOT NULL,
         inicio DATETIME NOT NULL,
         fim DATETIME NOT NULL,
+        concluido_em DATETIME,
         status TEXT NOT NULL DEFAULT 'AGENDADO'
           CHECK (status IN ('AGENDADO','CANCELADO','CONCLUIDO')),
         valor_total_centavos INTEGER NOT NULL DEFAULT 0,

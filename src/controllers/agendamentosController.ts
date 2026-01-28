@@ -35,7 +35,7 @@ export const bookingController = {
 
   async concluir(req: Request, res: Response) {
     try {
-      const { concluido_em } = req.body
+      const { concluido_em } = req.body ?? {}
       const agendamento = await bookingService.concluirAgendamento(Number(req.params.id), concluido_em)
       res.status(200).json(agendamento)
     } catch (err: any) {
