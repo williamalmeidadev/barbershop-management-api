@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "mocha -r ts-node/register tests/**/*.test.ts",
+    "test": "cross-env NODE_ENV=test mocha -r ts-node/register tests/**/*.test.ts",
     "test:coverage": "nyc npm test"
   },
   "repository": {
@@ -37,6 +37,7 @@
     "@types/node": "^25.0.10",
     "@types/sinon": "^21.0.0",
     "chai": "^6.2.2",
+    "cross-env": "^10.1.0",
     "mocha": "^11.7.5",
     "nyc": "^17.1.0",
     "sinon": "^21.0.1",

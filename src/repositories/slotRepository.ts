@@ -20,8 +20,8 @@ export const slotRepository = {
 
   async createSlotsForBarbeiro(barbeiroId: number, data: string, inicioExpediente: string, fimExpediente: string, duracaoSlot: number): Promise<Slot[]> {
     const slots: Slot[] = []
-    const start = new Date(`${data}T${inicioExpediente}`)
-    const end = new Date(`${data}T${fimExpediente}`)
+    const start = new Date(`${data}T${inicioExpediente}:00.000Z`)
+    const end = new Date(`${data}T${fimExpediente}:00.000Z`)
     let atual = new Date(start)
     while (atual < end) {
       const slotInicio = new Date(atual)
