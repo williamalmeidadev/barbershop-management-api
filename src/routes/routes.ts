@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import clienteRoutes from './clienteRoutes'
-import slotRoutes from './slotRoutes'
-import bookingRoutes from './bookingRoutes'
+import slotRoutes from './vagasRoutes'
+import bookingRoutes from './agendamentosRotas'
 
 const routes = Router()
 

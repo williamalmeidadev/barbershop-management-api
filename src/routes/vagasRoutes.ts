@@ -1,6 +1,6 @@
 
 import { Router } from 'express'
-import { slotController } from '../controllers/slotController'
+import { slotController } from '../controllers/vagasController'
 
 const router = Router()
 

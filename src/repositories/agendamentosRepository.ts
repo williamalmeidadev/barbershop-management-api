@@ -1,6 +1,6 @@
-import { Booking, BookingStatus, BookingService } from '../interfaces/booking'
+import { Agendamento, StatusAgendamento, ServicoAgendamento } from '../interfaces/agendamento'
 import { db } from '../database/sqlite'
-import { Slot } from '../interfaces/slot'
+import { Vaga } from '../interfaces/vaga'
 
 export const bookingRepository = {
   async criarAgendamento(payload: {
@@ -8,7 +8,7 @@ export const bookingRepository = {
     barbeiro_id: number,
     inicio: string,
     fim: string,
-    status: BookingStatus,
+    status: StatusAgendamento,
     valor_total_centavos: number
   }): Promise<number> {
     return await new Promise<number>((resolve, reject) => {
@@ -38,12 +38,12 @@ export const bookingRepository = {
     }
   },
 
-  async adicionarSlotsAoAgendamento(agendamentoId: number, slots: Slot[]): Promise<void> {
-    for (const slot of slots) {
+  async adicionarVagasAoAgendamento(agendamentoId: number, vagas: Vaga[]): Promise<void> {
+    for (const vaga of vagas) {
       await new Promise<void>((resolve, reject) => {
         db.run(
           `INSERT INTO agendamento_vagas (agendamento_id, vaga_id) VALUES (?, ?)`,
-          [agendamentoId, slot.id],
+          [agendamentoId, vaga.id],
           err => {
             if (err) return reject(err)
             resolve()
@@ -53,11 +53,11 @@ export const bookingRepository = {
     }
   },
 
-  async listarAgendamentosComServicosESlots(): Promise<Booking[]> {
-    const agendamentos: Booking[] = await new Promise((resolve, reject) => {
+  async listarAgendamentosComServicosESlots(): Promise<Agendamento[]> {
+    const agendamentos: Agendamento[] = await new Promise((resolve, reject) => {
       db.all('SELECT * FROM agendamentos', [], (err, rows) => {
         if (err) return reject(err)
-        resolve(rows as Booking[])
+        resolve(rows as Agendamento[])
       })
     })
     for (const agendamento of agendamentos) {
@@ -67,11 +67,11 @@ export const bookingRepository = {
           [agendamento.id],
           (err, rows) => {
             if (err) return reject(err)
-            resolve(rows as BookingService[])
+            resolve(rows as ServicoAgendamento[])
           }
         )
       })
-      agendamento.slots = await new Promise((resolve, reject) => {
+      agendamento.vagas = await new Promise((resolve, reject) => {
         db.all(
           'SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?',
           [agendamento.id],
@@ -108,7 +108,7 @@ export const bookingRepository = {
     await new Promise<void>((resolve, reject) => {
       db.run(
         `UPDATE agendamentos SET status = ? WHERE id = ?`,
-        [BookingStatus.CANCELADO, id],
+        [StatusAgendamento.CANCELADO, id],
         err => {
           if (err) return reject(err)
           resolve()
@@ -121,7 +121,7 @@ export const bookingRepository = {
     await new Promise<void>((resolve, reject) => {
       db.run(
         `UPDATE agendamentos SET status = ? WHERE id = ?`,
-        [BookingStatus.CONCLUIDO, id],
+        [StatusAgendamento.CONCLUIDO, id],
         err => {
           if (err) return reject(err)
           resolve()

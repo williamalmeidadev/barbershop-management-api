@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { bookingService } from '../services/bookingService'
+import { bookingService } from '../services/agendamentosService'
 
 export const bookingController = {
   async criar(req: Request, res: Response) {
