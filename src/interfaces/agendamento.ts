@@ -13,6 +13,8 @@ export interface Agendamento {
   fim: string;
   concluido_em?: string | null;
   status: StatusAgendamento;
+  valor_original_centavos: number;
+  desconto_aplicado_centavos: number;
   valor_total_centavos: number;
   created_at: string;
   servicos: ServicoAgendamento[];
