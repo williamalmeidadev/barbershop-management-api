@@ -29,7 +29,9 @@ export const vagasService = {
     if (!barbeiroId || !data) {
       throw new Error('barbeiroId e data são obrigatórios.')
     }
-    return vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, data)
+    const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, data)
+    const now = Date.now()
+    return vagas.filter(v => new Date(v.inicio).getTime() >= now)
   },
   async gerarAgendaDoDia(barbeiroId: number, data: string, inicioExpediente: string, fimExpediente: string, duracaoVaga: number): Promise<Vaga[]> {
     // Validações
@@ -71,6 +73,9 @@ export const vagasService = {
       throw new Error('horarioDesejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
     }
     const inicioDesejado = new Date(horarioDesejado)
+    if (inicioDesejado.getTime() < Date.now()) {
+      throw new Error('Não é possível buscar vagas no passado.')
+    }
     const dataUtc = getUtcDateString(inicioDesejado)
     const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, dataUtc)
     const vagasFiltradas = vagas.filter(s => new Date(s.inicio) >= inicioDesejado)
@@ -111,6 +116,9 @@ export const vagasService = {
     }
     if (!isIsoWithTimezone(inicioDesejado)) {
       throw new Error('inicioDesejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
+    }
+    if (new Date(inicioDesejado).getTime() < Date.now()) {
+      throw new Error('Não é possível reservar vagas no passado.')
     }
     const manageTransaction = options?.manageTransaction ?? true
     const reserva = async (): Promise<Vaga[] | null> => {
