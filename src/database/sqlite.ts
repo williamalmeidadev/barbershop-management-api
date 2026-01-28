@@ -3,11 +3,7 @@ import path from 'path'
 
 sqlite3.verbose()
 
-const isTest = process.env.NODE_ENV === 'test'
-
-const dbPath = isTest 
-  ? ':memory:' 
-  : path.resolve(__dirname, '../../database.sqlite')
+const dbPath = path.resolve(__dirname, '../../barbershop.db')
 
 export const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
