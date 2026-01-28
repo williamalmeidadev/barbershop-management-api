@@ -1,34 +1,45 @@
-async function register(email: string, password: string) {
-  const response = await fetch('http://localhost:3333/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email,
-      password,
-      role: 'CLIENT',
-    }),
-  });
+async function register(
+    nome: string,
+    email: string,
+    password: string,
+    telefone?: string
+) {
+    const response = await fetch('http://localhost:3333/clientes/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            nome,
+            email,
+            password,
+            telefone: telefone || null,
+        }),
+    });
 
-  if (!response.ok) {
-    throw new Error('Erro ao cadastrar');
-  }
+    if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Erro ao cadastrar');
+    }
 }
 
 const form = document.getElementById('register-form') as HTMLFormElement;
 const error = document.getElementById('error') as HTMLParagraphElement;
 
 form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const email = (document.getElementById('email') as HTMLInputElement).value;
-  const password = (document.getElementById('password') as HTMLInputElement).value;
+    const nome = (document.getElementById('nome') as HTMLInputElement).value;
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
+    const telefone = (document.getElementById('telefone') as HTMLInputElement)?.value;
 
-  try {
-    await register(email, password);
-    window.location.href = 'login.html';
-  } catch {
-    error.textContent = 'Erro no cadastro';
-  }
+    try {
+        await register(nome, email, password, telefone);
+        window.location.href = 'login.html';
+    } catch (err) {
+        error.textContent = err instanceof Error
+            ? err.message
+            : 'Erro no cadastro';
+    }
 });
