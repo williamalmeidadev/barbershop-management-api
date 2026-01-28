@@ -8,6 +8,7 @@ export interface Agendamento {
   id: number;
   cliente_id: number;
   barbeiro_id: number;
+  barbeiro?: BarbeiroResumo;
   inicio: string;
   fim: string;
   concluido_em?: string | null;
@@ -23,6 +24,12 @@ export interface VagaAgendamento {
   inicio: string;
   fim: string;
   status: string;
+}
+
+export interface BarbeiroResumo {
+  id: number;
+  nome_profissional: string;
+  bio: string | null;
 }
 
 export interface ServicoAgendamento {
