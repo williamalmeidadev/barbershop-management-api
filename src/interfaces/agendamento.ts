@@ -10,6 +10,7 @@ export interface Agendamento {
   barbeiro_id: number;
   inicio: string;
   fim: string;
+  concluido_em?: string | null;
   status: StatusAgendamento;
   valor_total_centavos: number;
   created_at: string;

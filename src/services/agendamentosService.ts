@@ -91,7 +91,7 @@ export const bookingService = {
     })
   },
 
-  async concluirAgendamento(id: number, concluidoEm?: string): Promise<Agendamento> {
+  async concluirAgendamento(id: number): Promise<Agendamento> {
     if (!id) throw new Error('O id do agendamento é obrigatório.')
     return runInTransaction(async () => {
       const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
@@ -104,25 +104,21 @@ export const bookingService = {
       if (agendamento.status === StatusAgendamento.CANCELADO) {
         throw new Error('Agendamento já cancelado.')
       }
-      if (concluidoEm) {
-        if (!isIsoWithTimezone(concluidoEm)) {
-          throw new Error('concluido_em deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
-        }
-        const concluidoDate = new Date(concluidoEm)
-        const inicioAgendamento = new Date(agendamento.inicio)
-        const fimAgendamento = new Date(agendamento.fim)
-        if (concluidoDate < inicioAgendamento) {
-          throw new Error('concluido_em não pode ser antes do início do agendamento.')
-        }
-        if (concluidoDate < fimAgendamento) {
-          const vagas = await agendamentosRepository.buscarVagasDoAgendamento(id)
-          const vagasLiberar = vagas.filter(v => new Date(v.inicio) >= concluidoDate).map(v => v.id)
-          if (vagasLiberar.length) {
-            await vagasService.liberarVagasDoAgendamento(vagasLiberar)
-          }
+      const concluidoEm = new Date().toISOString()
+      const concluidoDate = new Date(concluidoEm)
+      const inicioAgendamento = new Date(agendamento.inicio)
+      const fimAgendamento = new Date(agendamento.fim)
+      if (concluidoDate < inicioAgendamento) {
+        throw new Error('concluido_em não pode ser antes do início do agendamento.')
+      }
+      if (concluidoDate < fimAgendamento) {
+        const vagas = await agendamentosRepository.buscarVagasDoAgendamento(id)
+        const vagasLiberar = vagas.filter(v => new Date(v.inicio) >= concluidoDate).map(v => v.id)
+        if (vagasLiberar.length) {
+          await vagasService.liberarVagasDoAgendamento(vagasLiberar)
         }
       }
-      await agendamentosRepository.concluirAgendamento(id)
+      await agendamentosRepository.concluirAgendamento(id, concluidoEm)
       const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
       if (!atualizado) {
         throw new Error('Agendamento não encontrado.')

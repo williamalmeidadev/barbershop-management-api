@@ -127,11 +127,11 @@ export const agendamentosRepository = {
     })
   },
 
-  async concluirAgendamento(id: number): Promise<void> {
+  async concluirAgendamento(id: number, concluidoEm?: string): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       db.run(
-        `UPDATE agendamentos SET status = ? WHERE id = ?`,
-        [StatusAgendamento.CONCLUIDO, id],
+        `UPDATE agendamentos SET status = ?, concluido_em = ? WHERE id = ?`,
+        [StatusAgendamento.CONCLUIDO, concluidoEm ?? null, id],
         err => {
           if (err) return reject(err)
           resolve()
