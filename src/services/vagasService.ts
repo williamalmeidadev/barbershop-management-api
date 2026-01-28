@@ -78,7 +78,12 @@ export const vagasService = {
     return null
   },
 
-  async reservarVagasParaAgendamento(barbeiroId: number, inicioDesejado: string, duracaoMinutos: number): Promise<Vaga[] | null> {
+  async reservarVagasParaAgendamento(
+    barbeiroId: number,
+    inicioDesejado: string,
+    duracaoMinutos: number,
+    options?: { manageTransaction?: boolean }
+  ): Promise<Vaga[] | null> {
     // Validações
     if (!barbeiroId || !inicioDesejado || !duracaoMinutos) {
       throw new Error('Todos os campos são obrigatórios.')
@@ -86,12 +91,15 @@ export const vagasService = {
     if (duracaoMinutos <= 0) {
       throw new Error('A duração deve ser positiva.')
     }
+    const manageTransaction = options?.manageTransaction ?? true
     // Início da transação
     const sqlite3 = require('sqlite3')
     const db = require('../database/sqlite').db
     return await new Promise<Vaga[] | null>((resolve, reject) => {
       db.serialize(async () => {
-        db.run('BEGIN TRANSACTION')
+        if (manageTransaction) {
+          db.run('BEGIN TRANSACTION')
+        }
         try {
           const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, inicioDesejado.split('T')[0])
           const inicio = new Date(inicioDesejado)
@@ -109,7 +117,9 @@ export const vagasService = {
                 soma += getVagaDuration(vagasFiltradas[i])
               } else {
                 if (soma > 0 && soma < duracaoMinutos) {
-                  db.run('ROLLBACK')
+                  if (manageTransaction) {
+                    db.run('ROLLBACK')
+                  }
                   return resolve(null)
                 }
                 bloco = [vagasFiltradas[i]]
@@ -123,25 +133,35 @@ export const vagasService = {
                 ids,
                 async (err: any, rows: any[]) => {
                   if (err) {
-                    db.run('ROLLBACK')
+                    if (manageTransaction) {
+                      db.run('ROLLBACK')
+                    }
                     return reject(err)
                   }
                   if (rows.length !== ids.length) {
-                    db.run('ROLLBACK')
+                    if (manageTransaction) {
+                      db.run('ROLLBACK')
+                    }
                     return resolve(null)
                   }
                   await vagasRepository.atualizarStatusLote(ids, StatusVaga.RESERVADO)
-                  db.run('COMMIT')
+                  if (manageTransaction) {
+                    db.run('COMMIT')
+                  }
                   return resolve(bloco)
                 }
               )
               return
             }
           }
-          db.run('ROLLBACK')
+          if (manageTransaction) {
+            db.run('ROLLBACK')
+          }
           return resolve(null)
         } catch (err) {
-          db.run('ROLLBACK')
+          if (manageTransaction) {
+            db.run('ROLLBACK')
+          }
           return reject(err)
         }
       })

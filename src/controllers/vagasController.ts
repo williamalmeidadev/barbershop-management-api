@@ -6,7 +6,7 @@ export const slotController = {
     try {
       const { vagaId } = req.body
       if (!vagaId) return res.status(400).json({ error: 'vagaId é obrigatório.' })
-      const result = await vagasService.apagarSlotComValidacao(vagaId)
+      const result = await vagasService.apagarVagaComValidacao(vagaId)
       if (result.success) {
         return res.status(200).json({ message: 'Vaga apagada com sucesso.', vaga: result.vaga })
       } else {
@@ -19,7 +19,7 @@ export const slotController = {
   async listarTodos(req: Request, res: Response) {
     try {
       const { barbeiroId, data } = req.query
-      const vagas = await vagasService.listarTodos(Number(barbeiroId), String(data))
+      const vagas = await vagasService.listarTodas(Number(barbeiroId), String(data))
       res.json(vagas)
     } catch (err) {
       res.status(400).json({ error: (err as Error).message })
@@ -62,7 +62,7 @@ export const slotController = {
   async reservarSlots(req: Request, res: Response) {
     try {
       const { barbeiroId, inicioDesejado, duracaoMinutos } = req.body
-      const bloco = await vagasService.reservarSlotsParaAgendamento(
+      const bloco = await vagasService.reservarVagasParaAgendamento(
         barbeiroId,
         inicioDesejado,
         duracaoMinutos

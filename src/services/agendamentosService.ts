@@ -2,6 +2,7 @@ import { Agendamento, StatusAgendamento, CriarAgendamentoPayload, ServicoAgendam
 import { servicoService } from './servicosService'
 import { vagasService } from './vagasService'
 import { agendamentosRepository } from '../repositories/agendamentosRepository'
+import { db } from '../database/sqlite'
 
 export const bookingService = {
   async criarAgendamento(payload: CriarAgendamentoPayload): Promise<Agendamento> {
@@ -17,42 +18,54 @@ export const bookingService = {
       throw new Error('A soma das durações dos serviços deve ser positiva.')
     }
     const valorTotal = servicos.reduce((acc, s) => acc + s.preco_centavos, 0)
-    const vagas = await vagasService.reservarVagasParaAgendamento(
-      payload.barbeiro_id,
-      payload.inicio_desejado,
-      duracaoTotal
-    )
-    if (!vagas || vagas.length === 0) {
-      throw new Error('Não há slots disponíveis para o horário e duração desejados')
-    }
-    const inicio = vagas[0].inicio
-    const fim = vagas[vagas.length - 1].fim
-    const agendamentoId = await agendamentosRepository.criarAgendamento({
-      cliente_id: payload.cliente_id,
-      barbeiro_id: payload.barbeiro_id,
-      inicio,
-      fim,
-      status: StatusAgendamento.AGENDADO,
-      valor_total_centavos: valorTotal
+    return await new Promise<Agendamento>((resolve, reject) => {
+      db.serialize(async () => {
+        db.run('BEGIN TRANSACTION')
+        try {
+          const vagas = await vagasService.reservarVagasParaAgendamento(
+            payload.barbeiro_id,
+            payload.inicio_desejado,
+            duracaoTotal,
+            { manageTransaction: false }
+          )
+          if (!vagas || vagas.length === 0) {
+            throw new Error('Não há slots disponíveis para o horário e duração desejados')
+          }
+          const inicio = vagas[0].inicio
+          const fim = vagas[vagas.length - 1].fim
+          const agendamentoId = await agendamentosRepository.criarAgendamento({
+            cliente_id: payload.cliente_id,
+            barbeiro_id: payload.barbeiro_id,
+            inicio,
+            fim,
+            status: StatusAgendamento.AGENDADO,
+            valor_total_centavos: valorTotal
+          })
+          await agendamentosRepository.adicionarServicosAoAgendamento(agendamentoId, servicos)
+          await agendamentosRepository.adicionarVagasAoAgendamento(agendamentoId, vagas)
+          db.run('COMMIT')
+          resolve({
+            id: agendamentoId,
+            cliente_id: payload.cliente_id,
+            barbeiro_id: payload.barbeiro_id,
+            inicio,
+            fim,
+            status: StatusAgendamento.AGENDADO,
+            valor_total_centavos: valorTotal,
+            created_at: new Date().toISOString(),
+            servicos: servicos.map(s => ({
+              servico_id: s.id,
+              preco_centavos: s.preco_centavos,
+              duracao_minutos: s.duracao_minutos,
+            })),
+            vagas: vagas.map(s => s.id),
+          })
+        } catch (err) {
+          db.run('ROLLBACK')
+          reject(err)
+        }
+      })
     })
-    await agendamentosRepository.adicionarServicosAoAgendamento(agendamentoId, servicos)
-    await agendamentosRepository.adicionarVagasAoAgendamento(agendamentoId, vagas)
-    return {
-      id: agendamentoId,
-      cliente_id: payload.cliente_id,
-      barbeiro_id: payload.barbeiro_id,
-      inicio,
-      fim,
-      status: StatusAgendamento.AGENDADO,
-      valor_total_centavos: valorTotal,
-      criado_em: new Date().toISOString(),
-      servicos: servicos.map(s => ({
-        servico_id: s.id,
-        preco_centavos: s.preco_centavos,
-        duracao_minutos: s.duracao_minutos,
-      })),
-      vagas: vagas.map(s => s.id),
-    }
   },
 
 

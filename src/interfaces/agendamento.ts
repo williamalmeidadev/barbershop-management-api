@@ -12,7 +12,7 @@ export interface Agendamento {
   fim: string;
   status: StatusAgendamento;
   valor_total_centavos: number;
-  criado_em: string;
+  created_at: string;
   servicos: ServicoAgendamento[];
   vagas: number[];
 }
