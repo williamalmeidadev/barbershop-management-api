@@ -1,16 +1,21 @@
 import { Booking, BookingStatus, CreateBookingPayload, BookingService } from '../interfaces/booking'
-import { db } from '../database/sqlite'
 import { servicoService } from './servicoService'
 import { slotService } from './slotService'
-import { Slot } from '../interfaces/slot'
+import { bookingRepository } from '../repositories/bookingRepository'
 
 export const bookingService = {
   async criarAgendamento(payload: CreateBookingPayload): Promise<Booking> {
+    if (!payload.cliente_id || !payload.barbeiro_id || !payload.inicio_desejado || !payload.servicos || !Array.isArray(payload.servicos) || payload.servicos.length === 0) {
+      throw new Error('Todos os campos são obrigatórios e deve haver pelo menos um serviço.')
+    }
     const servicos = await servicoService.buscarPorIds(payload.servicos)
     if (servicos.length !== payload.servicos.length) {
       throw new Error('Um ou mais serviços não encontrados ou inativos')
     }
     const duracaoTotal = servicos.reduce((acc, s) => acc + s.duracao_minutos, 0)
+    if (duracaoTotal <= 0) {
+      throw new Error('A soma das durações dos serviços deve ser positiva.')
+    }
     const valorTotal = servicos.reduce((acc, s) => acc + s.preco_centavos, 0)
     const slots = await slotService.reservarSlotsParaAgendamento(
       payload.barbeiro_id,
@@ -22,40 +27,16 @@ export const bookingService = {
     }
     const inicio = slots[0].inicio
     const fim = slots[slots.length - 1].fim
-    const agendamentoId = await new Promise<number>((resolve, reject) => {
-      db.run(
-        `INSERT INTO agendamentos (cliente_id, barbeiro_id, inicio, fim, status, valor_total_centavos) VALUES (?, ?, ?, ?, ?, ?)`,
-        [payload.cliente_id, payload.barbeiro_id, inicio, fim, BookingStatus.AGENDADO, valorTotal],
-        function (err) {
-          if (err) return reject(err)
-          resolve(this.lastID)
-        }
-      )
+    const agendamentoId = await bookingRepository.criarAgendamento({
+      cliente_id: payload.cliente_id,
+      barbeiro_id: payload.barbeiro_id,
+      inicio,
+      fim,
+      status: BookingStatus.AGENDADO,
+      valor_total_centavos: valorTotal
     })
-    for (const s of servicos) {
-      await new Promise<void>((resolve, reject) => {
-        db.run(
-          `INSERT INTO agendamento_servicos (agendamento_id, servico_id, preco_centavos, duracao_minutos) VALUES (?, ?, ?, ?)`,
-          [agendamentoId, s.id, s.preco_centavos, s.duracao_minutos],
-          err => {
-            if (err) return reject(err)
-            resolve()
-          }
-        )
-      })
-    }
-    for (const slot of slots) {
-      await new Promise<void>((resolve, reject) => {
-        db.run(
-          `INSERT INTO agendamento_vagas (agendamento_id, vaga_id) VALUES (?, ?)`,
-          [agendamentoId, slot.id],
-          err => {
-            if (err) return reject(err)
-            resolve()
-          }
-        )
-      })
-    }
+    await bookingRepository.adicionarServicosAoAgendamento(agendamentoId, servicos)
+    await bookingRepository.adicionarSlotsAoAgendamento(agendamentoId, slots)
     return {
       id: agendamentoId,
       cliente_id: payload.cliente_id,
@@ -76,80 +57,17 @@ export const bookingService = {
 
 
   async listarAgendamentos(): Promise<Booking[]> {
-    const agendamentos: Booking[] = await new Promise((resolve, reject) => {
-      db.all('SELECT * FROM agendamentos', [], (err, rows) => {
-        if (err) return reject(err)
-        resolve(rows as Booking[])
-      })
-    })
-    for (const agendamento of agendamentos) {
-      agendamento.servicos = await new Promise((resolve, reject) => {
-        db.all(
-          'SELECT servico_id, preco_centavos, duracao_minutos FROM agendamento_servicos WHERE agendamento_id = ?',
-          [agendamento.id],
-          (err, rows) => {
-            if (err) return reject(err)
-            resolve(rows as BookingService[])
-          }
-        )
-      })
-      agendamento.slots = await new Promise((resolve, reject) => {
-        db.all(
-          'SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?',
-          [agendamento.id],
-          (err, rows) => {
-            if (err) return reject(err)
-            resolve(rows.map((r: any) => r.vaga_id))
-          }
-        )
-      })
-    }
-    return agendamentos
+    return bookingRepository.listarAgendamentosComServicosESlots()
   },
 
 
   async cancelarAgendamento(id: number): Promise<void> {
-    const slotIds: number[] = await new Promise((resolve, reject) => {
-      db.all('SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?', [id], (err, rows) => {
-        if (err) return reject(err)
-        resolve(rows.map((r: any) => r.vaga_id))
-      })
-    })
-    if (slotIds.length) {
-      await new Promise<void>((resolve, reject) => {
-        const placeholders = slotIds.map(() => '?').join(',')
-        db.run(
-          `UPDATE vagas SET status = 'DISPONIVEL' WHERE id IN (${placeholders})`,
-          slotIds,
-          err => {
-            if (err) return reject(err)
-            resolve()
-          }
-        )
-      })
-    }
-    await new Promise<void>((resolve, reject) => {
-      db.run(
-        `UPDATE agendamentos SET status = ? WHERE id = ?`,
-        [BookingStatus.CANCELADO, id],
-        err => {
-          if (err) return reject(err)
-          resolve()
-        }
-      )
-    })
+    if (!id) throw new Error('O id do agendamento é obrigatório.')
+    await bookingRepository.cancelarAgendamento(id)
   },
 
   async concluirAgendamento(id: number): Promise<void> {
-    await new Promise<void>((resolve, reject) => {
-      db.run(
-        `UPDATE agendamentos SET status = ? WHERE id = ?`,
-        [BookingStatus.CONCLUIDO, id],
-        err => {
-          if (err) return reject(err)
-          resolve()
-        }
-      )
-    })
+    if (!id) throw new Error('O id do agendamento é obrigatório.')
+    await bookingRepository.concluirAgendamento(id)
   },
 }

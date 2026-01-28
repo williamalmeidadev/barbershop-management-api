@@ -2,6 +2,22 @@ import { Slot, SlotStatus } from '../interfaces/slot'
 import { db } from '../database/sqlite'
 
 export const slotRepository = {
+
+  async findSlotsByIds(ids: number[]): Promise<Slot[]> {
+    if (!ids.length) return []
+    const placeholders = ids.map(() => '?').join(',')
+    return await new Promise<Slot[]>((resolve, reject) => {
+      db.all(
+        `SELECT * FROM vagas WHERE id IN (${placeholders})`,
+        ids,
+        (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows as Slot[])
+        }
+      )
+    })
+  },
+
   async verificarAgendamentoNoSlot(slotId: number): Promise<boolean> {
     return await new Promise<boolean>((resolve, reject) => {
       db.get(

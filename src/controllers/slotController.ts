@@ -8,7 +8,7 @@ export const slotController = {
       if (!slotId) return res.status(400).json({ error: 'slotId é obrigatório.' })
       const result = await slotService.apagarSlotComValidacao(slotId)
       if (result.success) {
-        return res.status(200).json({ message: 'Slot apagado com sucesso.' })
+        return res.status(200).json({ message: 'Slot apagado com sucesso.', slot: result.slot })
       } else {
         return res.status(409).json({ error: result.message })
       }
