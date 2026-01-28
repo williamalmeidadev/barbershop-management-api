@@ -163,11 +163,15 @@ async function hydrateAgendamentos(agendamentos: Agendamento[]): Promise<Agendam
     })
     agendamento.vagas = await new Promise((resolve, reject) => {
       db.all(
-        'SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?',
+        `SELECT v.id, v.inicio, v.fim, v.status
+         FROM agendamento_vagas av
+         INNER JOIN vagas v ON v.id = av.vaga_id
+         WHERE av.agendamento_id = ?
+         ORDER BY v.inicio ASC`,
         [agendamento.id],
         (err, rows) => {
           if (err) return reject(err)
-          resolve(rows.map((r: any) => r.vaga_id))
+          resolve(rows as any)
         }
       )
     })
