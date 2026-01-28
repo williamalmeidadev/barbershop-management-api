@@ -22,6 +22,8 @@ export interface ServicoAgendamento {
   servico_id: number;
   preco_centavos: number;
   duracao_minutos: number;
+  nome: string;
+  descricao: string | null;
 }
 
 export interface CriarAgendamentoPayload {

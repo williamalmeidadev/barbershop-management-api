@@ -145,7 +145,15 @@ async function hydrateAgendamentos(agendamentos: Agendamento[]): Promise<Agendam
   for (const agendamento of agendamentos) {
     agendamento.servicos = await new Promise((resolve, reject) => {
       db.all(
-        'SELECT servico_id, preco_centavos, duracao_minutos FROM agendamento_servicos WHERE agendamento_id = ?',
+        `SELECT 
+          asv.servico_id,
+          asv.preco_centavos,
+          asv.duracao_minutos,
+          s.nome,
+          s.descricao
+         FROM agendamento_servicos asv
+         INNER JOIN servicos s ON s.id = asv.servico_id
+         WHERE asv.agendamento_id = ?`,
         [agendamento.id],
         (err, rows) => {
           if (err) return reject(err)
