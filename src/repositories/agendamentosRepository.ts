@@ -18,12 +18,24 @@ export const agendamentosRepository = {
     inicio: string,
     fim: string,
     status: StatusAgendamento,
+    valor_original_centavos: number,
+    desconto_aplicado_centavos: number,
     valor_total_centavos: number
   }): Promise<number> {
     return await new Promise<number>((resolve, reject) => {
       db.run(
-        `INSERT INTO agendamentos (cliente_id, barbeiro_id, inicio, fim, status, valor_total_centavos) VALUES (?, ?, ?, ?, ?, ?)`,
-        [payload.cliente_id, payload.barbeiro_id, payload.inicio, payload.fim, payload.status, payload.valor_total_centavos],
+        `INSERT INTO agendamentos (cliente_id, barbeiro_id, inicio, fim, status, valor_original_centavos, desconto_aplicado_centavos, valor_total_centavos)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          payload.cliente_id,
+          payload.barbeiro_id,
+          payload.inicio,
+          payload.fim,
+          payload.status,
+          payload.valor_original_centavos,
+          payload.desconto_aplicado_centavos,
+          payload.valor_total_centavos
+        ],
         function (err) {
           if (err) return reject(err)
           resolve(this.lastID)

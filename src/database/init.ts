@@ -37,6 +37,8 @@ export function initDatabase() {
         email TEXT UNIQUE NOT NULL,
         telefone TEXT,
         password_hash TEXT NOT NULL,
+        concluidos_count INTEGER DEFAULT 0,
+        desconto_disponivel_centavos INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         ativo INTEGER DEFAULT 1 CHECK (ativo IN (0,1))
       );
@@ -71,6 +73,15 @@ export function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_servicos_ativo ON servicos(ativo);`)
 
     db.run(`
+      CREATE TABLE IF NOT EXISTS configuracoes (
+        chave TEXT PRIMARY KEY,
+        valor_int INTEGER,
+        valor_text TEXT,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `)
+
+    db.run(`
       CREATE TABLE IF NOT EXISTS vagas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         barbeiro_id INTEGER NOT NULL,
@@ -96,6 +107,8 @@ export function initDatabase() {
         concluido_em DATETIME,
         status TEXT NOT NULL DEFAULT 'AGENDADO'
           CHECK (status IN ('AGENDADO','CANCELADO','CONCLUIDO')),
+        valor_original_centavos INTEGER NOT NULL DEFAULT 0,
+        desconto_aplicado_centavos INTEGER NOT NULL DEFAULT 0,
         valor_total_centavos INTEGER NOT NULL DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (cliente_id) REFERENCES clientes(id),

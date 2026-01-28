@@ -4,6 +4,8 @@ import { vagasService } from './vagasService'
 import { agendamentosRepository } from '../repositories/agendamentosRepository'
 import { runInTransaction } from '../repositories/transaction'
 import { isIsoWithTimezone } from '../utils/validators'
+import { clientesRepository } from '../repositories/clientesRepository'
+import { configuracoesRepository } from '../repositories/configuracoesRepository'
 
 export const bookingService = {
   async criarAgendamento(payload: CriarAgendamentoPayload): Promise<Agendamento> {
@@ -23,6 +25,12 @@ export const bookingService = {
     }
     const valorTotal = servicos.reduce((acc, s) => acc + s.preco_centavos, 0)
     return runInTransaction(async () => {
+      const cliente = await clientesRepository.buscarResumo(payload.cliente_id)
+      if (!cliente) throw new Error('Cliente não encontrado.')
+      const descontoDisponivel = cliente.desconto_disponivel_centavos ?? 0
+      const descontoUsado = Math.min(valorTotal, descontoDisponivel)
+      const valorComDesconto = Math.max(0, valorTotal - descontoUsado)
+
       const vagas = await vagasService.reservarVagasParaAgendamento(
         payload.barbeiro_id,
         payload.inicio_desejado,
@@ -40,10 +48,15 @@ export const bookingService = {
         inicio,
         fim,
         status: StatusAgendamento.AGENDADO,
-        valor_total_centavos: valorTotal
+        valor_original_centavos: valorTotal,
+        desconto_aplicado_centavos: descontoUsado,
+        valor_total_centavos: valorComDesconto
       })
       await agendamentosRepository.adicionarServicosAoAgendamento(agendamentoId, servicos)
       await agendamentosRepository.adicionarVagasAoAgendamento(agendamentoId, vagas)
+      if (descontoUsado > 0) {
+        await clientesRepository.atualizarContagemEDesconto(payload.cliente_id, cliente.concluidos_count, 0)
+      }
       const completo = await agendamentosRepository.buscarAgendamentoCompleto(agendamentoId)
       if (!completo) {
         throw new Error('Agendamento não encontrado.')
@@ -108,6 +121,27 @@ export const bookingService = {
         }
       }
       await agendamentosRepository.concluirAgendamento(id, concluidoEm)
+
+      const cliente = await clientesRepository.buscarResumo(agendamento.cliente_id)
+      if (!cliente) {
+        throw new Error('Cliente não encontrado.')
+      }
+      const novaContagem = cliente.concluidos_count + 1
+      const qtdConcluidos = await configuracoesRepository.getInt('desconto_qtd_concluidos')
+      const valorDesconto = await configuracoesRepository.getInt('desconto_valor_centavos')
+
+      let novoDesconto: number | null | undefined = undefined
+      if (qtdConcluidos && valorDesconto && qtdConcluidos > 0 && valorDesconto > 0) {
+        if (novaContagem % qtdConcluidos === 0 && cliente.desconto_disponivel_centavos === 0) {
+          novoDesconto = valorDesconto
+        }
+      }
+
+      await clientesRepository.atualizarContagemEDesconto(
+        agendamento.cliente_id,
+        novaContagem,
+        novoDesconto
+      )
       const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
       if (!atualizado) {
         throw new Error('Agendamento não encontrado.')
