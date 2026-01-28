@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import jwt, { SignOptions } from 'jsonwebtoken'
 import { db } from '../database/sqlite'
 
