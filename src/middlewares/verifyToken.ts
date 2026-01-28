@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken';
 
 interface TokenPayload {
   id: number;
-  nome: string;
+  email: string;
+  role: string;
   iat: number;
   exp: number;
 }
@@ -33,6 +34,7 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
     }
 
     const decoded = jwt.verify(token, secret);
+    
     req.user = decoded as TokenPayload;
 
     return next();
