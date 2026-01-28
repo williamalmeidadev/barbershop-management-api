@@ -59,11 +59,13 @@ export const vagasRepository = {
     })
   },
   async buscarTodasPorBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
-    const { inicioDia, fimDia } = getLocalDayRange(data)
+    const inicioDia = `${data}T00:00:00.000Z`
+    const proximoDia = new Date(inicioDia)
+    proximoDia.setUTCDate(proximoDia.getUTCDate() + 1)
     return await new Promise<Vaga[]>((resolve, reject) => {
       db.all(
         `SELECT * FROM vagas WHERE barbeiro_id = ? AND inicio >= ? AND inicio < ? ORDER BY inicio ASC`,
-        [barbeiroId, inicioDia, fimDia],
+        [barbeiroId, inicioDia, proximoDia.toISOString()],
         (err, rows) => {
           if (err) return reject(err)
           resolve(rows as Vaga[])
@@ -75,10 +77,10 @@ export const vagasRepository = {
   async criarVagasParaBarbeiro(barbeiroId: number, data: string, inicioExpediente: string, fimExpediente: string, duracaoVaga: number): Promise<Vaga[]> {
     const vagas: Vaga[] = []
     const [ano, mes, dia] = data.split('-').map(Number)
-    const [hIni, mIni] = inicioExpediente.split(':').map(Number)
-    const [hFim, mFim] = fimExpediente.split(':').map(Number)
-    const start = new Date(ano, mes - 1, dia, hIni, mIni)
-    const end = new Date(ano, mes - 1, dia, hFim, mFim)
+    const [hIni, mIni, sIni = 0] = inicioExpediente.split(':').map(Number)
+    const [hFim, mFim, sFim = 0] = fimExpediente.split(':').map(Number)
+    const start = new Date(Date.UTC(ano, mes - 1, dia, hIni, mIni, sIni))
+    const end = new Date(Date.UTC(ano, mes - 1, dia, hFim, mFim, sFim))
     let atual = new Date(start)
     while (atual < end) {
       const vagaInicio = new Date(atual)
@@ -120,11 +122,13 @@ export const vagasRepository = {
   },
 
   async buscarDisponiveisPorBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
-    const { inicioDia, fimDia } = getLocalDayRange(data)
+    const inicioDia = `${data}T00:00:00.000Z`
+    const proximoDia = new Date(inicioDia)
+    proximoDia.setUTCDate(proximoDia.getUTCDate() + 1)
     return await new Promise<Vaga[]>((resolve, reject) => {
       db.all(
         `SELECT * FROM vagas WHERE barbeiro_id = ? AND inicio >= ? AND inicio < ? AND status = 'DISPONIVEL' ORDER BY inicio ASC`,
-        [barbeiroId, inicioDia, fimDia],
+        [barbeiroId, inicioDia, proximoDia.toISOString()],
         (err, rows) => {
           if (err) return reject(err)
           resolve(rows as Vaga[])
@@ -209,11 +213,4 @@ export const vagasRepository = {
       )
     })
   },
-}
-
-function getLocalDayRange(data: string): { inicioDia: string; fimDia: string } {
-  const [ano, mes, dia] = data.split('-').map(Number)
-  const inicio = new Date(ano, mes - 1, dia, 0, 0, 0, 0)
-  const fim = new Date(ano, mes - 1, dia + 1, 0, 0, 0, 0)
-  return { inicioDia: inicio.toISOString(), fimDia: fim.toISOString() }
 }

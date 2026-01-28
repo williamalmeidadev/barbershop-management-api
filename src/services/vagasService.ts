@@ -1,6 +1,7 @@
 import { Vaga, StatusVaga } from '../interfaces/vaga'
 import { vagasRepository } from '../repositories/vagasRepository'
 import { runInTransaction } from '../repositories/transaction'
+import { isIsoWithTimezone } from '../utils/validators'
 
 export const vagasService = {
   async listarTodas(barbeiroId: number, data: string): Promise<Vaga[]> {
@@ -38,9 +39,22 @@ export const vagasService = {
     if (duracaoVaga <= 0) {
       throw new Error('A duração da vaga deve ser positiva.')
     }
-    const [hIni, mIni] = inicioExpediente.split(':').map(Number)
-    const [hFim, mFim] = fimExpediente.split(':').map(Number)
-    if (hIni > hFim || (hIni === hFim && mIni >= mFim)) {
+    const timeRegex = /^\d{2}:\d{2}(:\d{2})?$/
+    if (!timeRegex.test(inicioExpediente) || !timeRegex.test(fimExpediente)) {
+      throw new Error('Horário inválido. Use HH:mm ou HH:mm:ss.')
+    }
+    const [hIni, mIni, sIni = '0'] = inicioExpediente.split(':')
+    const [hFim, mFim, sFim = '0'] = fimExpediente.split(':')
+    const hIniNum = Number(hIni)
+    const mIniNum = Number(mIni)
+    const sIniNum = Number(sIni)
+    const hFimNum = Number(hFim)
+    const mFimNum = Number(mFim)
+    const sFimNum = Number(sFim)
+    if ([hIniNum, mIniNum, sIniNum, hFimNum, mFimNum, sFimNum].some(Number.isNaN)) {
+      throw new Error('Horário inválido.')
+    }
+    if (hIniNum > hFimNum || (hIniNum === hFimNum && (mIniNum > mFimNum || (mIniNum === mFimNum && sIniNum >= sFimNum)))) {
       throw new Error('O início do expediente deve ser antes do fim.')
     }
     return vagasRepository.criarVagasParaBarbeiro(barbeiroId, data, inicioExpediente, fimExpediente, duracaoVaga)
@@ -53,8 +67,12 @@ export const vagasService = {
     if (duracaoMinutos <= 0) {
       throw new Error('A duração deve ser positiva.')
     }
-    const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, horarioDesejado.split('T')[0])
+    if (!isIsoWithTimezone(horarioDesejado)) {
+      throw new Error('horarioDesejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
+    }
     const inicioDesejado = new Date(horarioDesejado)
+    const dataUtc = getUtcDateString(inicioDesejado)
+    const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, dataUtc)
     const vagasFiltradas = vagas.filter(s => new Date(s.inicio) >= inicioDesejado)
     let bloco: Vaga[] = []
     let soma = 0
@@ -91,10 +109,14 @@ export const vagasService = {
     if (duracaoMinutos <= 0) {
       throw new Error('A duração deve ser positiva.')
     }
+    if (!isIsoWithTimezone(inicioDesejado)) {
+      throw new Error('inicioDesejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
+    }
     const manageTransaction = options?.manageTransaction ?? true
     const reserva = async (): Promise<Vaga[] | null> => {
-      const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, inicioDesejado.split('T')[0])
       const inicio = new Date(inicioDesejado)
+      const dataUtc = getUtcDateString(inicio)
+      const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, dataUtc)
       const vagasFiltradas = vagas.filter(s => new Date(s.inicio) >= inicio)
       let bloco: Vaga[] = []
       let soma = 0
@@ -132,10 +154,15 @@ export const vagasService = {
     if (!barbeiroId || !inicio || !fim) {
       throw new Error('Todos os campos são obrigatórios.')
     }
-    if (new Date(inicio) >= new Date(fim)) {
+    if (!isIsoWithTimezone(inicio) || !isIsoWithTimezone(fim)) {
+      throw new Error('inicio e fim devem ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
+    }
+    const inicioDate = new Date(inicio)
+    const fimDate = new Date(fim)
+    if (inicioDate >= fimDate) {
       throw new Error('O início deve ser antes do fim.')
     }
-    return vagasRepository.bloquearIntervalo(barbeiroId, inicio, fim)
+    return vagasRepository.bloquearIntervalo(barbeiroId, inicioDate.toISOString(), fimDate.toISOString())
   },
 
   async liberarVagasDoAgendamento(vagaIds: number[]): Promise<Vaga[]> {
@@ -147,4 +174,8 @@ function getVagaDuration(vaga: Vaga): number {
   const inicio = new Date(vaga.inicio)
   const fim = new Date(vaga.fim)
   return (fim.getTime() - inicio.getTime()) / 60000
+}
+
+function getUtcDateString(date: Date): string {
+  return date.toISOString().slice(0, 10)
 }

@@ -3,11 +3,15 @@ import { servicoService } from './servicosService'
 import { vagasService } from './vagasService'
 import { agendamentosRepository } from '../repositories/agendamentosRepository'
 import { runInTransaction } from '../repositories/transaction'
+import { isIsoWithTimezone } from '../utils/validators'
 
 export const bookingService = {
   async criarAgendamento(payload: CriarAgendamentoPayload): Promise<Agendamento> {
     if (!payload.cliente_id || !payload.barbeiro_id || !payload.inicio_desejado || !payload.servicos || !Array.isArray(payload.servicos) || payload.servicos.length === 0) {
       throw new Error('Todos os campos são obrigatórios e deve haver pelo menos um serviço.')
+    }
+    if (!isIsoWithTimezone(payload.inicio_desejado)) {
+      throw new Error('inicio_desejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
     }
     const servicos = await servicoService.buscarPorIds(payload.servicos)
     if (servicos.length !== payload.servicos.length) {
