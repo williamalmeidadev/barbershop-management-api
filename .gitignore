@@ -11,6 +11,7 @@ dist/
 *.sqlite
 *.sqlite3
 database.sqlite
+barbershop.db
 
 # Logs
 npm-debug.log*
