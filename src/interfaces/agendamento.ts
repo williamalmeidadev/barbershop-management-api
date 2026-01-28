@@ -15,13 +15,22 @@ export interface Agendamento {
   valor_total_centavos: number;
   created_at: string;
   servicos: ServicoAgendamento[];
-  vagas: number[];
+  vagas: VagaAgendamento[];
+}
+
+export interface VagaAgendamento {
+  id: number;
+  inicio: string;
+  fim: string;
+  status: string;
 }
 
 export interface ServicoAgendamento {
   servico_id: number;
   preco_centavos: number;
   duracao_minutos: number;
+  nome: string;
+  descricao: string | null;
 }
 
 export interface CriarAgendamentoPayload {

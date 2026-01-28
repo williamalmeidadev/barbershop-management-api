@@ -5,6 +5,7 @@ import adminRoutes from './adminRoutes'
 import loginClienteRoutes from './loginCliente'
 import loginAdminRoutes from './loginAdmin'
 import vagaRoutes from './vagasRoutes'
+import servicosRoutes from './servicosRoutes'
 import { AuthController } from '../controllers/authController'
 
 const routes = Router()
@@ -15,6 +16,7 @@ routes.get('/teste', (_, res) => {
 })
 
 routes.use('/vagas', vagaRoutes);
+routes.use('/servicos', servicosRoutes);
 routes.use('/clientes', clienteRoutes);
 routes.use('/agendamentos', bookingRoutes);
 routes.post('/login', authController.login.bind(authController))

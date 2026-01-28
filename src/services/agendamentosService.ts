@@ -44,22 +44,11 @@ export const bookingService = {
       })
       await agendamentosRepository.adicionarServicosAoAgendamento(agendamentoId, servicos)
       await agendamentosRepository.adicionarVagasAoAgendamento(agendamentoId, vagas)
-      return {
-        id: agendamentoId,
-        cliente_id: payload.cliente_id,
-        barbeiro_id: payload.barbeiro_id,
-        inicio,
-        fim,
-        status: StatusAgendamento.AGENDADO,
-        valor_total_centavos: valorTotal,
-        created_at: new Date().toISOString(),
-        servicos: servicos.map(s => ({
-          servico_id: s.id,
-          preco_centavos: s.preco_centavos,
-          duracao_minutos: s.duracao_minutos,
-        })),
-        vagas: vagas.map(s => s.id),
+      const completo = await agendamentosRepository.buscarAgendamentoCompleto(agendamentoId)
+      if (!completo) {
+        throw new Error('Agendamento não encontrado.')
       }
+      return completo
     })
   },
 
