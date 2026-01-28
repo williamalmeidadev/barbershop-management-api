@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { isValidEmail, isStrongPassword, getMissingFields } from '../src/utils/validators'
+import { isValidEmail, isStrongPassword, getMissingFields } from '../../src/utils/validators'
 
 describe('Validadores Utilitários (Unitário)', () => {
     // Validação de Email
