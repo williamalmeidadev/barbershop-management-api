@@ -2,15 +2,29 @@ import { Request, Response } from 'express'
 import { slotService } from '../services/slotService'
 
 export const slotController = {
-    async listarTodos(req: Request, res: Response) {
-      try {
-        const { barbeiroId, data } = req.query
-        const slots = await slotService.listarTodos(Number(barbeiroId), String(data))
-        res.json(slots)
-      } catch (err) {
-        res.status(400).json({ error: (err as Error).message })
+  async apagarSlot(req: Request, res: Response) {
+    try {
+      const { slotId } = req.body
+      if (!slotId) return res.status(400).json({ error: 'slotId é obrigatório.' })
+      const result = await slotService.apagarSlotComValidacao(slotId)
+      if (result.success) {
+        return res.status(200).json({ message: 'Slot apagado com sucesso.' })
+      } else {
+        return res.status(409).json({ error: result.message })
       }
-    },
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message })
+    }
+  },
+  async listarTodos(req: Request, res: Response) {
+    try {
+      const { barbeiroId, data } = req.query
+      const slots = await slotService.listarTodos(Number(barbeiroId), String(data))
+      res.json(slots)
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message })
+    }
+  },
   async gerarAgendaDoDia(req: Request, res: Response) {
     try {
       const { barbeiroId, data, inicioExpediente, fimExpediente, duracaoSlot } = req.body
@@ -70,13 +84,4 @@ export const slotController = {
     }
   },
 
-  async liberarSlotsDoAgendamento(req: Request, res: Response) {
-    try {
-      const { slotIds } = req.body
-      const slots = await slotService.liberarSlotsDoAgendamento(slotIds)
-      res.status(200).json({ liberados: slots })
-    } catch (err) {
-      res.status(400).json({ error: (err as Error).message })
-    }
-  },
 }

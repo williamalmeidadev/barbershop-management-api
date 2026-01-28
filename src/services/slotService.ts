@@ -1,13 +1,26 @@
-    import { Slot, SlotStatus } from '../interfaces/slot'
-    import { slotRepository } from '../repositories/slotRepository'
+import { Slot, SlotStatus } from '../interfaces/slot'
+import { slotRepository } from '../repositories/slotRepository'
 
-    export const slotService = {
-      async listarTodos(barbeiroId: number, data: string): Promise<Slot[]> {
-        return slotRepository.findTodosByBarbeiroEData(barbeiroId, data)
-      },
-    async listarDisponiveis(barbeiroId: number, data: string): Promise<Slot[]> {
-      return slotRepository.findDisponiveisByBarbeiroEData(barbeiroId, data)
-    },
+export const slotService = {
+  async listarTodos(barbeiroId: number, data: string): Promise<Slot[]> {
+    return slotRepository.findTodosByBarbeiroEData(barbeiroId, data)
+  },
+  async apagarSlotComValidacao(slotId: number): Promise<{ success: boolean; message: string }> {
+    // Verifica se existe agendamento para o slot
+    const existeAgendamento = await slotRepository.verificarAgendamentoNoSlot(slotId)
+    if (existeAgendamento) {
+      return { success: false, message: 'Não é possível apagar: existe agendamento ocupando este slot.' }
+    }
+    const apagado = await slotRepository.apagarSlot(slotId)
+    if (apagado) {
+      return { success: true, message: 'Slot apagado com sucesso.' }
+    } else {
+      return { success: false, message: 'Slot não encontrado ou já apagado.' }
+    }
+  },
+  async listarDisponiveis(barbeiroId: number, data: string): Promise<Slot[]> {
+    return slotRepository.findDisponiveisByBarbeiroEData(barbeiroId, data)
+  },
   async gerarAgendaDoDia(barbeiroId: number, data: string, inicioExpediente: string, fimExpediente: string, duracaoSlot: number): Promise<Slot[]> {
     return slotRepository.createSlotsForBarbeiro(barbeiroId, data, inicioExpediente, fimExpediente, duracaoSlot)
   },
