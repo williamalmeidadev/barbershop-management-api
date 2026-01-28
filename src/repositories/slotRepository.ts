@@ -2,7 +2,6 @@ import { Slot, SlotStatus } from '../interfaces/slot'
 import { db } from '../database/sqlite'
 
 export const slotRepository = {
-  // ...existing code...
   async verificarAgendamentoNoSlot(slotId: number): Promise<boolean> {
     return await new Promise<boolean>((resolve, reject) => {
       db.get(
@@ -46,7 +45,6 @@ export const slotRepository = {
 
   async createSlotsForBarbeiro(barbeiroId: number, data: string, inicioExpediente: string, fimExpediente: string, duracaoSlot: number): Promise<Slot[]> {
     const slots: Slot[] = []
-    // Parse data e horários como local
     const [ano, mes, dia] = data.split('-').map(Number)
     const [hIni, mIni] = inicioExpediente.split(':').map(Number)
     const [hFim, mFim] = fimExpediente.split(':').map(Number)

@@ -6,7 +6,6 @@ export const slotService = {
     return slotRepository.findTodosByBarbeiroEData(barbeiroId, data)
   },
   async apagarSlotComValidacao(slotId: number): Promise<{ success: boolean; message: string }> {
-    // Verifica se existe agendamento para o slot
     const existeAgendamento = await slotRepository.verificarAgendamentoNoSlot(slotId)
     if (existeAgendamento) {
       return { success: false, message: 'Não é possível apagar: existe agendamento ocupando este slot.' }

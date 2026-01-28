@@ -6,15 +6,12 @@ import { Slot } from '../interfaces/slot'
 
 export const bookingService = {
   async criarAgendamento(payload: CreateBookingPayload): Promise<Booking> {
-    // 1. Buscar dados dos serviços
     const servicos = await servicoService.buscarPorIds(payload.servicos)
     if (servicos.length !== payload.servicos.length) {
       throw new Error('Um ou mais serviços não encontrados ou inativos')
     }
-    // 2. Calcular duração total e valor total
     const duracaoTotal = servicos.reduce((acc, s) => acc + s.duracao_minutos, 0)
     const valorTotal = servicos.reduce((acc, s) => acc + s.preco_centavos, 0)
-    // 3. Buscar slots disponíveis para o barbeiro e horário desejado
     const slots = await slotService.reservarSlotsParaAgendamento(
       payload.barbeiro_id,
       payload.inicio_desejado,
@@ -23,7 +20,6 @@ export const bookingService = {
     if (!slots || slots.length === 0) {
       throw new Error('Não há slots disponíveis para o horário e duração desejados')
     }
-    // 4. Criar agendamento e relacionamentos
     const inicio = slots[0].inicio
     const fim = slots[slots.length - 1].fim
     const agendamentoId = await new Promise<number>((resolve, reject) => {
@@ -36,7 +32,6 @@ export const bookingService = {
         }
       )
     })
-    // 5. Relacionar serviços ao agendamento
     for (const s of servicos) {
       await new Promise<void>((resolve, reject) => {
         db.run(
@@ -49,7 +44,6 @@ export const bookingService = {
         )
       })
     }
-    // 6. Relacionar slots ao agendamento
     for (const slot of slots) {
       await new Promise<void>((resolve, reject) => {
         db.run(
@@ -62,7 +56,6 @@ export const bookingService = {
         )
       })
     }
-    // 7. Montar objeto de retorno
     return {
       id: agendamentoId,
       cliente_id: payload.cliente_id,
@@ -83,7 +76,6 @@ export const bookingService = {
 
 
   async listarAgendamentos(): Promise<Booking[]> {
-    // Listar todos os agendamentos com serviços e slots
     const agendamentos: Booking[] = await new Promise((resolve, reject) => {
       db.all('SELECT * FROM agendamentos', [], (err, rows) => {
         if (err) return reject(err)
@@ -91,7 +83,6 @@ export const bookingService = {
       })
     })
     for (const agendamento of agendamentos) {
-      // Buscar serviços
       agendamento.servicos = await new Promise((resolve, reject) => {
         db.all(
           'SELECT servico_id, preco_centavos, duracao_minutos FROM agendamento_servicos WHERE agendamento_id = ?',
@@ -102,7 +93,6 @@ export const bookingService = {
           }
         )
       })
-      // Buscar slots
       agendamento.slots = await new Promise((resolve, reject) => {
         db.all(
           'SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?',
@@ -119,14 +109,12 @@ export const bookingService = {
 
 
   async cancelarAgendamento(id: number): Promise<void> {
-    // Buscar slots do agendamento
     const slotIds: number[] = await new Promise((resolve, reject) => {
       db.all('SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?', [id], (err, rows) => {
         if (err) return reject(err)
         resolve(rows.map((r: any) => r.vaga_id))
       })
     })
-    // Liberar slots
     if (slotIds.length) {
       await new Promise<void>((resolve, reject) => {
         const placeholders = slotIds.map(() => '?').join(',')
@@ -140,7 +128,6 @@ export const bookingService = {
         )
       })
     }
-    // Atualizar status do agendamento
     await new Promise<void>((resolve, reject) => {
       db.run(
         `UPDATE agendamentos SET status = ? WHERE id = ?`,
