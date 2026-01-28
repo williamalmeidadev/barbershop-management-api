@@ -1,5 +1,6 @@
 import { Vaga, StatusVaga } from '../interfaces/vaga'
 import { vagasRepository } from '../repositories/vagasRepository'
+import { runInTransaction } from '../repositories/transaction'
 
 export const vagasService = {
   async listarTodas(barbeiroId: number, data: string): Promise<Vaga[]> {
@@ -84,7 +85,6 @@ export const vagasService = {
     duracaoMinutos: number,
     options?: { manageTransaction?: boolean }
   ): Promise<Vaga[] | null> {
-    // Validações
     if (!barbeiroId || !inicioDesejado || !duracaoMinutos) {
       throw new Error('Todos os campos são obrigatórios.')
     }
@@ -92,80 +92,40 @@ export const vagasService = {
       throw new Error('A duração deve ser positiva.')
     }
     const manageTransaction = options?.manageTransaction ?? true
-    // Início da transação
-    const sqlite3 = require('sqlite3')
-    const db = require('../database/sqlite').db
-    return await new Promise<Vaga[] | null>((resolve, reject) => {
-      db.serialize(async () => {
-        if (manageTransaction) {
-          db.run('BEGIN TRANSACTION')
-        }
-        try {
-          const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, inicioDesejado.split('T')[0])
-          const inicio = new Date(inicioDesejado)
-          const vagasFiltradas = vagas.filter(s => new Date(s.inicio) >= inicio)
-          let bloco: Vaga[] = []
-          let soma = 0
-          for (let i = 0; i < vagasFiltradas.length; i++) {
-            if (bloco.length === 0) {
-              bloco.push(vagasFiltradas[i])
-              soma = getVagaDuration(vagasFiltradas[i])
-            } else {
-              const anterior = bloco[bloco.length - 1]
-              if (anterior.fim === vagasFiltradas[i].inicio) {
-                bloco.push(vagasFiltradas[i])
-                soma += getVagaDuration(vagasFiltradas[i])
-              } else {
-                if (soma > 0 && soma < duracaoMinutos) {
-                  if (manageTransaction) {
-                    db.run('ROLLBACK')
-                  }
-                  return resolve(null)
-                }
-                bloco = [vagasFiltradas[i]]
-                soma = getVagaDuration(vagasFiltradas[i])
-              }
+    const reserva = async (): Promise<Vaga[] | null> => {
+      const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, inicioDesejado.split('T')[0])
+      const inicio = new Date(inicioDesejado)
+      const vagasFiltradas = vagas.filter(s => new Date(s.inicio) >= inicio)
+      let bloco: Vaga[] = []
+      let soma = 0
+      for (let i = 0; i < vagasFiltradas.length; i++) {
+        if (bloco.length === 0) {
+          bloco.push(vagasFiltradas[i])
+          soma = getVagaDuration(vagasFiltradas[i])
+        } else {
+          const anterior = bloco[bloco.length - 1]
+          if (anterior.fim === vagasFiltradas[i].inicio) {
+            bloco.push(vagasFiltradas[i])
+            soma += getVagaDuration(vagasFiltradas[i])
+          } else {
+            if (soma > 0 && soma < duracaoMinutos) {
+              return null
             }
-            if (soma >= duracaoMinutos) {
-              const ids = bloco.map(s => s.id)
-              db.all(
-                `SELECT id FROM vagas WHERE id IN (${ids.map(() => '?').join(',')}) AND status = 'DISPONIVEL'`,
-                ids,
-                async (err: any, rows: any[]) => {
-                  if (err) {
-                    if (manageTransaction) {
-                      db.run('ROLLBACK')
-                    }
-                    return reject(err)
-                  }
-                  if (rows.length !== ids.length) {
-                    if (manageTransaction) {
-                      db.run('ROLLBACK')
-                    }
-                    return resolve(null)
-                  }
-                  await vagasRepository.atualizarStatusLote(ids, StatusVaga.RESERVADO)
-                  if (manageTransaction) {
-                    db.run('COMMIT')
-                  }
-                  return resolve(bloco)
-                }
-              )
-              return
-            }
+            bloco = [vagasFiltradas[i]]
+            soma = getVagaDuration(vagasFiltradas[i])
           }
-          if (manageTransaction) {
-            db.run('ROLLBACK')
-          }
-          return resolve(null)
-        } catch (err) {
-          if (manageTransaction) {
-            db.run('ROLLBACK')
-          }
-          return reject(err)
         }
-      })
-    })
+        if (soma >= duracaoMinutos) {
+          const ids = bloco.map(s => s.id)
+          const disponiveis = await vagasRepository.verificarDisponiveisPorIds(ids)
+          if (!disponiveis) return null
+          await vagasRepository.atualizarStatusLote(ids, StatusVaga.RESERVADO)
+          return bloco
+        }
+      }
+      return null
+    }
+    return manageTransaction ? runInTransaction(reserva) : reserva()
   },
 
   async bloquearHorario(barbeiroId: number, inicio: string, fim: string, motivo?: string): Promise<Vaga[]> {

@@ -43,6 +43,21 @@ export const vagasRepository = {
       )
     })
   },
+
+  async verificarDisponiveisPorIds(vagaIds: number[]): Promise<boolean> {
+    if (!vagaIds.length) return false
+    return await new Promise<boolean>((resolve, reject) => {
+      const placeholders = vagaIds.map(() => '?').join(',')
+      db.all(
+        `SELECT id FROM vagas WHERE id IN (${placeholders}) AND status = 'DISPONIVEL'`,
+        vagaIds,
+        (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows.length === vagaIds.length)
+        }
+      )
+    })
+  },
   async buscarTodasPorBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
     const { inicioDia, fimDia } = getLocalDayRange(data)
     return await new Promise<Vaga[]>((resolve, reject) => {
