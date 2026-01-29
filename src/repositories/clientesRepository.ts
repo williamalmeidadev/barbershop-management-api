@@ -1,5 +1,5 @@
 import { db } from '../database/sqlite'
-import { ClienteLoginRow, ClienteResumo } from '../interfaces/cliente'
+import { Cliente, ClienteLoginRow, ClienteResumo } from '../interfaces/cliente'
 
 export const clientesRepository = {
   async buscarResumo(id: number): Promise<ClienteResumo | null> {
@@ -21,6 +21,19 @@ export const clientesRepository = {
         if (err) return reject(err)
         resolve((row as { id: number }) ?? null)
       })
+    })
+  },
+
+  async findByEmailExcludingId(email: string, id: number): Promise<{ id: number } | null> {
+    return await new Promise((resolve, reject) => {
+      db.get(
+        'SELECT id FROM clientes WHERE email = ? AND id != ?',
+        [email, id],
+        (err, row) => {
+          if (err) return reject(err)
+          resolve((row as { id: number }) ?? null)
+        }
+      )
     })
   },
 
@@ -48,6 +61,76 @@ export const clientesRepository = {
         }
       )
     })
+  },
+
+  async list(ativo?: number): Promise<Cliente[]> {
+    const where = typeof ativo === 'number' ? 'WHERE ativo = ?' : ''
+    const params = typeof ativo === 'number' ? [ativo] : []
+    return await new Promise((resolve, reject) => {
+      db.all(
+        `SELECT id, nome, email, telefone, ativo, concluidos_count, desconto_disponivel_centavos FROM clientes ${where} ORDER BY nome ASC`,
+        params,
+        (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows as Cliente[])
+        }
+      )
+    })
+  },
+
+  async findById(id: number): Promise<Cliente | null> {
+    return await new Promise((resolve, reject) => {
+      db.get(
+        `SELECT id, nome, email, telefone, ativo, concluidos_count, desconto_disponivel_centavos FROM clientes WHERE id = ?`,
+        [id],
+        (err, row) => {
+          if (err) return reject(err)
+          resolve((row as Cliente) ?? null)
+        }
+      )
+    })
+  },
+
+  async update(id: number, payload: { nome?: string; email?: string; telefone?: string | null; ativo?: number }): Promise<Cliente> {
+    const fields: string[] = []
+    const values: any[] = []
+
+    if (payload.nome !== undefined) {
+      fields.push('nome = ?')
+      values.push(payload.nome)
+    }
+    if (payload.email !== undefined) {
+      fields.push('email = ?')
+      values.push(payload.email)
+    }
+    if (payload.telefone !== undefined) {
+      fields.push('telefone = ?')
+      values.push(payload.telefone ?? null)
+    }
+    if (payload.ativo !== undefined) {
+      fields.push('ativo = ?')
+      values.push(payload.ativo)
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE clientes SET ${fields.join(', ')} WHERE id = ?`,
+        [...values, id],
+        function (err) {
+          if (err) return reject(err)
+          if (this.changes === 0) return reject(new Error('Cliente não encontrado.'))
+          resolve()
+        }
+      )
+    })
+
+    const atualizado = await this.findById(id)
+    if (!atualizado) throw new Error('Cliente não encontrado.')
+    return atualizado
+  },
+
+  async deactivate(id: number): Promise<Cliente> {
+    return await this.update(id, { ativo: 0 })
   },
 
   async atualizarContagemEDesconto(id: number, concluidosCount: number, descontoDisponivel?: number | null): Promise<void> {
