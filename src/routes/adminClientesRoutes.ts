@@ -8,6 +8,7 @@ const router = Router()
 router.use(verifyToken)
 router.use(isAdmin)
 
+router.get('/simples', adminClientesController.listarSimples)
 router.get('/', adminClientesController.listar)
 router.get('/:id', adminClientesController.buscarPorId)
 router.put('/:id', adminClientesController.atualizar)

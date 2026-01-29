@@ -10,6 +10,10 @@ export const adminClientesService = {
     return clientesRepository.list(ativo)
   },
 
+  async listarSimples(): Promise<Array<{ id: number; nome: string }>> {
+    return clientesRepository.listSimpleAtivos()
+  },
+
   async buscarPorId(id: number): Promise<Cliente> {
     if (!id) throw new Error('O id do cliente é obrigatório.')
     const cliente = await clientesRepository.findById(id)

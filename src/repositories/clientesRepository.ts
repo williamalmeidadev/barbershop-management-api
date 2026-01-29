@@ -78,6 +78,19 @@ export const clientesRepository = {
     })
   },
 
+  async listSimpleAtivos(): Promise<Array<{ id: number; nome: string }>> {
+    return await new Promise((resolve, reject) => {
+      db.all(
+        `SELECT id, nome FROM clientes WHERE ativo = 1 ORDER BY nome ASC`,
+        [],
+        (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows as Array<{ id: number; nome: string }>)
+        }
+      )
+    })
+  },
+
   async findById(id: number): Promise<Cliente | null> {
     return await new Promise((resolve, reject) => {
       db.get(

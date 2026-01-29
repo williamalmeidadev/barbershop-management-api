@@ -13,6 +13,15 @@ export const adminClientesController = {
     }
   },
 
+  async listarSimples(_: Request, res: Response) {
+    try {
+      const clientes = await adminClientesService.listarSimples()
+      res.json(clientes)
+    } catch (err: any) {
+      res.status(400).json({ error: err.message })
+    }
+  },
+
   async buscarPorId(req: Request, res: Response) {
     try {
       const cliente = await adminClientesService.buscarPorId(Number(req.params.id))
