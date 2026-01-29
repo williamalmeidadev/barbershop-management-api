@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		customerName: '',
 		customerPhone: '',
 		currentStep: 1,
-		isLoggedIn: false,
-		token: localStorage.getItem('token') || null
+		token: localStorage.getItem('token') || null,
+		isLoggedIn: true // Simulated for demo purposes as requested
 	};
 
 	const sampleBarbers = [
@@ -29,7 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const bookingWizardView = document.getElementById('booking-wizard-view');
 	const menuToggle = document.getElementById('menu-toggle');
 	const navMenu = document.getElementById('nav-menu');
-	const homeSections = ['hero', 'professionals'];
+	const navAppointments = document.getElementById('nav-appointments');
+	const appointmentsView = document.getElementById('appointments');
+	const appointmentsList = document.getElementById('appointments-list');
+	const homeSections = ['hero', 'professionals', 'appointments'];
 
 	// Profile Elements
 	const closeProfileBtn = document.getElementById('close-profile');
@@ -59,12 +62,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const today = new Date().toISOString().split('T')[0];
 		if (profileBookingDate) profileBookingDate.min = today;
+
+		updateAuthUI();
+	}
+
+	function updateAuthUI() {
+		if (state.isLoggedIn) {
+			if (navAppointments) navAppointments.classList.remove('hidden');
+			const loginBtn = document.querySelector('.nav-button[href="#login"]');
+			if (loginBtn) loginBtn.innerText = 'Sair';
+		}
 	}
 
 	async function loadInitialData() {
 		try {
-			state.services = await api.fetchServices();
-			const apiProfessionals = await api.fetchBarbeiros();
+			state.services = await services.fetchServices();
+			const apiProfessionals = await services.fetchBarbeiros();
 
 			// If API returns data, use it. Otherwise, use sample data.
 			state.professionals = apiProfessionals.length > 0 ? apiProfessionals : sampleBarbers;
@@ -151,12 +164,63 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
+	async function renderAppointments() {
+		if (!appointmentsList) return;
+		appointmentsList.innerHTML = '<div class="loading">Buscando seus agendamentos...</div>';
+
+		try {
+			const appointments = await services.fetchUserAppointments(1); // Client ID 1 as default
+			if (appointments.length === 0) {
+				appointmentsList.innerHTML = '<p style="grid-column: 1/-1;">Você ainda não possui agendamentos.</p>';
+				return;
+			}
+
+			appointmentsList.innerHTML = appointments.map(appt => `
+                <div class="appointment-card" data-id="${appt.id}">
+                    <div class="appointment-header">
+                        <h3 style="margin: 0;">${appt.barbeiro.nome}</h3>
+                        <span class="appointment-status">${appt.status}</span>
+                    </div>
+                    <div class="appointment-details">
+                        <p><span class="material-icons">content_cut</span> ${appt.servico.nome}</p>
+                        <p><span class="material-icons">calendar_today</span> ${new Date(appt.data).toLocaleDateString()} às ${appt.horario}</p>
+                    </div>
+                    <div class="appointment-price">
+                        R$ ${appt.servico.preco.toFixed(2)}
+                    </div>
+                    <button class="btn-cancel" data-id="${appt.id}">Cancelar reserva</button>
+                </div>
+            `).join('');
+
+			appointmentsList.querySelectorAll('.btn-cancel').forEach(btn => {
+				btn.onclick = async () => {
+					const id = parseInt(btn.dataset.id);
+					if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+						try {
+							btn.disabled = true;
+							btn.innerText = 'Cancelando...';
+							await services.deleteAppointment(id);
+							showNotification('Agendamento cancelado com sucesso!');
+							renderAppointments(); // Refresh list
+						} catch (error) {
+							showNotification('Erro ao cancelar: ' + error.message, 'error');
+							btn.disabled = false;
+							btn.innerText = 'Cancelar reserva';
+						}
+					}
+				};
+			});
+		} catch (error) {
+			appointmentsList.innerHTML = '<p style="grid-column: 1/-1; color: var(--primary);">Erro ao carregar agendamentos.</p>';
+		}
+	}
+
 	async function loadProfileTimeSlots() {
 		if (!state.selectedProfessional || !state.selectedDate) return;
 
 		profileTimeSlots.innerHTML = '<div class="placeholder-text">Buscando horários...</div>';
 		try {
-			const slots = await api.fetchAvailableSlots(state.selectedProfessional.id, state.selectedDate);
+			const slots = await services.fetchAvailableSlots(state.selectedProfessional.id, state.selectedDate);
 			renderProfileTimeSlots(slots);
 		} catch (error) {
 			profileTimeSlots.innerHTML = '<div class="placeholder-text">Erro ao carregar horários.</div>';
@@ -295,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				};
 
 				try {
-					await api.createAgendamento(payload);
+					await services.createAppointment(payload);
 					showNotification('Agendamento confirmado com sucesso!');
 
 					setTimeout(() => {
@@ -343,6 +407,41 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (icon) icon.innerText = 'menu';
 				});
 			});
+		}
+
+		// Nav Appointments Link
+		if (navAppointments) {
+			navAppointments.onclick = (e) => {
+				e.preventDefault();
+				homeSections.forEach(sid => document.getElementById(sid).classList.add('hidden'));
+				barberProfileView.classList.add('hidden');
+				bookingWizardView.classList.add('hidden');
+
+				appointmentsView.classList.remove('hidden');
+				renderAppointments();
+
+				// Update active link
+				navMenu.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+				navAppointments.classList.add('active');
+			};
+		}
+
+		// Home Link (override default to show main sections)
+		const homeLink = document.querySelector('.nav-link[href="#home"]');
+		if (homeLink) {
+			homeLink.onclick = (e) => {
+				e.preventDefault();
+				appointmentsView.classList.add('hidden');
+				barberProfileView.classList.add('hidden');
+				bookingWizardView.classList.add('hidden');
+				homeSections.forEach(sid => {
+					const el = document.getElementById(sid);
+					if (el && sid !== 'appointments') el.classList.remove('hidden');
+				});
+
+				navMenu.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+				homeLink.classList.add('active');
+			};
 		}
 	}
 });

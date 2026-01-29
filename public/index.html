@@ -28,6 +28,7 @@
                 </button>
                 <nav id="nav-menu">
                     <a href="#home" class="nav-link active">Explorar</a>
+                    <a href="#appointments" id="nav-appointments" class="nav-link hidden">Meus Agendamentos</a>
                     <a href="#about" class="nav-link">Sobre</a>
                     <a href="#login" class="nav-button">Login</a>
                 </nav>
@@ -140,6 +141,15 @@
                     </div>
                 </div>
             </section>
+            <!-- User Appointments Section -->
+            <section id="appointments" class="section appointments-section hidden">
+                <div class="container text-center">
+                    <h2 class="section-title">Meus Agendamentos</h2>
+                    <div id="appointments-list" class="grid-container">
+                        <!-- User appointments will be injected here -->
+                    </div>
+                </div>
+            </section>
         </main>
 
         <footer class="main-footer">
@@ -162,6 +172,7 @@
     <!-- Notification system -->
     <div id="notification-container"></div>
 
+    <script src="services.js"></script>
     <script src="script.js"></script>
 </body>
 
