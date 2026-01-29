@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken'
 import { SignOptions } from 'jsonwebtoken'
 import { adminsRepository } from '../repositories/adminsRepository'
 import { clientesRepository } from '../repositories/clientesRepository'
+import { AdminLoginPayload } from '../interfaces/admin'
+import { ClienteLoginPayload } from '../interfaces/cliente'
 
 const JWT_SECRET = process.env.JWT_SECRET
 if (!JWT_SECRET) {
@@ -13,7 +15,7 @@ const JWT_EXPIRATION: SignOptions['expiresIn'] =
   (process.env.JWT_EXPIRES_IN as SignOptions['expiresIn']) || '1h'
 
 export const loginService = {
-  async loginCliente(payload: { email: string; password: string }): Promise<{ token: string }> {
+  async loginCliente(payload: ClienteLoginPayload): Promise<{ token: string }> {
     const { email, password } = payload
     if (!email || !password) {
       throw new Error('Email e senha são obrigatórios')
@@ -42,7 +44,7 @@ export const loginService = {
     return { token }
   },
 
-  async loginAdmin(payload: { email: string; password: string }): Promise<{ token: string }> {
+  async loginAdmin(payload: AdminLoginPayload): Promise<{ token: string }> {
     const { email, password } = payload
     if (!email || !password) {
       throw new Error('Email e senha são obrigatórios')

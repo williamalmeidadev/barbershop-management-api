@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt'
 import { isValidEmail } from '../utils/validators'
 import { clientesRepository } from '../repositories/clientesRepository'
+import { ClienteCreatePayload } from '../interfaces/cliente'
 
 export const clientesService = {
-  async criar(payload: { nome: string; email: string; telefone?: string; password: string }): Promise<{ clienteId: number }> {
+  async criar(payload: ClienteCreatePayload): Promise<{ clienteId: number }> {
     const { nome, email, telefone, password } = payload
 
     if (!nome || !email || !password) {
