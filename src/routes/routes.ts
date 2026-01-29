@@ -8,10 +8,8 @@ import vagaRoutes from './vagasRoutes'
 import servicosRoutes from './servicosRoutes'
 import barbeirosRoutes from './barbeirosRoutes'
 import configuracoesRoutes from './configuracoesRoutes'
-import { AuthController } from '../controllers/authController'
 
 const routes = Router()
-const authController = new AuthController()
 
 routes.get('/teste', (_, res) => {
   res.json({ status: 'ok' })
@@ -23,7 +21,6 @@ routes.use('/barbeiros', barbeirosRoutes);
 routes.use('/configuracoes', configuracoesRoutes);
 routes.use('/clientes', clienteRoutes);
 routes.use('/agendamentos', bookingRoutes);
-routes.post('/login', authController.login.bind(authController))
 routes.use('/clientes/register', clienteRoutes);
 routes.use('/admins', adminRoutes);
 routes.use('/auth', loginClienteRoutes);

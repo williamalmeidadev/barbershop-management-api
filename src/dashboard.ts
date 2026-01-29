@@ -4,7 +4,7 @@ import { requireAuth } from './utils/authGuard';
 requireAuth();
 
 async function loadData() {
-  const response = await authFetch('http://localhost:3333/activities');
+  const response = await authFetch('http://localhost:3333/teste');
   const data = await response.json();
   console.log(data);
 }
