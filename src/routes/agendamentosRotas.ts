@@ -1,11 +1,16 @@
 import { Router } from 'express'
 import { bookingController } from '../controllers/agendamentosController'
+import { verifyToken } from '../middlewares/verifyToken'
+import { isAdmin } from '../middlewares/verifyAdmin'
 
 const router = Router()
 
-router.post('/', bookingController.criar)
-router.get('/', bookingController.listar)
-router.post('/:id/cancelar', bookingController.cancelar)
-router.post('/:id/concluir', bookingController.concluir)
+router.post('/', verifyToken, bookingController.criar)
+
+router.get('/', verifyToken, isAdmin, bookingController.listar)
+
+router.post('/:id/cancelar', verifyToken, bookingController.cancelar)
+
+router.post('/:id/concluir', verifyToken, isAdmin, bookingController.concluir)
 
 export default router

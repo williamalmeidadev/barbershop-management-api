@@ -1,21 +1,22 @@
-
 import { Router } from 'express'
 import { slotController } from '../controllers/vagasController'
+import { verifyToken } from '../middlewares/verifyToken'
+import { isAdmin } from '../middlewares/verifyAdmin'
 
 const router = Router()
 
-router.delete('/apagar', slotController.apagarSlot)
+router.post('/gerar', verifyToken, isAdmin, slotController.gerarAgendaDoDia)
 
-router.post('/gerar', slotController.gerarAgendaDoDia)
+router.delete('/apagar', verifyToken, isAdmin, slotController.apagarSlot)
+
+router.post('/bloquear', verifyToken, isAdmin, slotController.bloquearHorario)
+
+router.post('/reservar', verifyToken, slotController.reservarSlots)
 
 router.get('/disponiveis', slotController.listarDisponiveis)
 
 router.get('/todos', slotController.listarTodos)
 
 router.get('/bloco-livre', slotController.buscarBlocoLivre)
-
-router.post('/reservar', slotController.reservarSlots)
-
-router.post('/bloquear', slotController.bloquearHorario)
 
 export default router

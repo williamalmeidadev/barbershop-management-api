@@ -102,7 +102,7 @@ export const vagasService = {
     return null
   },
 
-  async reservarVagasParaAgendamento(
+async reservarVagasParaAgendamento(
     barbeiroId: number,
     inicioDesejado: string,
     duracaoMinutos: number,
@@ -120,41 +120,39 @@ export const vagasService = {
     if (new Date(inicioDesejado).getTime() < Date.now()) {
       throw new Error('Não é possível reservar vagas no passado.')
     }
+
     const manageTransaction = options?.manageTransaction ?? true
+
     const reserva = async (): Promise<Vaga[] | null> => {
       const inicio = new Date(inicioDesejado)
+      const fim = new Date(inicio.getTime() + duracaoMinutos * 60000)
+
       const dataUtc = getUtcDateString(inicio)
-      const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, dataUtc)
-      const vagasFiltradas = vagas.filter(s => new Date(s.inicio) >= inicio)
-      let bloco: Vaga[] = []
-      let soma = 0
-      for (let i = 0; i < vagasFiltradas.length; i++) {
-        if (bloco.length === 0) {
-          bloco.push(vagasFiltradas[i])
-          soma = getVagaDuration(vagasFiltradas[i])
-        } else {
-          const anterior = bloco[bloco.length - 1]
-          if (anterior.fim === vagasFiltradas[i].inicio) {
-            bloco.push(vagasFiltradas[i])
-            soma += getVagaDuration(vagasFiltradas[i])
-          } else {
-            if (soma > 0 && soma < duracaoMinutos) {
-              return null
-            }
-            bloco = [vagasFiltradas[i]]
-            soma = getVagaDuration(vagasFiltradas[i])
-          }
-        }
-        if (soma >= duracaoMinutos) {
-          const ids = bloco.map(s => s.id)
-          const disponiveis = await vagasRepository.verificarDisponiveisPorIds(ids)
-          if (!disponiveis) return null
-          await vagasRepository.atualizarStatusLote(ids, StatusVaga.RESERVADO)
-          return bloco
-        }
+      
+      const vagasDisponiveis = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, dataUtc)
+
+      const slotsExatos = vagasDisponiveis.filter(v => {
+        const vInicio = new Date(v.inicio)
+        const vFim = new Date(v.fim)
+        return vInicio >= inicio && vFim <= fim
+      })
+
+      const totalMinutosEncontrados = slotsExatos.reduce((acc, v) => acc + getVagaDuration(v), 0)
+
+      if (totalMinutosEncontrados !== duracaoMinutos) {
+        return null
       }
-      return null
+
+      const ids = slotsExatos.map(s => s.id)
+      
+      const aindaDisponiveis = await vagasRepository.verificarDisponiveisPorIds(ids)
+      if (!aindaDisponiveis) return null
+
+      await vagasRepository.atualizarStatusLote(ids, StatusVaga.RESERVADO)
+
+      return slotsExatos.map(v => ({ ...v, status: StatusVaga.RESERVADO }))
     }
+
     return manageTransaction ? runInTransaction(reserva) : reserva()
   },
 
