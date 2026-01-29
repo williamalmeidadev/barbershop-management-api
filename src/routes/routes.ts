@@ -2,6 +2,7 @@ import { Router } from 'express'
 import clienteRoutes from './clienteRoutes'
 import bookingRoutes from './agendamentosRotas'
 import adminRoutes from './adminRoutes'
+import adminClientesRoutes from './adminClientesRoutes'
 import loginClienteRoutes from './loginCliente'
 import loginAdminRoutes from './loginAdmin'
 import vagaRoutes from './vagasRoutes'
@@ -23,6 +24,7 @@ routes.use('/clientes', clienteRoutes);
 routes.use('/agendamentos', bookingRoutes);
 routes.use('/clientes/register', clienteRoutes);
 routes.use('/admins', adminRoutes);
+routes.use('/admins/clientes', adminClientesRoutes);
 routes.use('/auth', loginClienteRoutes);
 routes.use('/auth', loginAdminRoutes);
 
