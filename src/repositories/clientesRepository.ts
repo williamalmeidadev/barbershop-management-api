@@ -1,10 +1,5 @@
 import { db } from '../database/sqlite'
-
-export interface ClienteResumo {
-  id: number
-  concluidos_count: number
-  desconto_disponivel_centavos: number
-}
+import { ClienteLoginRow, ClienteResumo } from '../interfaces/cliente'
 
 export const clientesRepository = {
   async buscarResumo(id: number): Promise<ClienteResumo | null> {
@@ -42,14 +37,14 @@ export const clientesRepository = {
     })
   },
 
-  async findLoginByEmail(email: string): Promise<{ id: number; email: string; password_hash: string; ativo: number } | null> {
+  async findLoginByEmail(email: string): Promise<ClienteLoginRow | null> {
     return await new Promise((resolve, reject) => {
       db.get(
         `SELECT id, email, password_hash, ativo FROM clientes WHERE email = ?`,
         [email],
         (err, row) => {
           if (err) return reject(err)
-          resolve((row as { id: number; email: string; password_hash: string; ativo: number }) ?? null)
+          resolve((row as ClienteLoginRow) ?? null)
         }
       )
     })

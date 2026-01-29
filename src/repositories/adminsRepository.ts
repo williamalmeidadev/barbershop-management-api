@@ -1,11 +1,5 @@
 import { db } from '../database/sqlite'
-
-export interface AdminLoginRow {
-  id: number
-  email: string
-  password_hash: string
-  ativo: number
-}
+import { AdminLoginRow } from '../interfaces/admin'
 
 export const adminsRepository = {
   async findByEmailOrUsuario(email: string, usuario: string): Promise<{ id: number } | null> {

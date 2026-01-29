@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt'
 import { isValidEmail } from '../utils/validators'
 import { adminsRepository } from '../repositories/adminsRepository'
+import { AdminCreatePayload } from '../interfaces/admin'
 
 export const adminsService = {
-  async criar(payload: { usuario: string; nome: string; email?: string; password: string }): Promise<{ adminId: number }> {
+  async criar(payload: AdminCreatePayload): Promise<{ adminId: number }> {
     const { usuario, nome, email, password } = payload
 
     if (!usuario || !nome || !password) {
