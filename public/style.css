@@ -63,3 +63,12 @@ body {
     padding: 1rem;
     font-size: 0.9rem;
 }
+
+/* Simple view routing helpers */
+.view {
+    display: none;
+}
+
+.nav-link.active {
+    color: #f39c12;
+}
