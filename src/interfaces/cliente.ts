@@ -20,6 +20,13 @@ export interface ClienteLoginPayload {
   password: string
 }
 
+export interface ClienteUpdatePayload {
+  nome?: string
+  email?: string
+  telefone?: string | null
+  ativo?: number
+}
+
 export interface ClienteLoginRow {
   id: number
   email: string
