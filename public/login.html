@@ -2,25 +2,84 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - BarberMarket</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="dark-theme">
+    <div id="app">
+        <header class="main-header">
+            <div class="container header-container">
+                <div class="logo">
+                    <span class="material-icons">diversity_3</span>
+                    <h1>BarberMarket</h1>
+                </div>
+                <nav id="nav-menu">
+                    <a href="index.html" class="nav-link">Explorar</a>
+                    <a href="register.html" class="nav-button">Cadastrar</a>
+                </nav>
+            </div>
+        </header>
 
-    <h2>Login</h2>
+        <main id="content">
+            <section class="section">
+                <div class="container" style="max-width: 450px;">
+                    <div class="card text-center">
+                        <h2 class="section-title">Login</h2>
+                        <p style="margin-bottom: 2rem; color: var(--text-muted);">Acesse sua conta para gerenciar seus agendamentos</p>
+                        
+                        <form id="login-form">
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <input type="email" id="email" placeholder="seu@email.com" required />
+                            </div>
 
-    <form id="login-form">
-        <input type="email" id="email" placeholder="E-mail" required />
+                            <div class="form-group">
+                                <label for="password">Senha</label>
+                                <input type="password" id="password" placeholder="Sua senha" required />
+                            </div>
 
-        <input type="password" id="password" placeholder="Senha" required />
+                            <button type="submit" class="primary-button">Entrar</button>
+                        </form>
 
-        <button type="submit">Entrar</button>
-    </form>
+                        <p id="error" style="color: #ff4d4d; margin-top: 1rem;"></p>
+                        
+                        <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
+                            Não tem uma conta? <a href="register.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">Cadastre-se</a>
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </main>
 
-    <p id="error" style="color: red;"></p>
+        <footer class="main-footer">
+            <div class="container footer-content">
+                <div class="footer-info">
+                    <h3>BarberMarket</h3>
+                    <p>Petrolina/PE - Brasil</p>
+                </div>
+                <div class="footer-social">
+                    <a href="#"><span class="material-icons">facebook</span></a>
+                    <a href="#"><span class="material-icons">camera_alt</span></a>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 BarberMarket. Tradição e Tecnologia.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
 
-    <script src="./js/login.js"></script>
+    <script src="services.js"></script>
+    <script src="login.js"></script>
 </body>
 
 </html>
