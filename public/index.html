@@ -1,55 +1,168 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbershop Manager</title>
-    
-    <link rel="stylesheet" href="style.css">
-    
+    <title>BarberMarket - Petrolina</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+
+<body class="dark-theme">
     <div id="app">
         <header class="main-header">
-            <div class="logo">
-                <h1>Barbershop ✂️</h1>
+            <div class="container header-container">
+                <div class="logo">
+                    <span class="material-icons">diversity_3</span>
+                    <h1>BarberMarket</h1>
+                </div>
+                <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu">
+                    <span class="material-icons">menu</span>
+                </button>
+                <nav id="nav-menu">
+                    <a href="#home" class="nav-link active">Explorar</a>
+                    <a href="#about" class="nav-link">Sobre</a>
+                    <a href="#login" class="nav-button">Login</a>
+                </nav>
             </div>
-            <nav id="nav-menu">
-                <a href="#home" class="nav-link">Início</a>
-                <a href="#login" class="nav-link">Login</a>
-                <a href="#cadastro" class="nav-link">Cadastro</a>
-            </nav>
         </header>
 
-        <main id="content" class="container">
-            <div id="view-home" class="view">
-                <div class="welcome-card">
-                    <h2>Bem-vindo ao Sistema</h2>
-                    <p>Carregando funcionalidades...</p>
+        <main id="content">
+            <!-- Hero Section -->
+            <section id="hero" class="hero-section">
+                <div class="container hero-content">
+                    <h2>Encontre seu Barbeiro Ideal</h2>
+                    <p>O primeiro marketplace de barbearia de Petrolina. Escolha seu profissional e agende em segundos.
+                    </p>
+                    <a href="#professionals" class="cta-button">Ver Barbeiros</a>
                 </div>
-            </div>
+            </section>
 
-            <div id="view-login" class="view">
-                <div class="welcome-card">
-                    <h2>Login</h2>
-                    <p>Formulário de login irá aqui.</p>
+            <!-- Professionals Section (Primary discovery) -->
+            <section id="professionals" class="section professionals-section">
+                <div class="container text-center">
+                    <h2 class="section-title">Barbeiros na Sua Região</h2>
+                    <div id="professionals-grid" class="grid-container">
+                        <!-- Dynamic professionals will be injected here -->
+                        <div class="loading">Buscando profissionais...</div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div id="view-cadastro" class="view">
-                <div class="welcome-card">
-                    <h2>Cadastro</h2>
-                    <p>Formulário de cadastro irá aqui.</p>
+            <!-- Services Section (Secondary/Contextual) -->
+            <section id="services" class="section services-section hidden">
+                <div class="container text-center">
+                    <h2 class="section-title">Serviços Disponíveis</h2>
+                    <div id="services-grid" class="grid-container">
+                        <!-- Dynamic services will be injected here -->
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Barber Profile Overlay/View -->
+            <section id="barber-profile" class="section profile-view hidden">
+                <div class="container profile-container">
+                    <button id="close-profile" class="back-button"><span class="material-icons">arrow_back</span> Voltar
+                        para lista</button>
+
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <span class="material-icons">person</span>
+                        </div>
+                        <div class="profile-info">
+                            <h2 id="profile-name">Nome do Barbeiro</h2>
+                            <p id="profile-specialty">Especialidade</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-content">
+                        <div class="services-column">
+                            <h3>Serviços e Preços</h3>
+                            <div id="profile-services-list" class="profile-services-grid">
+                                <!-- Services for this specific barber -->
+                            </div>
+                        </div>
+
+                        <div class="booking-column sticky-sidebar">
+                            <div class="booking-card">
+                                <h3>Agendar Horário</h3>
+                                <div class="booking-flow-compact">
+                                    <div class="form-group">
+                                        <label for="profile-booking-date">Data</label>
+                                        <input type="date" id="profile-booking-date" min="2026-01-29">
+                                    </div>
+                                    <div id="profile-time-slots" class="time-grid-compact">
+                                        <!-- Time slots for selected date -->
+                                        <p class="placeholder-text">Selecione uma data para ver os horários</p>
+                                    </div>
+                                    <button id="btn-start-booking" class="primary-button" disabled>Agendar
+                                        Selecionado</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Booking Confirmation Wizard (Modal-like) -->
+            <section id="booking-wizard-view" class="section hidden">
+                <div class="container booking-container">
+                    <button id="cancel-booking" class="back-button"><span class="material-icons">close</span>
+                        Cancelar</button>
+                    <h2 class="section-title">Finalizar Agendamento</h2>
+
+                    <div class="booking-wizard">
+                        <div class="wizard-step active" data-step="1">
+                            <h3>Suas Informações</h3>
+                            <div class="form-group">
+                                <label for="customer-name">Nome Completo</label>
+                                <input type="text" id="customer-name" placeholder="Como podemos te chamar?">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer-phone">WhatsApp</label>
+                                <input type="tel" id="customer-phone" placeholder="(87) 9 9999-9999">
+                            </div>
+                            <button id="btn-to-summary" class="next-step" disabled>Revisar Agendamento <span
+                                    class="material-icons">chevron_right</span></button>
+                        </div>
+                        <div class="wizard-step" data-step="2">
+                            <h3>Resumo do Agendamento</h3>
+                            <div id="booking-summary" class="summary-card"></div>
+                            <button id="confirm-booking" class="confirm-button">Confirmar Agora</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <footer class="main-footer">
-            <p>&copy; 2026 Barbershop System - Petrolina/PE</p>
+            <div class="container footer-content">
+                <div class="footer-info">
+                    <h3>BarberMarket</h3>
+                    <p>Petrolina/PE - Brasil</p>
+                </div>
+                <div class="footer-social">
+                    <a href="#"><span class="material-icons">facebook</span></a>
+                    <a href="#"><span class="material-icons">camera_alt</span></a>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 BarberMarket. Tradição e Tecnologia.</p>
+                </div>
+            </div>
         </footer>
     </div>
 
+    <!-- Notification system -->
+    <div id="notification-container"></div>
+
     <script src="script.js"></script>
 </body>
+
 </html>
