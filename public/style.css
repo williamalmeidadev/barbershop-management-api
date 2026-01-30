@@ -234,7 +234,8 @@ nav {
     text-align: center;
     color: var(--text-muted);
     display: -webkit-box;
-    -webkit-line-clamp: 2; 
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -783,4 +784,54 @@ nav {
     justify-content: center; 
     border: 2px solid var(--primary);
     overflow: hidden; 
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+    border: 3px solid var(--primary);
+}
+
+.profile-avatar-wrapper .profile-avatar {
+    width: 100%;
+    height: 100%;
+    border: none; 
+    border-radius: 0; 
+}
+
+.avatar-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.avatar-edit-overlay .material-icons {
+    color: var(--white);
+    font-size: 2rem;
+}
+
+.profile-avatar-wrapper:hover .avatar-edit-overlay,
+.profile-avatar-wrapper.uploading .avatar-edit-overlay {
+    opacity: 1;
+}
+
+.profile-avatar-wrapper.uploading .avatar-edit-overlay::after {
+    content: 'Enviando...';
+    font-size: 0.7rem;
+    color: var(--primary);
+    margin-top: 30px;
+    position: absolute;
 }

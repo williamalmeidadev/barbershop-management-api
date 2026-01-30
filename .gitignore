@@ -27,6 +27,10 @@ Thumbs.db
 # TypeScript cache
 *.tsbuildinfo
 
-# Testes de Cobertura
+# Test coverage
 coverage/
 .nyc_output/
+
+# ignore all files in public/images except .gitkeep
+public/images/*
+!public/images/.gitkeep
