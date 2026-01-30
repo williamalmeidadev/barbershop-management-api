@@ -1,7 +1,7 @@
 import express from 'express'
 import routes from './routes/routes'
 import path from 'path'
-import { verifyTokenPage } from './middlewares/verifyToken'
+import { verifyTokenPage, verifyTokenPageClient } from './middlewares/verifyToken'
 import { isAdmin } from './middlewares/verifyAdmin'
 
 const app = express()
@@ -14,6 +14,7 @@ app.get('/', (_, res) => res.sendFile(path.join(publicDir, 'index.html')))
 app.get('/login', (_, res) => res.sendFile(path.join(publicDir, 'login.html')))
 app.get('/admin-login', (_, res) => res.sendFile(path.join(publicDir, 'admin-login.html')))
 app.get('/register', (_, res) => res.sendFile(path.join(publicDir, 'register.html')))
+app.get('/app', verifyTokenPageClient, (_, res) => res.sendFile(path.join(publicDir, 'app.html')))
 app.get('/admin', verifyTokenPage, isAdmin, (_, res) => {
   res.set('Cache-Control', 'no-store')
   res.sendFile(path.join(publicDir, 'admin.html'))

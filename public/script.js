@@ -622,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('role');
                 console.log('Session cleared. Redirecting to login...');
-                window.location.href = 'index.html';
+                window.location.href = '/';
             }
         });
     }
