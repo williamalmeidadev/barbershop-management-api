@@ -1,33 +1,47 @@
 import { db } from './database/sqlite'
 
-
-async function seed() {
-  
-  // Clientes
-  await run(`INSERT INTO clientes (nome, email, telefone, password_hash, ativo) VALUES ('Cliente 1', 'cliente1@email.com', '11999999999', 'hash1', 1)`)
-  await run(`INSERT INTO clientes (nome, email, telefone, password_hash, ativo) VALUES ('Cliente 2', 'cliente2@email.com', '11888888888', 'hash2', 1)`)
-
-  // Barbeiros
-  await run(`INSERT INTO barbeiros (nome_profissional, bio, ativo) VALUES ('Barbeiro 1', 'Especialista em cortes', 1)`)
-  await run(`INSERT INTO barbeiros (nome_profissional, bio, ativo) VALUES ('Barbeiro 2', 'Barba e cabelo', 1)`)
-
-  // Serviços
-  await run(`INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES ('Corte Simples', 'Corte de cabelo tradicional', 20, 3000, 1)`)
-  await run(`INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES ('Barba', 'Barba completa', 15, 2000, 1)`)
-  await run(`INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES ('Sobrancelha', 'Design de sobrancelha', 10, 1500, 1)`)
-
-
-  console.log('Seed finalizado!')
-  process.exit(0)
-}
-
 function run(sql: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    db.run(sql, (err: any) => {
-      if (err) return reject(err)
+    db.run(sql, function (err: any) {
+      if (err) {
+        console.error(`❌ Erro: ${err.message}`)
+        return reject(err)
+      }
       resolve()
     })
   })
+}
+
+async function seed() {
+  console.log('Iniciando Seed...')
+  
+  try {
+    console.log('Limpando dados antigos...')
+    await run(`DELETE FROM clientes`)
+    await run(`DELETE FROM barbeiros`)
+    await run(`DELETE FROM servicos`)
+
+    console.log('Inserindo Clientes...')
+    await run(`INSERT INTO clientes (nome, email, telefone, password_hash, ativo) VALUES ('Cliente Teste', 'cliente@email.com', '11999999999', 'hash123', 1)`)
+
+    console.log('Inserindo Barbeiros com FOTO...')
+    await run(`INSERT INTO barbeiros (nome_profissional, bio, foto_url, ativo) 
+      VALUES ('Mestre da Navalha', 'Especialista em cortes clássicos e barboterapia.', 'https://placehold.co/400x400/333/FFF?text=Mestre', 1)`)
+      
+    await run(`INSERT INTO barbeiros (nome_profissional, bio, foto_url, ativo) 
+      VALUES ('João Degradê', 'O rei do disfarçado e cortes modernos.', 'https://placehold.co/400x400/555/FFF?text=Joao', 1)`)
+
+    console.log('Inserindo Serviços...')
+    await run(`INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES ('Corte Degradê', 'Acabamento na navalha', 45, 3500, 1)`)
+    await run(`INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES ('Barba Completa', 'Com toalha quente', 30, 2500, 1)`)
+
+    console.log('Seed finalizado!')
+    process.exit(0)
+
+  } catch (error) {
+    console.error('Falha na Seed:', error)
+    process.exit(1)
+  }
 }
 
 seed()
