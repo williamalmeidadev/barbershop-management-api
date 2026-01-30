@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarberMarket</title>
 
-    <!-- Google Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
         rel="stylesheet">
@@ -27,16 +26,15 @@
                     <span class="material-icons">menu</span>
                 </button>
                 <nav id="nav-menu">
-                    <a href="#home" class="nav-link active">Explorar</a>
+                    <a href="#home" id="nav-home" class="nav-link active">Explorar</a>
                     <a href="#appointments" id="nav-appointments" class="nav-link hidden">Meus Agendamentos</a>
-                    <a href="#about" class="nav-link">Sobre</a>
-                    <a href="/login" id="auth-action" class="nav-button">Login</a>
+                    <a href="#about" id="nav-about" class="nav-link">Sobre</a>
+                    <a href="login.html" id="auth-action" class="nav-button">Login</a>
                 </nav>
             </div>
         </header>
 
         <main id="content">
-            <!-- Hero Section -->
             <section id="hero" class="hero-section">
                 <div class="container hero-content">
                     <h2>Encontre seu Barbeiro Ideal</h2>
@@ -46,28 +44,50 @@
                 </div>
             </section>
 
-            <!-- Professionals Section (Primary discovery) -->
             <section id="professionals" class="section professionals-section">
                 <div class="container text-center">
                     <h2 class="section-title">Barbeiros na Sua Região</h2>
                     <div id="professionals-grid" class="grid-container">
-                        <!-- Dynamic professionals will be injected here -->
                         <div class="loading">Buscando profissionais...</div>
                     </div>
                 </div>
             </section>
 
-            <!-- Services Section (Secondary/Contextual) -->
             <section id="services" class="section services-section hidden">
                 <div class="container text-center">
                     <h2 class="section-title">Serviços Disponíveis</h2>
                     <div id="services-grid" class="grid-container">
-                        <!-- Dynamic services will be injected here -->
-                    </div>
+                        </div>
                 </div>
             </section>
 
-            <!-- Barber Profile Overlay/View -->
+            <section id="about" class="section bg-light hidden">
+                <div class="container">
+                    <div class="about-wrapper">
+                        <div class="about-text">
+                            <h2 class="section-title">Sobre a BarberMarket</h2>
+                            <p class="lead">Tradição e estilo se encontram aqui.</p>
+                            <p>
+                                Fundada com o objetivo de conectar os melhores profissionais aos clientes mais exigentes, 
+                                a BarberMarket moderniza a experiência da barbearia clássica.
+                            </p>
+                            <p>
+                                Nossa plataforma garante agilidade no agendamento e qualidade no serviço, 
+                                permitindo que você encontre o profissional ideal para o seu estilo.
+                            </p>
+                            
+                            <ul class="about-features">
+                                <li><span class="material-icons">check_circle</span> Agendamento Online</li>
+                                <li><span class="material-icons">check_circle</span> Melhores Profissionais</li>
+                                <li><span class="material-icons">check_circle</span> Avaliações Reais</li>
+                            </ul>
+                        </div>
+                        <div class="about-image">
+                            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Interior da Barbearia">
+                        </div>
+                    </div>
+                </div>
+            </section>
             <section id="barber-profile" class="section profile-view hidden">
                 <div class="container profile-container">
                     <button id="close-profile" class="back-button"><span class="material-icons">arrow_back</span> Voltar
@@ -87,8 +107,7 @@
                         <div class="services-column">
                             <h3>Serviços e Preços</h3>
                             <div id="profile-services-list" class="profile-services-grid">
-                                <!-- Services for this specific barber -->
-                            </div>
+                                </div>
                         </div>
 
                         <div class="booking-column sticky-sidebar">
@@ -100,7 +119,6 @@
                                         <input type="date" id="profile-booking-date" min="2026-01-29">
                                     </div>
                                     <div id="profile-time-slots" class="time-grid-compact">
-                                        <!-- Time slots for selected date -->
                                         <p class="placeholder-text">Selecione uma data para ver os horários</p>
                                     </div>
                                     <button id="btn-start-booking" class="primary-button" disabled>Agendar
@@ -112,7 +130,6 @@
                 </div>
             </section>
 
-            <!-- Booking Confirmation Wizard (Modal-like) -->
             <section id="booking-wizard-view" class="section hidden">
                 <div class="container booking-container">
                     <button id="cancel-booking" class="back-button"><span class="material-icons">close</span>
@@ -141,13 +158,11 @@
                     </div>
                 </div>
             </section>
-            <!-- User Appointments Section -->
             <section id="appointments" class="section appointments-section hidden">
                 <div class="container text-center">
                     <h2 class="section-title">Meus Agendamentos</h2>
                     <div id="appointments-list" class="grid-container">
-                        <!-- User appointments will be injected here -->
-                    </div>
+                        </div>
                 </div>
             </section>
         </main>
@@ -169,7 +184,6 @@
         </footer>
     </div>
 
-    <!-- Notification system -->
     <div id="notification-container"></div>
 
     <script src="services.js"></script>

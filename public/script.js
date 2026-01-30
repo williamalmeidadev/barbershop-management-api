@@ -16,14 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM Elements ---
     const professionalsGrid = document.getElementById('professionals-grid');
+    const servicesGrid = document.getElementById('services-grid');
     const barberProfileView = document.getElementById('barber-profile');
     const bookingWizardView = document.getElementById('booking-wizard-view');
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.getElementById('nav-menu');
     const navAppointments = document.getElementById('nav-appointments');
-    const appointmentsView = document.getElementById('appointments');
     const appointmentsList = document.getElementById('appointments-list');
-    const homeSections = ['hero', 'professionals', 'appointments'];
 
     // Profile Elements
     const closeProfileBtn = document.getElementById('close-profile');
@@ -48,7 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function init() {
         await loadInitialData();
+        
         renderProfessionals();
+        renderServices();
+        
+        setupNavigation();
         setupEventListeners();
 
         const today = new Date().toISOString().split('T')[0];
@@ -71,16 +74,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadInitialData() {
         try {
-            // Assumes 'services' is a global object imported from services.js
             state.services = await services.fetchServices();
             state.professionals = await services.fetchBarbeiros();
         } catch (error) {
             console.error('Falha ao carregar dados iniciais', error);
-            showNotification('Falha ao carregar dados dos barbeiros', 'error');
+            showNotification('Falha ao carregar dados do sistema', 'error');
+        }
+    }
+
+    // --- Navigation Logic ---
+    function setupNavigation() {
+        const views = {
+            home: ['hero', 'professionals', 'services'],
+            about: ['about'],
+            appointments: ['appointments']
+        };
+
+        window.navigateTo = function(viewName) {
+            const allSections = [
+                'hero', 'professionals', 'services', 'about', 'appointments', 
+                'barber-profile', 'booking-wizard-view'
+            ];
+            
+            allSections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+
+            if (views[viewName]) {
+                views[viewName].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.remove('hidden');
+                });
+            }
+
+            if (viewName === 'appointments') {
+                renderAppointments();
+            }
+
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            const activeLink = document.getElementById(`nav-${viewName}`);
+            if (activeLink) activeLink.classList.add('active');
+
+            if (navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+            }
+
+            window.scrollTo(0, 0);
+        };
+
+        document.getElementById('nav-home')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.navigateTo('home');
+        });
+
+        document.getElementById('nav-about')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.navigateTo('about');
+        });
+
+        document.getElementById('nav-appointments')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.navigateTo('appointments');
+        });
+
+        const hash = window.location.hash;
+        if (hash === '#about') {
+            window.navigateTo('about');
+        } else if (hash === '#appointments') {
+            window.navigateTo('appointments');
+        } else {
+            window.navigateTo('home');
         }
     }
 
     // --- Renderers ---
+    function renderServices() {
+        if (!servicesGrid) return;
+
+        if (!state.services || state.services.length === 0) {
+            servicesGrid.innerHTML = '<div class="loading">Carregando serviços...</div>';
+            return;
+        }
+
+        servicesGrid.innerHTML = state.services.map(service => `
+            <div class="card service-card">
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <span class="material-icons" style="font-size: 3rem; color: var(--primary);">content_cut</span>
+                </div>
+                <h3 style="text-align: center;">${service.nome}</h3>
+                <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; min-height: 3em;">
+                    ${service.descricao || 'Procedimento realizado com os melhores produtos do mercado.'}
+                </p>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: auto;">
+                    <div style="display: flex; align-items: center; gap: 5px; color: var(--text-muted); font-size: 0.9rem;">
+                        <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                        ${service.duracao_minutos} min
+                    </div>
+                    <div style="color: var(--primary); font-weight: 700; font-size: 1.2rem;">
+                        R$ ${(service.preco_centavos / 100).toFixed(2)}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
     function renderProfessionals() {
         if (!professionalsGrid) return;
         if (!state.professionals.length) {
@@ -89,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         professionalsGrid.innerHTML = state.professionals.map(pro => {
-            // Logic to decide between PHOTO or ICON with Fallback (onerror)
             const fallbackIcon = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
 
             const avatarContent = pro.foto_url
@@ -135,11 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const profileHeader = document.querySelector('.profile-header');
 
-        // Remove old avatar if exists
         const oldAvatar = document.querySelector('.profile-avatar, .profile-avatar-wrapper');
         if (oldAvatar) oldAvatar.remove();
 
-        // Fallback for profile image
         const fallbackIconBig = `<span class='material-icons' style='font-size: 4rem; color: var(--text-muted);'>person</span>`;
 
         const avatarUrl = pro.foto_url
@@ -172,14 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.isLoggedIn) {
             const input = wrapperDiv.querySelector('#avatar-upload-input');
 
-            // Click on wrapper to trigger file input
             wrapperDiv.onclick = (e) => {
                 if (!wrapperDiv.classList.contains('uploading')) {
                     input.click();
                 }
             };
 
-            // When a file is selected
             input.onchange = async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -199,11 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (response.ok) {
                         const updatedBarber = await response.json();
-
-                        // Update local state and images
                         pro.foto_url = updatedBarber.foto_url;
 
-                        // Update Profile Avatar (Big) with fallback
                         const newProfileContent = updatedBarber.foto_url
                             ? `<img src="${updatedBarber.foto_url}" class="barber-avatar-img" onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
                             : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
@@ -211,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         const imgContainer = wrapperDiv.querySelector('.profile-avatar');
                         imgContainer.innerHTML = newProfileContent;
 
-                        // Update Card Avatar (Small) with fallback
                         const cardAvatar = document.querySelector(`.card[data-id="${pro.id}"] .avatar-container`);
                         if (cardAvatar) {
                             const fallbackIconSmall = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
@@ -229,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error(error);
                     showNotification('Erro de conexão.', 'error');
                 } finally {
-                    // Remove loading feedback and clear input
                     wrapperDiv.classList.remove('uploading');
                     if (icon) icon.innerText = 'photo_camera';
                     input.value = '';
@@ -240,15 +329,17 @@ document.addEventListener('DOMContentLoaded', () => {
         renderProfileServices();
         renderProfileTimeSlots([]);
 
-        // Switch views
-        homeSections.forEach(sid => document.getElementById(sid).classList.add('hidden'));
+        const mainViews = ['hero', 'professionals', 'services', 'about', 'appointments'];
+        mainViews.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.classList.add('hidden');
+        });
+        
         barberProfileView.classList.remove('hidden');
         window.scrollTo(0, 0);
     }
 
     function renderProfileServices() {
-        // Mock filtering: In a real marketplace, services would belong to a barber
-        // Here we just show all services as available for any barber for demo purposes
         profileServicesList.innerHTML = state.services.map(service => `
             <div class="profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}" data-id="${service.id}">
                 <div>
@@ -277,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appointmentsList.innerHTML = '<div class="loading">Buscando seus agendamentos...</div>';
 
         try {
-            const appointments = await services.fetchUserAppointments(1); // Client ID 1 as default
+            const appointments = await services.fetchUserAppointments(1);
             if (appointments.length === 0) {
                 appointmentsList.innerHTML = '<p style="grid-column: 1/-1;">Você ainda não possui agendamentos.</p>';
                 return;
@@ -309,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             btn.innerText = 'Cancelando...';
                             await services.deleteAppointment(id);
                             showNotification('Agendamento cancelado com sucesso!');
-                            renderAppointments(); // Refresh list
+                            renderAppointments();
                         } catch (error) {
                             showNotification('Erro ao cancelar: ' + error.message, 'error');
                             btn.disabled = false;
@@ -416,7 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupEventListeners() {
         closeProfileBtn.onclick = () => {
             barberProfileView.classList.add('hidden');
-            homeSections.forEach(sid => document.getElementById(sid).classList.remove('hidden'));
+            document.getElementById('hero').classList.remove('hidden');
+            document.getElementById('professionals').classList.remove('hidden');
+            document.getElementById('services').classList.remove('hidden');
         };
 
         profileBookingDate.addEventListener('change', (e) => {
@@ -472,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     setTimeout(() => {
                         bookingWizardView.classList.add('hidden');
-                        homeSections.forEach(sid => document.getElementById(sid).classList.remove('hidden'));
+                        window.navigateTo('home');
                         // Reset
                         confirmBtn.disabled = false;
                         confirmBtn.innerText = 'Confirmar Agora';
@@ -517,48 +610,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Nav Appointments Link
-        if (navAppointments) {
-            navAppointments.onclick = (e) => {
-                e.preventDefault();
-                homeSections.forEach(sid => document.getElementById(sid).classList.add('hidden'));
-                barberProfileView.classList.add('hidden');
-                bookingWizardView.classList.add('hidden');
-
-                appointmentsView.classList.remove('hidden');
-                renderAppointments();
-
-                // Update active link
-                navMenu.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                navAppointments.classList.add('active');
-            };
-        }
-
-        // Home Link (override default to show main sections)
-        const homeLink = document.querySelector('.nav-link[href="#home"]');
-        if (homeLink) {
-            homeLink.onclick = (e) => {
-                e.preventDefault();
-                appointmentsView.classList.add('hidden');
-                barberProfileView.classList.add('hidden');
-                bookingWizardView.classList.add('hidden');
-                homeSections.forEach(sid => {
-                    const el = document.getElementById(sid);
-                    if (el && sid !== 'appointments') el.classList.remove('hidden');
-                });
-
-                navMenu.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                homeLink.classList.add('active');
-            };
-        }
-
         // Logout functionality
-        // Auth (Login/Logout) Handler via Event Delegation
         document.addEventListener('click', (e) => {
             const authBtn = e.target.closest('#auth-action');
             if (!authBtn) return;
 
-            // Check live token state
             const token = localStorage.getItem('token');
             if (token) {
                 e.preventDefault();
@@ -566,9 +622,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('role');
                 console.log('Session cleared. Redirecting to login...');
-                window.location.href = '/login';
+                window.location.href = 'login.html';
             }
         });
     }
-
 });

@@ -1,22 +1,16 @@
 const form = document.getElementById('register-form');
-const error = document.getElementById('error');
-
-function showNotification(message, type = 'success') {
-    let container = document.getElementById('notification-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'notification-container';
-        document.body.appendChild(container);
-    }
-    const note = document.createElement('div');
-    note.className = `notification ${type}`;
-    note.textContent = message;
-    container.appendChild(note);
-    setTimeout(() => note.remove(), 3500);
-}
+const btnRegister = document.getElementById('btn-register');
+const errorContainer = document.getElementById('error-container');
+const errorMsg = document.getElementById('error-msg');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // 1. Feedback Visual
+    errorContainer.classList.add('hidden');
+    btnRegister.disabled = true;
+    const originalText = btnRegister.innerText;
+    btnRegister.innerText = 'Cadastrando...';
 
     const nome = document.getElementById('nome').value;
     const email = document.getElementById('email').value;
@@ -24,16 +18,22 @@ form.addEventListener('submit', async (e) => {
     const telefone = document.getElementById('telefone')?.value;
 
     try {
+        // 2. Chama o serviço
         await window.services.register(nome, email, password, telefone);
-        error.textContent = '';
-        showNotification('Cadastro realizado com sucesso!');
+        
+        // 3. Sucesso
+        btnRegister.innerText = 'Sucesso! Redirecionando...';
         setTimeout(() => {
-            window.location.href = '/login';
-        }, 1200);
+            window.location.href = 'login.html';
+        }, 1000);
+
     } catch (err) {
-        error.textContent = err instanceof Error
-            ? err.message
-            : 'Erro no cadastro';
-        showNotification(error.textContent, 'error');
+        // 4. Erro
+        console.error(err);
+        errorMsg.textContent = err.message || 'Erro ao realizar cadastro.';
+        errorContainer.classList.remove('hidden');
+        
+        btnRegister.disabled = false;
+        btnRegister.innerText = originalText;
     }
 });
