@@ -157,6 +157,53 @@ describe('VagasRepository Integration', function () {
         });
     });
 
+    describe('F. Helpers Diversos', () => {
+        it('deve buscar vagas por IDs', async () => {
+            const id1 = await insertVaga(barbeiroId, '2026-01-30T10:00:00.000Z', '2026-01-30T10:30:00.000Z', StatusVaga.DISPONIVEL);
+            const id2 = await insertVaga(barbeiroId, '2026-01-30T11:00:00.000Z', '2026-01-30T11:30:00.000Z', StatusVaga.DISPONIVEL);
+
+            const encontradas = await vagasRepository.buscarVagasPorIds([id1, id2]);
+            expect(encontradas).to.have.lengthOf(2);
+            const ids = encontradas.map(v => v.id);
+            expect(ids).to.include(id1);
+            expect(ids).to.include(id2);
+        });
+
+        it('deve buscar vagas consecutivas', async () => {
+            const h1000 = '2026-01-30T10:00:00.000Z';
+            const h1030 = '2026-01-30T10:30:00.000Z';
+            const h1100 = '2026-01-30T11:00:00.000Z';
+
+            await insertVaga(barbeiroId, h1000, h1030, StatusVaga.DISPONIVEL);
+            await insertVaga(barbeiroId, h1030, h1100, StatusVaga.DISPONIVEL);
+            await insertVaga(barbeiroId, h1100, '2026-01-30T11:30:00.000Z', StatusVaga.DISPONIVEL);
+
+            const consecutivas = await vagasRepository.buscarVagasConsecutivas(barbeiroId, h1000, 2);
+            expect(consecutivas).to.have.lengthOf(2);
+            expect(consecutivas[0].inicio).to.equal(h1000);
+            expect(consecutivas[1].inicio).to.equal(h1030);
+        });
+
+        it('deve apagar uma vaga', async () => {
+            const id = await insertVaga(barbeiroId, '2026-01-30T09:00:00.000Z', '2026-01-30T09:30:00.000Z', StatusVaga.DISPONIVEL);
+
+            const sucesso = await vagasRepository.apagarVaga(id);
+            expect(sucesso).to.be.true;
+
+            const buscada = await getVagaById(id);
+            expect(buscada).to.be.undefined;
+        });
+
+        it('deve liberar vagas reservadas', async () => {
+            const id = await insertVaga(barbeiroId, '2026-01-30T09:00:00.000Z', '2026-01-30T09:30:00.000Z', StatusVaga.RESERVADO);
+
+            await vagasRepository.liberarVagas([id]);
+
+            const v = await getVagaById(id);
+            expect(v.status).to.equal(StatusVaga.DISPONIVEL);
+        });
+    });
+
     // Helpers
     async function insertVaga(barbeiroId: number, inicio: string, fim: string, status: StatusVaga): Promise<number> {
         return await new Promise<number>((resolve, reject) => {
