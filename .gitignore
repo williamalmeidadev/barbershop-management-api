@@ -37,3 +37,4 @@ public/images/*
 
 # Ignore coverage directory
 coverage/
+.nyc_output/
