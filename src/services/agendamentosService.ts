@@ -70,6 +70,11 @@ export const bookingService = {
     return agendamentosRepository.listarAgendamentosComServicosEVagas()
   },
 
+  async listarAgendamentosDoCliente(clienteId: number): Promise<Agendamento[]> {
+    if (!clienteId) throw new Error('Cliente ID é obrigatório.')
+    return agendamentosRepository.listarAgendamentosDoCliente(clienteId)
+  },
+
 
   async cancelarAgendamento(id: number): Promise<Agendamento> {
     if (!id) throw new Error('O id do agendamento é obrigatório.')

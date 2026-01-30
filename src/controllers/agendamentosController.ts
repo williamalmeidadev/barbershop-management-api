@@ -20,6 +20,16 @@ export const bookingController = {
     }
   },
 
+  async listarPorCliente(req: Request, res: Response) {
+    try {
+      const clienteId = Number(req.params.id)
+      const agendamentos = await bookingService.listarAgendamentosDoCliente(clienteId)
+      res.json(agendamentos)
+    } catch (err: any) {
+      res.status(400).json({ error: err.message })
+    }
+  },
+
   async cancelar(req: Request, res: Response) {
     try {
       const agendamento = await bookingService.cancelarAgendamento(Number(req.params.id))
@@ -27,8 +37,8 @@ export const bookingController = {
     } catch (err: any) {
       const status =
         err.message?.includes('não encontrado') ? 404 :
-        err.message?.includes('já') ? 409 :
-        400
+          err.message?.includes('já') ? 409 :
+            400
       res.status(status).json({ error: err.message })
     }
   },
@@ -40,8 +50,8 @@ export const bookingController = {
     } catch (err: any) {
       const status =
         err.message?.includes('não encontrado') ? 404 :
-        err.message?.includes('já') ? 409 :
-        400
+          err.message?.includes('já') ? 409 :
+            400
       res.status(status).json({ error: err.message })
     }
   },
