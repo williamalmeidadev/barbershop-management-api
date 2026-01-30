@@ -58,13 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateAuthUI() {
+        console.log('Updating Auth UI. IsLoggedIn:', state.isLoggedIn);
         if (state.isLoggedIn) {
             if (navAppointments) navAppointments.classList.remove('hidden');
-            const loginBtn = document.querySelector('.nav-button[href="login.html"]');
-            if (loginBtn) {
-                loginBtn.innerText = 'Sair';
-                loginBtn.href = "#";
-                loginBtn.id = 'logout-btn';
+            const authBtn = document.getElementById('auth-action');
+            if (authBtn) {
+                authBtn.innerText = 'Sair';
+                authBtn.href = "#";
             }
         }
     }
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         professionalsGrid.innerHTML = state.professionals.map(pro => {
             // Logic to decide between PHOTO or ICON with Fallback (onerror)
             const fallbackIcon = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
-            
+
             const avatarContent = pro.foto_url
                 ? `<img src="${pro.foto_url}" 
                        alt="${pro.nome_profissional}" 
@@ -134,32 +134,32 @@ document.addEventListener('DOMContentLoaded', () => {
         profileSpecialty.innerText = pro.bio || pro.especialidade || 'Barbeiro Profissional';
 
         const profileHeader = document.querySelector('.profile-header');
-        
+
         // Remove old avatar if exists
         const oldAvatar = document.querySelector('.profile-avatar, .profile-avatar-wrapper');
-        if(oldAvatar) oldAvatar.remove();
+        if (oldAvatar) oldAvatar.remove();
 
         // Fallback for profile image
         const fallbackIconBig = `<span class='material-icons' style='font-size: 4rem; color: var(--text-muted);'>person</span>`;
 
-        const avatarUrl = pro.foto_url 
+        const avatarUrl = pro.foto_url
             ? `<img src="${pro.foto_url}" 
                    alt="${pro.nome_profissional}" 
                    class="barber-avatar-img"
                    onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
             : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
 
-        const editOverlay = state.isLoggedIn 
+        const editOverlay = state.isLoggedIn
             ? `
                 <div class="avatar-edit-overlay">
                     <span class="material-icons">photo_camera</span>
                     <input type="file" id="avatar-upload-input" accept="image/*" style="display: none;">
                 </div>
-              ` 
+              `
             : '';
 
         const wrapperDiv = document.createElement('div');
-        wrapperDiv.className = 'profile-avatar-wrapper'; 
+        wrapperDiv.className = 'profile-avatar-wrapper';
         wrapperDiv.innerHTML = `
             <div class="profile-avatar" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--surface);">
                 ${avatarUrl}
@@ -199,26 +199,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (response.ok) {
                         const updatedBarber = await response.json();
-                        
+
                         // Update local state and images
                         pro.foto_url = updatedBarber.foto_url;
-                        
+
                         // Update Profile Avatar (Big) with fallback
-                        const newProfileContent = updatedBarber.foto_url 
+                        const newProfileContent = updatedBarber.foto_url
                             ? `<img src="${updatedBarber.foto_url}" class="barber-avatar-img" onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
                             : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
-                        
+
                         const imgContainer = wrapperDiv.querySelector('.profile-avatar');
                         imgContainer.innerHTML = newProfileContent;
-                        
+
                         // Update Card Avatar (Small) with fallback
                         const cardAvatar = document.querySelector(`.card[data-id="${pro.id}"] .avatar-container`);
-                        if(cardAvatar) {
-                             const fallbackIconSmall = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
-                             const newCardContent = updatedBarber.foto_url 
+                        if (cardAvatar) {
+                            const fallbackIconSmall = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
+                            const newCardContent = updatedBarber.foto_url
                                 ? `<img src="${updatedBarber.foto_url}" alt="${pro.nome_profissional}" class="barber-avatar-img" onerror="this.parentElement.innerHTML = &quot;${fallbackIconSmall}&quot;">`
                                 : `<span class="material-icons" style="font-size: 2.5rem; color: var(--primary);">person</span>`;
-                             
+
                             cardAvatar.innerHTML = newCardContent;
                         }
                         showNotification('Foto atualizada com sucesso!');
@@ -553,14 +553,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Logout functionality
-        const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.onclick = (e) => {
+        // Auth (Login/Logout) Handler via Event Delegation
+        document.addEventListener('click', (e) => {
+            const authBtn = e.target.closest('#auth-action');
+            if (!authBtn) return;
+
+            // Check live token state
+            const token = localStorage.getItem('token');
+            if (token) {
                 e.preventDefault();
-                localStorage.clear();
+                console.log('Logout clicked. Clearing session...');
+                localStorage.removeItem('token');
+                localStorage.removeItem('role');
+                console.log('Session cleared. Redirecting to login...');
                 window.location.href = 'login.html';
-            };
-        }
+            }
+        });
     }
-    
+
 });
