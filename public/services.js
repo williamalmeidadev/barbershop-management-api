@@ -89,6 +89,49 @@ const services = {
             if (id === 999) return true;
             throw error;
         }
+    },
+
+    async login(email, password) {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Credenciais inválidas');
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
+        return data;
+    },
+
+    async register(nome, email, password, telefone) {
+        const response = await fetch(`${API_BASE_URL}/clientes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                nome,
+                email,
+                password,
+                telefone: telefone || null,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || data.error || 'Erro ao cadastrar');
+        }
+
+        return data;
     }
 };
 

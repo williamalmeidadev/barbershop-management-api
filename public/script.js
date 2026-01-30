@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		customerPhone: '',
 		currentStep: 1,
 		token: localStorage.getItem('token') || null,
-		isLoggedIn: true // Simulated for demo purposes as requested
+		isLoggedIn: !!localStorage.getItem('token')
 	};
 
 	const sampleBarbers = [
@@ -69,8 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	function updateAuthUI() {
 		if (state.isLoggedIn) {
 			if (navAppointments) navAppointments.classList.remove('hidden');
-			const loginBtn = document.querySelector('.nav-button[href="#login"]');
-			if (loginBtn) loginBtn.innerText = 'Sair';
+			const loginBtn = document.querySelector('.nav-button[href="login.html"]');
+			if (loginBtn) {
+				loginBtn.innerText = 'Sair';
+				loginBtn.href = "#";
+				loginBtn.id = 'logout-btn';
+			}
 		}
 	}
 
@@ -441,6 +445,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				navMenu.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 				homeLink.classList.add('active');
+			};
+		}
+
+		// Logout functionality
+		const logoutBtn = document.getElementById('logout-btn');
+		if (logoutBtn) {
+			logoutBtn.onclick = (e) => {
+				e.preventDefault();
+				localStorage.clear();
+				window.location.href = 'login.html';
 			};
 		}
 	}
