@@ -22,7 +22,7 @@ form.addEventListener('submit', async (e) => {
 
         btnRegister.innerText = 'Sucesso! Redirecionando...';
         setTimeout(() => {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }, 1000);
 
     } catch (err) {

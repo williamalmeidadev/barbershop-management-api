@@ -70,3 +70,31 @@ export function verifyTokenPage(req: Request, res: Response, next: NextFunction)
     return res.redirect('/admin-login');
   }
 }
+
+export function verifyTokenPageClient(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  let token: string | undefined;
+  if (authHeader) {
+    [, token] = authHeader.split(' ');
+  } else if (req.headers.cookie) {
+    const cookies = req.headers.cookie.split(';').map((c) => c.trim());
+    const found = cookies.find((c) => c.startsWith('client_token='));
+    if (found) {
+      token = decodeURIComponent(found.split('=')[1] || '');
+    }
+  }
+  if (!token) {
+    return res.redirect('/login');
+  }
+  try {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET não definida no .env");
+    }
+    const decoded = jwt.verify(token, secret);
+    req.user = decoded as TokenPayload;
+    return next();
+  } catch (err) {
+    return res.redirect('/login');
+  }
+}

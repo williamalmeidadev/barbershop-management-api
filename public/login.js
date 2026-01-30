@@ -15,11 +15,12 @@ form.addEventListener('submit', async (event) => {
     const password = document.getElementById('password').value;
 
     try {
-        await window.services.login(email, password);
+        const data = await window.services.login(email, password);
+        document.cookie = `client_token=${encodeURIComponent(data.token)}; path=/; SameSite=Lax`;
         
         btnLogin.innerText = 'Sucesso!';
         setTimeout(() => {
-            window.location.href = 'app.html';
+            window.location.href = '/app';
         }, 500);
 
     } catch (err) {

@@ -53,6 +53,10 @@ body {
     background-attachment: fixed;
 }
 
+main#content {
+    padding-top: calc(var(--header-height) + 2rem);
+}
+
 /* Removemos a fonte serifada (Playfair) para ficar igual ao protótipo */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-main);
