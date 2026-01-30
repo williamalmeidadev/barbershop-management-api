@@ -18,17 +18,14 @@ form.addEventListener('submit', async (e) => {
     const telefone = document.getElementById('telefone')?.value;
 
     try {
-        // 2. Chama o serviço
         await window.services.register(nome, email, password, telefone);
-        
-        // 3. Sucesso
+
         btnRegister.innerText = 'Sucesso! Redirecionando...';
         setTimeout(() => {
             window.location.href = 'login.html';
         }, 1000);
 
     } catch (err) {
-        // 4. Erro
         console.error(err);
         errorMsg.textContent = err.message || 'Erro ao realizar cadastro.';
         errorContainer.classList.remove('hidden');
