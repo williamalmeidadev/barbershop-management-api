@@ -14,14 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		isLoggedIn: !!localStorage.getItem('token')
 	};
 
-	const sampleBarbers = [
-		{ id: 101, nome: "Luiz Tradição", especialidade: "Mestre da Navalha" },
-		{ id: 102, nome: "Bruno Sharp", especialidade: "Especialista em Degradê" },
-		{ id: 103, nome: "Carlos Classic", especialidade: "Cortes Atemporais" },
-		{ id: 104, nome: "Felipe Fade", especialidade: "Design de Barba" },
-		{ id: 105, nome: "Ricardo Retro", especialidade: "Estilo Vintage" },
-		{ id: 106, nome: "André Modern", especialidade: "Tendências Urbanas" }
-	];
+	const sampleBarbers = [];
 
 	// --- DOM Elements ---
 	const professionalsGrid = document.getElementById('professionals-grid');
@@ -81,13 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	async function loadInitialData() {
 		try {
 			state.services = await services.fetchServices();
-			const apiProfessionals = await services.fetchBarbeiros();
-
-			// If API returns data, use it. Otherwise, use sample data.
-			state.professionals = apiProfessionals.length > 0 ? apiProfessionals : sampleBarbers;
+			state.professionals = await services.fetchBarbeiros();
 		} catch (error) {
 			console.error('Falha ao carregar dados iniciais', error);
-			state.professionals = sampleBarbers;
+			showNotification('Falha ao carregar dados dos barbeiros', 'error');
 		}
 	}
 
@@ -95,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	function renderProfessionals() {
 		if (!professionalsGrid) return;
 		if (!state.professionals.length) {
-			professionalsGrid.innerHTML = '<div class="loading">Carregando barbeiros...</div>';
+			professionalsGrid.innerHTML = '<div class="loading">Nenhum barbeiro disponível no momento.</div>';
 			return;
 		}
 
@@ -104,8 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--border); margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary);">
                     <span class="material-icons" style="font-size: 2.5rem; color: var(--primary);">person</span>
                 </div>
-                <h3 style="text-align: center;">${pro.nome}</h3>
-                <p style="text-align: center; color: var(--text-muted);">${pro.especialidade || 'Barbeiro Profissional'}</p>
+                <h3 style="text-align: center;">${pro.nome_profissional || pro.nome}</h3>
+                <p style="text-align: center; color: var(--text-muted);">${pro.bio || pro.especialidade || 'Barbeiro Profissional'}</p>
                 <div style="margin-top: 1.5rem; text-align: center;">
                     <span style="color: var(--primary); font-weight: 700; font-size: 0.9rem;">Ver Serviços e Horários</span>
                 </div>
@@ -130,8 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		state.selectedDate = null;
 		if (profileBookingDate) profileBookingDate.value = '';
 
-		profileName.innerText = pro.nome;
-		profileSpecialty.innerText = pro.especialidade || 'Barbeiro Profissional';
+		profileName.innerText = pro.nome_profissional || pro.nome;
+		profileSpecialty.innerText = pro.bio || pro.especialidade || 'Barbeiro Profissional';
 
 		renderProfileServices();
 		renderProfileTimeSlots([]); // Clear time slots
@@ -152,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="font-size: 0.8rem; color: var(--text-muted);">${service.descricao || 'Serviço de alta qualidade'}</p>
                 </div>
                 <div style="text-align: right;">
-                    <span style="color: var(--primary); font-weight: 700;">R$ ${service.preco.toFixed(2)}</span>
+                    <span style="color: var(--primary); font-weight: 700;">R$ ${(service.preco_centavos / 100).toFixed(2)}</span>
                     <p style="font-size: 0.7rem;">${service.duracao_minutos || 30} min</p>
                 </div>
             </div>
@@ -190,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p><span class="material-icons">calendar_today</span> ${new Date(appt.data).toLocaleDateString()} às ${appt.horario}</p>
                     </div>
                     <div class="appointment-price">
-                        R$ ${appt.servico.preco.toFixed(2)}
+                        R$ ${(appt.servico.preco_centavos / 100).toFixed(2)}
                     </div>
                     <button class="btn-cancel" data-id="${appt.id}">Cancelar reserva</button>
                 </div>
@@ -276,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     Resumo do Pedido
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                    <strong>Profissional:</strong> <span>${state.selectedProfessional.nome}</span>
+                    <strong>Profissional:</strong> <span>${state.selectedProfessional.nome_profissional || state.selectedProfessional.nome}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
                     <strong>Serviço:</strong> <span>${state.selectedService.nome}</span>
@@ -285,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>Agendado para:</strong> <span>${new Date(state.selectedDate).toLocaleDateString()} às ${state.selectedTime}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-top: 1.5rem; border-top: 2px solid var(--primary); padding-top: 1rem; color: var(--primary); font-size: 1.3rem; font-weight: 700;">
-                    <strong>Total:</strong> <span>R$ ${state.selectedService.preco.toFixed(2)}</span>
+                    <strong>Total:</strong> <span>R$ ${(state.selectedService.preco_centavos / 100).toFixed(2)}</span>
                 </div>
             </div>
             <div style="padding: 0 1rem; color: var(--text-muted); font-size: 0.9rem;">

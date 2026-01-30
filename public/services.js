@@ -36,10 +36,12 @@ const services = {
 
     async createAppointment(data) {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/agendamentos`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(data)
             });
@@ -54,29 +56,28 @@ const services = {
 
     async fetchUserAppointments(clienteId) {
         try {
-            const response = await fetch(`${API_BASE_URL}/agendamentos/cliente/${clienteId}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/agendamentos/cliente/${clienteId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             if (!response.ok) throw new Error('Não foi possível carregar seus agendamentos');
             return await response.json();
         } catch (error) {
             console.error(error);
-            // Fallback mock data for demo if API endpoint doesn't exist yet
-            return [
-                {
-                    id: 999,
-                    barbeiro: { nome: "Luiz Tradição" },
-                    servico: { nome: "Corte de Cabelo", preco: 50 },
-                    data: "2026-02-15",
-                    horario: "10:00",
-                    status: "Confirmado"
-                }
-            ];
+            return [];
         }
     },
 
     async deleteAppointment(id) {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/agendamentos/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
             if (!response.ok) {
                 const result = await response.json();
