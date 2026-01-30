@@ -18,9 +18,19 @@ describe('ClientesRepository Integration', function () {
 
     beforeEach(async () => {
         await new Promise<void>((resolve, reject) => {
-            db.run('DELETE FROM clientes', (err) => {
-                if (err) return reject(err);
-                resolve();
+            db.serialize(() => {
+                db.run('PRAGMA foreign_keys = OFF');
+
+                db.run('DELETE FROM agendamento_servicos');
+                db.run('DELETE FROM agendamento_vagas');
+                db.run('DELETE FROM agendamentos');
+
+                db.run('DELETE FROM clientes');
+
+                db.run('PRAGMA foreign_keys = ON', (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
             });
         });
     });
