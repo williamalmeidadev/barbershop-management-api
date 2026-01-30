@@ -1,4 +1,5 @@
 import { db } from './database/sqlite'
+import bcrypt from 'bcrypt'
 
 function run(sql: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -22,7 +23,12 @@ async function seed() {
     await run(`DELETE FROM servicos`)
 
     console.log('Inserindo Clientes...')
-    await run(`INSERT INTO clientes (nome, email, telefone, password_hash, ativo) VALUES ('Cliente Teste', 'cliente@email.com', '11999999999', 'hash123', 1)`)
+    const clienteHash = await bcrypt.hash('cliente123', 10)
+    await run(`INSERT INTO clientes (nome, email, telefone, password_hash, ativo) VALUES ('Cliente Teste', 'cliente@email.com', '11999999999', '${clienteHash}', 1)`)
+
+    console.log('Inserindo Admin...')
+    const adminHash = await bcrypt.hash('admin123', 10)
+    await run(`INSERT INTO admins (usuario, nome, email, password_hash, ativo) VALUES ('admin', 'Administrador', 'admin@email.com', '${adminHash}', 1)`)
 
     console.log('Inserindo Barbeiros com FOTO...')
     await run(`INSERT INTO barbeiros (nome_profissional, bio, foto_url, ativo) 

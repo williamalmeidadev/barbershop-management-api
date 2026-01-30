@@ -24,40 +24,73 @@
                     <h1>BarberMarket</h1>
                 </div>
                 <nav id="nav-menu">
-                    <a href="index.html" class="nav-link">Explorar</a>
-                    <a href="register.html" class="nav-button">Cadastrar</a>
+                    <a href="/" class="nav-link">Explorar</a>
+                    <a href="/register" class="nav-button">Cadastrar</a>
                 </nav>
             </div>
         </header>
 
-        <main id="content">
-            <section class="section">
-                <div class="container" style="max-width: 450px;">
-                    <div class="card text-center">
-                        <h2 class="section-title">Login</h2>
-                        <p style="margin-bottom: 2rem; color: var(--text-muted);">Acesse sua conta para gerenciar seus
-                            agendamentos</p>
+        <main id="content" class="auth-page">
+            <section class="auth-hero">
+                <div class="container auth-shell">
+                    <div class="auth-intro">
+                        <span class="auth-kicker">Área do Cliente</span>
+                        <h2>Entre para agendar com estilo.</h2>
+                        <p>Gerencie seus horários, acompanhe seu barbeiro e finalize tudo em poucos cliques.</p>
+                        <div class="auth-meta">
+                            <div class="meta-card">
+                                <span class="material-icons">schedule</span>
+                                <div>
+                                    <strong>Rápido</strong>
+                                    <small>Agende em menos de 1 minuto</small>
+                                </div>
+                            </div>
+                            <div class="meta-card">
+                                <span class="material-icons">verified</span>
+                                <div>
+                                    <strong>Seguro</strong>
+                                    <small>Seus dados protegidos</small>
+                                </div>
+                            </div>
+                            <div class="meta-card">
+                                <span class="material-icons">support_agent</span>
+                                <div>
+                                    <strong>Assistido</strong>
+                                    <small>Suporte e lembretes automáticos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <form id="login-form">
-                            <div class="form-group">
-                                <label for="email">E-mail</label>
-                                <input type="email" id="email" placeholder="seu@email.com" required />
+                    <div class="auth-panel">
+                        <div class="auth-card">
+                            <div class="auth-header">
+                                <h3>Login</h3>
+                                <p>Use seu e-mail e senha para continuar.</p>
                             </div>
 
-                            <div class="form-group">
-                                <label for="password">Senha</label>
-                                <input type="password" id="password" placeholder="Sua senha" required />
+                            <form id="login-form" class="auth-form">
+                                <div class="form-group">
+                                    <label for="email">E-mail</label>
+                                    <input type="email" id="email" placeholder="seu@email.com" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="password">Senha</label>
+                                    <input type="password" id="password" placeholder="Sua senha" required />
+                                </div>
+
+                                <button type="submit" class="primary-button">Entrar</button>
+                            </form>
+
+                            <p id="error" class="auth-error"></p>
+
+                            <div class="auth-footer">
+                                <span>Não tem uma conta?</span>
+                                <a href="/register">Cadastre-se</a>
                             </div>
-
-                            <button type="submit" class="primary-button">Entrar</button>
-                        </form>
-
-                        <p id="error" style="color: #ff4d4d; margin-top: 1rem;"></p>
-
-                        <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
-                            Não tem uma conta? <a href="register.html"
-                                style="color: var(--primary); text-decoration: none; font-weight: 600;">Cadastre-se</a>
-                        </p>
+                            <a href="/admin-login" class="auth-admin-link">Setor Administrativo</a>
+                        </div>
                     </div>
                 </div>
             </section>
