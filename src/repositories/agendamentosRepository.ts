@@ -84,6 +84,16 @@ export const agendamentosRepository = {
     return await hydrateAgendamentos(agendamentos)
   },
 
+  async listarAgendamentosDoCliente(clienteId: number): Promise<Agendamento[]> {
+    const agendamentos: Agendamento[] = await new Promise((resolve, reject) => {
+      db.all('SELECT * FROM agendamentos WHERE cliente_id = ? ORDER BY inicio DESC', [clienteId], (err, rows) => {
+        if (err) return reject(err)
+        resolve(rows as Agendamento[])
+      })
+    })
+    return await hydrateAgendamentos(agendamentos)
+  },
+
   async buscarAgendamentoCompleto(id: number): Promise<Agendamento | null> {
     const agendamento = await this.buscarAgendamentoPorId(id)
     if (!agendamento) return null
