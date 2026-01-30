@@ -5,12 +5,13 @@ export const barbeirosRepository = {
   async criar(payload: {
     nome_profissional: string
     bio?: string | null
+    foto_url?: string | null
     ativo: number
   }): Promise<Barbeiro> {
     const barbeiroId = await new Promise<number>((resolve, reject) => {
       db.run(
-        `INSERT INTO barbeiros (nome_profissional, bio, ativo) VALUES (?, ?, ?)`,
-        [payload.nome_profissional, payload.bio ?? null, payload.ativo],
+        `INSERT INTO barbeiros (nome_profissional, bio, foto_url, ativo) VALUES (?, ?, ?, ?)`,
+        [payload.nome_profissional, payload.bio ?? null, payload.foto_url ?? null, payload.ativo],
         function (err) {
           if (err) return reject(err)
           resolve(this.lastID)
@@ -45,30 +46,28 @@ export const barbeirosRepository = {
   async atualizar(id: number, payload: {
     nome_profissional?: string
     bio?: string | null
+    foto_url?: string | null
     ativo?: number
   }): Promise<Barbeiro> {
-    const fields: string[] = []
-    const values: any[] = []
+    const keys = Object.keys(payload)
 
-    if (payload.nome_profissional !== undefined) {
-      fields.push('nome_profissional = ?')
-      values.push(payload.nome_profissional)
+    // Prevent SQL syntax error if payload is empty
+    if (keys.length === 0) {
+      throw new Error('Nenhum dado informado para atualização.')
     }
-    if (payload.bio !== undefined) {
-      fields.push('bio = ?')
-      values.push(payload.bio ?? null)
-    }
-    if (payload.ativo !== undefined) {
-      fields.push('ativo = ?')
-      values.push(payload.ativo)
-    }
+
+    // Dynamically build SET clause
+    const setClause = keys.map((key) => `${key} = ?`).join(', ')
+    const values = Object.values(payload)
 
     await new Promise<void>((resolve, reject) => {
       db.run(
-        `UPDATE barbeiros SET ${fields.join(', ')} WHERE id = ?`,
-        [...values, id],
+        `UPDATE barbeiros SET ${setClause} WHERE id = ?`,
+        [...values, id], // Append ID for the WHERE clause
         function (err) {
           if (err) return reject(err)
+          
+          // Check if any row was actually updated
           if (this.changes === 0) return reject(new Error('Barbeiro não encontrado.'))
           resolve()
         }
@@ -76,7 +75,7 @@ export const barbeirosRepository = {
     })
 
     const atualizado = await this.buscarPorId(id)
-    if (!atualizado) throw new Error('Barbeiro não encontrado.')
+    if (!atualizado) throw new Error('Erro ao recuperar barbeiro atualizado.')
     return atualizado
   },
 

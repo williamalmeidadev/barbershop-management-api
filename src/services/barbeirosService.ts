@@ -13,6 +13,7 @@ export const barbeirosService = {
     return barbeirosRepository.criar({
       nome_profissional: payload.nome_profissional,
       bio: payload.bio ?? null,
+      foto_url: payload.foto_url ?? null,
       ativo
     })
   },
