@@ -117,6 +117,18 @@ async function request(path, options = {}) {
   return data;
 }
 
+async function requestFormData(path, formData) {
+  const token = getToken();
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const res = await fetch(api(path), { method: 'PATCH', headers, body: formData });
+  const contentType = res.headers.get('content-type') || '';
+  const data = contentType.includes('application/json') ? await res.json() : await res.text();
+  if (!res.ok) {
+    throw new Error(data?.error || data || 'Erro ao requisitar');
+  }
+  return data;
+}
+
 function withButtonLock(button, fn) {
   if (!button) return fn();
   if (button.disabled) return;
@@ -142,6 +154,18 @@ function showToast(message, type = 'success') {
   toast.textContent = message;
   toastContainer.appendChild(toast);
   setTimeout(() => toast.remove(), 3500);
+}
+
+function validateImageFile(file) {
+  const maxSize = 2 * 1024 * 1024;
+  const allowedTypes = ['image/jpeg', 'image/pjpeg', 'image/png', 'image/jpg', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    return 'Formato inválido. Use JPG, PNG ou WEBP.';
+  }
+  if (file.size > maxSize) {
+    return 'Arquivo muito grande. Limite de 2MB.';
+  }
+  return null;
 }
 
 function openModal(title, contentNode) {
@@ -1118,8 +1142,26 @@ function renderBarbeiros(items) {
 
   items.forEach(b => {
     const card = el('div', 'card');
-    card.appendChild(el('strong', null, b.nome_profissional));
-    card.appendChild(el('small', null, b.bio || '-'));
+    const header = el('div', 'card-header vertical');
+    const avatar = el('div', 'avatar avatar-large');
+    if (b.foto_url) {
+      const img = el('img');
+      img.src = b.foto_url;
+      img.alt = b.nome_profissional || 'Barbeiro';
+      img.onerror = () => {
+        img.remove();
+        avatar.appendChild(el('span', 'material-icons', 'person'));
+      };
+      avatar.appendChild(img);
+    } else {
+      avatar.appendChild(el('span', 'material-icons', 'person'));
+    }
+    const titleBox = el('div', 'card-title');
+    titleBox.appendChild(el('strong', null, b.nome_profissional));
+    titleBox.appendChild(el('small', null, b.bio || '-'));
+    header.appendChild(avatar);
+    header.appendChild(titleBox);
+    card.appendChild(header);
     card.appendChild(el('small', null, `Status: ${b.ativo === 1 ? 'Ativo' : 'Desativado'}`));
 
     const actions = el('div', 'card-actions');
@@ -1138,7 +1180,8 @@ function renderBarbeiros(items) {
 
 function editarBarbeiro(barbeiro) {
   const container = el('div');
-  const grid = el('div', 'form-grid');
+  container.classList.add('modal-form', 'barbeiro-modal');
+  const grid = el('div', 'form-grid barber-form');
 
   const g1 = el('div', 'form-group');
   g1.appendChild(el('label', null, 'Nome'));
@@ -1164,18 +1207,92 @@ function editarBarbeiro(barbeiro) {
   s1.appendChild(optI);
   g3.appendChild(s1);
 
+  const fotoGroup = el('div', 'form-group photo-group');
+  fotoGroup.appendChild(el('label', null, 'Foto'));
+  const preview = el('div', 'avatar preview-avatar');
+  if (barbeiro.foto_url) {
+    const img = el('img');
+    img.src = barbeiro.foto_url;
+    img.alt = barbeiro.nome_profissional || 'Barbeiro';
+    img.onerror = () => {
+      img.remove();
+      preview.appendChild(el('span', 'material-icons', 'person'));
+    };
+    preview.appendChild(img);
+  } else {
+    preview.appendChild(el('span', 'material-icons', 'person'));
+  }
+  const fotoRow = el('div', 'photo-actions');
+  const fotoInput = el('input', 'hidden-file');
+  fotoInput.type = 'file';
+  fotoInput.accept = 'image/*';
+  const fotoBtn = el('button', 'btn ghost', 'Trocar foto');
+  const removeBtn = el('button', 'btn danger', 'Remover foto');
+  fotoRow.appendChild(fotoBtn);
+  fotoRow.appendChild(removeBtn);
+  fotoRow.appendChild(fotoInput);
+  fotoGroup.appendChild(preview);
+  fotoGroup.appendChild(fotoRow);
+
+  grid.appendChild(fotoGroup);
   grid.appendChild(g1);
   grid.appendChild(g2);
   grid.appendChild(g3);
 
   const saveBtn = el('button', 'btn', 'Salvar');
+  const actions = el('div', 'modal-actions center');
+  actions.appendChild(saveBtn);
   container.appendChild(grid);
-  container.appendChild(saveBtn);
+  container.appendChild(actions);
 
   openModal('Editar Barbeiro', container);
 
+  fotoBtn.addEventListener('click', () => fotoInput.click());
+  if (!barbeiro.foto_url) {
+    removeBtn.disabled = true;
+  }
+  fotoInput.addEventListener('change', () => {
+    const file = fotoInput.files?.[0];
+    if (!file) return;
+    const error = validateImageFile(file);
+    if (error) {
+      showToast(error, 'error');
+      fotoInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      preview.replaceChildren();
+      const img = el('img');
+      img.src = String(reader.result);
+      img.alt = barbeiro.nome_profissional || 'Barbeiro';
+      preview.appendChild(img);
+      removeBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  removeBtn.addEventListener('click', () => withButtonLock(removeBtn, async () => {
+    try {
+      await request(`/barbeiros/${barbeiro.id}/foto`, { method: 'DELETE' });
+      barbeiro.foto_url = null;
+      preview.replaceChildren();
+      preview.appendChild(el('span', 'material-icons', 'person'));
+      removeBtn.disabled = true;
+      showToast('Foto removida.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }));
+
   saveBtn.addEventListener('click', () => withButtonLock(saveBtn, async () => {
     try {
+      if (fotoInput.files && fotoInput.files[0]) {
+        const formData = new FormData();
+        formData.append('foto', fotoInput.files[0]);
+        const updated = await requestFormData(`/barbeiros/${barbeiro.id}/foto`, formData);
+        barbeiro.foto_url = updated?.foto_url || barbeiro.foto_url;
+      }
       await request(`/barbeiros/${barbeiro.id}`, {
         method: 'PUT',
         body: JSON.stringify({

@@ -13,7 +13,7 @@ app.use(express.json())
 app.get('/', (_, res) => res.sendFile(path.join(publicDir, 'index.html')))
 app.get('/login', (_, res) => res.sendFile(path.join(publicDir, 'login.html')))
 app.get('/register', (_, res) => res.sendFile(path.join(publicDir, 'register.html')))
-app.get('/admin', verifyTokenPage, isAdmin, (_, res) => res.sendFile(path.join(publicDir, 'admin.html')))
+app.get('/admin', (_, res) => res.sendFile(path.join(publicDir, 'admin.html')))
 
 // Block direct access to HTML files
 app.use((req, res, next) => {
