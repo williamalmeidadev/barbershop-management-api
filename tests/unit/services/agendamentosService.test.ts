@@ -40,7 +40,7 @@ describe('AgendamentosService', () => {
             { id: 102, inicio: '2026-01-29T10:30:00Z', fim: '2026-01-29T10:50:00Z', status: 'LIVRE' }
         ];
 
-        it('should create an agendamento successfully with discount', async () => {
+        it('deve criar um agendamento com sucesso com desconto', async () => {
             // Mocks
             sandbox.stub(servicoService, 'buscarPorIds').resolves(mockServicos as any);
             sandbox.stub(clientesRepository, 'buscarResumo').resolves({
@@ -94,7 +94,7 @@ describe('AgendamentosService', () => {
             sinon.assert.calledWith(atualizarClienteStub, 1, 5, 0);
         });
 
-        it('should throw error if required fields are missing', async () => {
+        it('deve gerar um erro se os campos obrigatórios estiverem faltando.', async () => {
             const invalidPayload = { ...validPayload, cliente_id: undefined } as any;
             try {
                 await bookingService.criarAgendamento(invalidPayload);
@@ -104,7 +104,7 @@ describe('AgendamentosService', () => {
             }
         });
 
-        it('should throw error if inicio_desejado is invalid', async () => {
+        it('deve gerar erro se inicio_desejado for inválido', async () => {
             const invalidPayload = { ...validPayload, inicio_desejado: 'invalid-date' };
             try {
                 await bookingService.criarAgendamento(invalidPayload);
@@ -114,7 +114,7 @@ describe('AgendamentosService', () => {
             }
         });
 
-        it('should throw error if services are not found', async () => {
+        it('deve lançar um erro se os serviços não forem encontrados.', async () => {
             sandbox.stub(servicoService, 'buscarPorIds').resolves([mockServicos[0]] as any); // Only returned 1 service, asked for 2
             try {
                 await bookingService.criarAgendamento(validPayload);
@@ -124,7 +124,7 @@ describe('AgendamentosService', () => {
             }
         });
 
-        it('should throw error if no vacancies available', async () => {
+        it('deve gerar um erro se não houver vagas disponíveis.', async () => {
             sandbox.stub(servicoService, 'buscarPorIds').resolves(mockServicos as any);
             sandbox.stub(clientesRepository, 'buscarResumo').resolves({} as any);
             sandbox.stub(vagasService, 'reservarVagasParaAgendamento').resolves([]); // Empty vagas
@@ -139,7 +139,7 @@ describe('AgendamentosService', () => {
     });
 
     describe('cancelarAgendamento', () => {
-        it('should cancel successfully', async () => {
+        it('deve cancelar com sucesso', async () => {
             const mockAgendamento = {
                 id: 1,
                 status: StatusAgendamento.AGENDADO
@@ -155,7 +155,7 @@ describe('AgendamentosService', () => {
             expect(result.status).to.equal(StatusAgendamento.CANCELADO);
         });
 
-        it('should throw error if agendamento already cancelled', async () => {
+        it('deve gerar um erro se a agenda já estiver cancelada.', async () => {
             sandbox.stub(agendamentosRepository, 'buscarAgendamentoPorId').resolves({
                 id: 1,
                 status: StatusAgendamento.CANCELADO
@@ -169,7 +169,7 @@ describe('AgendamentosService', () => {
             }
         });
 
-        it('should throw error if agendamento already concluded', async () => {
+        it('deve gerar um erro se a agendação já estiver concluída.', async () => {
             sandbox.stub(agendamentosRepository, 'buscarAgendamentoPorId').resolves({
                 id: 1,
                 status: StatusAgendamento.CONCLUIDO
@@ -185,7 +185,7 @@ describe('AgendamentosService', () => {
     });
 
     describe('concluirAgendamento', () => {
-        it('should conclude successfully and apply rules', async () => {
+        it('deve ser concluído com sucesso e as regras devem ser aplicadas.', async () => {
             const now = new Date();
             const pastStart = new Date(now.getTime() - 3600000).toISOString();
             const futureEnd = new Date(now.getTime() + 3600000).toISOString();
