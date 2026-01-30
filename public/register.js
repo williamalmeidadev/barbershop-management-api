@@ -1,8 +1,15 @@
 const form = document.getElementById('register-form');
-const error = document.getElementById('error');
+const btnRegister = document.getElementById('btn-register');
+const errorContainer = document.getElementById('error-container');
+const errorMsg = document.getElementById('error-msg');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    errorContainer.classList.add('hidden');
+    btnRegister.disabled = true;
+    const originalText = btnRegister.innerText;
+    btnRegister.innerText = 'Cadastrando...';
 
     const nome = document.getElementById('nome').value;
     const email = document.getElementById('email').value;
@@ -11,10 +18,17 @@ form.addEventListener('submit', async (e) => {
 
     try {
         await window.services.register(nome, email, password, telefone);
-        window.location.href = 'login.html';
+        btnRegister.innerText = 'Sucesso! Redirecionando...';
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1000);
+
     } catch (err) {
-        error.textContent = err instanceof Error
-            ? err.message
-            : 'Erro no cadastro';
+        console.error(err);
+        errorMsg.textContent = err.message || 'Erro ao realizar cadastro.';
+        errorContainer.classList.remove('hidden');
+        
+        btnRegister.disabled = false;
+        btnRegister.innerText = originalText;
     }
 });

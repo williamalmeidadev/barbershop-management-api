@@ -6,86 +6,144 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cadastro - BarberMarket</title>
 
-  <!-- Google Fonts -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* --- CORREÇÃO DO LAYOUT --- */
+    .register-section {
+        /* Garante que ocupe a altura toda da tela */
+        min-height: 100vh;
+        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        /* O PULO DO GATO: Adiciona espaço no topo considerando a altura do Header (80px) */
+        /* Assim o card nunca sobe demais e fica escondido */
+        padding-top: calc(var(--header-height) + 2rem); 
+        padding-bottom: 2rem;
+    }
+    
+    .register-card {
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        /* Fundo do card para garantir contraste se passar por cima de algo */
+        background-color: var(--surface); 
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+        color: var(--text);
+        font-size: 0.9rem;
+    }
+
+    .login-link {
+        color: var(--primary);
+        font-weight: 700;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    .login-link:hover {
+        color: var(--white);
+    }
+
+    /* --- ESTILOS DOS INPUTS (Hierarquia Visual) --- */
+    #nome, #email {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    #password, #telefone {
+        width: 60%;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+  </style>
 </head>
 
 <body class="dark-theme">
   <div id="app">
     <header class="main-header">
       <div class="container header-container">
-        <div class="logo">
+        <a href="index.html" class="logo">
           <span class="material-icons">diversity_3</span>
           <h1>BarberMarket</h1>
-        </div>
+        </a>
         <nav id="nav-menu">
-          <a href="index.html" class="nav-link">Explorar</a>
-          <a href="login.html" class="nav-button">Login</a>
+            <a href="index.html" class="nav-link">Voltar ao Início</a>
         </nav>
       </div>
     </header>
 
     <main id="content">
-      <section class="section">
-        <div class="container" style="max-width: 500px;">
-          <div class="card text-center">
-            <h2 class="section-title">Cadastro</h2>
-            <p style="margin-bottom: 2rem; color: var(--text-muted);">Crie sua conta no primeiro marketplace de
-              barbearia de Petrolina</p>
+      <section class="register-section">
+        <div class="container" style="display: flex; justify-content: center; width: 100%;">
+          
+          <div class="card register-card">
+            <div class="text-center">
+                <h2 style="margin-bottom: 0.5rem; color: var(--primary);">Criar Conta</h2>
+                <p style="margin-bottom: 2rem; color: var(--text-muted); font-size: 0.95rem;">
+                  Junte-se ao marketplace de barbearias
+                </p>
+            </div>
 
             <form id="register-form">
               <div class="form-group">
-                <label for="nome">Nome Completo</label>
+                <label for="nome" class="form-label">Nome Completo</label>
                 <input type="text" id="nome" placeholder="Como podemos te chamar?" required />
               </div>
 
               <div class="form-group">
-                <label for="email">E-mail</label>
+                <label for="email" class="form-label">E-mail</label>
                 <input type="email" id="email" placeholder="seu@email.com" required />
               </div>
 
               <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" placeholder="Mínimo 6 caracteres" required />
+                <label for="telefone" class="form-label">Telefone (opcional)</label>
+                <input type="tel" id="telefone" placeholder="(87) 9 9999-9999" />
               </div>
 
               <div class="form-group">
-                <label for="telefone">Telefone (opcional)</label>
-                <input type="text" id="telefone" placeholder="(87) 9 9999-9999" />
+                <label for="password" class="form-label">Senha</label>
+                <input type="password" id="password" placeholder="Mínimo 6 caracteres" required />
               </div>
 
-              <button type="submit" class="primary-button">Cadastrar</button>
+              <button type="submit" id="btn-register" class="primary-button" style="width: 100%; margin-top: 1rem;">
+                Cadastrar Agora
+              </button>
             </form>
 
-            <p id="error" style="color: #ff4d4d; margin-top: 1rem;"></p>
+            <div id="error-container" class="hidden" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; padding: 0.8rem; border-radius: 8px; margin-top: 1.5rem; text-align: center; font-size: 0.9rem;">
+                <span id="error-msg">Erro ao cadastrar</span>
+            </div>
 
-            <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
-              Já tem uma conta? <a href="login.html"
-                style="color: var(--primary); text-decoration: none; font-weight: 600;">Faça login</a>
-            </p>
+            <div class="text-center" style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+              <p style="font-size: 0.9rem; color: var(--text-muted);">
+                Já tem uma conta? <a href="login.html" class="login-link">Faça Login</a>
+              </p>
+            </div>
           </div>
+
         </div>
       </section>
     </main>
 
     <footer class="main-footer">
-      <div class="container footer-content">
-        <div class="footer-info">
-          <h3>BarberMarket</h3>
-          <p>Petrolina/PE - Brasil</p>
-        </div>
-        <div class="footer-social">
-          <a href="#"><span class="material-icons">facebook</span></a>
-          <a href="#"><span class="material-icons">camera_alt</span></a>
-        </div>
-        <div class="footer-bottom">
-          <p>&copy; 2026 BarberMarket. Tradição e Tecnologia.</p>
-        </div>
+      <div class="container text-center">
+        <p style="color: var(--text-muted); font-size: 0.8rem;">&copy; 2026 BarberMarket. Petrolina/PE.</p>
       </div>
     </footer>
   </div>
@@ -93,5 +151,4 @@
   <script src="services.js"></script>
   <script src="register.js"></script>
 </body>
-
 </html>
