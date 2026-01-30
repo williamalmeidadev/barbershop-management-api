@@ -22,7 +22,6 @@ routes.use('/barbeiros', barbeirosRoutes);
 routes.use('/configuracoes', configuracoesRoutes);
 routes.use('/clientes', clienteRoutes);
 routes.use('/agendamentos', bookingRoutes);
-routes.use('/clientes/register', clienteRoutes);
 routes.use('/admins', adminRoutes);
 routes.use('/admins/clientes', adminClientesRoutes);
 routes.use('/auth', loginClienteRoutes);
