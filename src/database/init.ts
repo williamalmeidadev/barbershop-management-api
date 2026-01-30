@@ -52,6 +52,7 @@ export function initDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome_profissional TEXT UNIQUE NOT NULL,
         bio TEXT,
+        foto_url TEXT,
         ativo INTEGER DEFAULT 1 CHECK (ativo IN (0,1))
       );
     `)

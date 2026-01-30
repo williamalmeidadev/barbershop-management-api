@@ -82,17 +82,22 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	// --- Renderers ---
-	function renderProfessionals() {
+function renderProfessionals() {
 		if (!professionalsGrid) return;
 		if (!state.professionals.length) {
 			professionalsGrid.innerHTML = '<div class="loading">Nenhum barbeiro disponível no momento.</div>';
 			return;
 		}
 
-		professionalsGrid.innerHTML = state.professionals.map(pro => `
+		professionalsGrid.innerHTML = state.professionals.map(pro => {
+            const avatarContent = pro.foto_url 
+                ? `<img src="${pro.foto_url}" alt="${pro.nome_profissional}" class="barber-avatar-img">`
+                : `<span class="material-icons" style="font-size: 2.5rem; color: var(--primary);">person</span>`;
+
+            return `
             <div class="card" data-id="${pro.id}">
-                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--border); margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary);">
-                    <span class="material-icons" style="font-size: 2.5rem; color: var(--primary);">person</span>
+                <div class="avatar-container">
+                    ${avatarContent}
                 </div>
                 <h3 style="text-align: center;">${pro.nome_profissional || pro.nome}</h3>
                 <p style="text-align: center; color: var(--text-muted);">${pro.bio || pro.especialidade || 'Barbeiro Profissional'}</p>
@@ -100,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span style="color: var(--primary); font-weight: 700; font-size: 0.9rem;">Ver Serviços e Horários</span>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
 		professionalsGrid.querySelectorAll('.card').forEach(card => {
 			card.onclick = () => {
@@ -110,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	function showBarberProfile(id) {
+function showBarberProfile(id) {
 		const pro = state.professionals.find(p => p.id === id);
 		if (!pro) return;
 
@@ -123,10 +128,20 @@ document.addEventListener('DOMContentLoaded', () => {
 		profileName.innerText = pro.nome_profissional || pro.nome;
 		profileSpecialty.innerText = pro.bio || pro.especialidade || 'Barbeiro Profissional';
 
-		renderProfileServices();
-		renderProfileTimeSlots([]); // Clear time slots
+        const profileAvatarDiv = document.querySelector('#barber-profile .profile-avatar');
+        
+        if (profileAvatarDiv) {
+            if (pro.foto_url) {
+                profileAvatarDiv.innerHTML = `<img src="${pro.foto_url}" alt="${pro.nome_profissional}" class="barber-avatar-img">`;
+            } else {
+                profileAvatarDiv.innerHTML = `<span class="material-icons">person</span>`;
+            }
+        }
 
-		// Toggle views
+		renderProfileServices();
+		renderProfileTimeSlots([]); // clean time slots
+
+		// Show profile view
 		homeSections.forEach(sid => document.getElementById(sid).classList.add('hidden'));
 		barberProfileView.classList.remove('hidden');
 		window.scrollTo(0, 0);
