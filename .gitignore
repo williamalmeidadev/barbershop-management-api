@@ -34,3 +34,6 @@ coverage/
 # ignore all files in public/images except .gitkeep
 public/images/*
 !public/images/.gitkeep
+
+# Ignore coverage directory
+coverage/
