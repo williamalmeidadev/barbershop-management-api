@@ -473,9 +473,14 @@ function renderAgendamentos(items) {
   }
 
   items.forEach(a => {
+    const clienteNome =
+      a.cliente?.nome ||
+      a.cliente_nome ||
+      a.clienteName ||
+      (a.cliente_id ? `#${a.cliente_id}` : '—');
     const card = el('div', 'card');
     card.appendChild(el('strong', null, `#${a.id} - ${a.status}`));
-    card.appendChild(el('small', null, `Cliente: ${a.cliente_id}`));
+    card.appendChild(el('small', null, `Cliente: ${clienteNome}`));
     card.appendChild(el('small', null, `Barbeiro: ${a.barbeiro?.nome_profissional || a.barbeiro_id}`));
     card.appendChild(el('small', null, `Início: ${new Date(a.inicio).toLocaleString('pt-BR')}`));
     card.appendChild(el('small', null, `Valor: ${formatCurrency(a.valor_total_centavos)}`));
@@ -501,8 +506,14 @@ function verDetalhes(agendamento) {
   const container = el('div');
   const grid = el('div', 'details-grid');
 
+  const clienteNome =
+    agendamento.cliente?.nome ||
+    agendamento.cliente_nome ||
+    agendamento.clienteName ||
+    (agendamento.cliente_id ? `#${agendamento.cliente_id}` : '—');
+
   grid.appendChild(el('p', null, `Status: ${agendamento.status}`));
-  grid.appendChild(el('p', null, `Cliente ID: ${agendamento.cliente_id}`));
+  grid.appendChild(el('p', null, `Cliente: ${clienteNome}`));
   grid.appendChild(el('p', null, `Barbeiro: ${agendamento.barbeiro?.nome_profissional || agendamento.barbeiro_id}`));
   grid.appendChild(el('p', null, `Início: ${new Date(agendamento.inicio).toLocaleString('pt-BR')}`));
   grid.appendChild(el('p', null, `Fim: ${new Date(agendamento.fim).toLocaleString('pt-BR')}`));

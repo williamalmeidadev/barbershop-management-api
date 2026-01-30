@@ -3,17 +3,23 @@
   --primary-dark: #a68547;
   --background: #0f1113;
   --surface: #1a1d21;
+  --surface-soft: #161a1f;
   --text: #e1e1e1;
   --text-muted: #9da3ae;
   --border: #2e343b;
   --white: #ffffff;
   --danger: #d85d5d;
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.22);
+  --shadow-card: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body.dark-theme {
-  background: var(--background);
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(197, 160, 89, 0.12), transparent 55%),
+    radial-gradient(900px 500px at 90% 10%, rgba(197, 160, 89, 0.08), transparent 60%),
+    var(--background);
   color: var(--text);
   font-family: 'Montserrat', sans-serif;
 }
@@ -26,7 +32,9 @@ body.dark-theme {
 }
 
 .sidebar {
-  background: #111418;
+  background:
+    linear-gradient(160deg, rgba(197, 160, 89, 0.06), transparent 45%),
+    #111418;
   border-right: 1px solid var(--border);
   padding: 24px 18px;
   display: flex;
@@ -43,6 +51,7 @@ body.dark-theme {
 }
 
 .sidebar-header h1 { font-size: 1.4rem; }
+.sidebar-header .material-icons { font-size: 1.6rem; }
 
 .sidebar-nav {
   display: flex;
@@ -59,7 +68,7 @@ body.dark-theme {
   text-align: left;
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .nav-item.active,
@@ -86,6 +95,7 @@ body.dark-theme {
 }
 
 .topbar h2 { font-family: 'Playfair Display', serif; }
+.topbar p { color: var(--text-muted); }
 
 .token-box {
   min-width: 280px;
@@ -93,6 +103,7 @@ body.dark-theme {
   border: 1px solid var(--border);
   padding: 16px;
   border-radius: 8px;
+  box-shadow: var(--shadow-soft);
 }
 
 .token-box label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
@@ -109,6 +120,7 @@ body.dark-theme {
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 24px;
+  box-shadow: var(--shadow-soft);
 }
 
 .config-grid {
@@ -122,7 +134,7 @@ body.dark-theme {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  background: #151a1f;
+  background: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px;
@@ -172,13 +184,6 @@ body.dark-theme {
   margin-top: 6px;
 }
 
-.chip {
-  font-size: 0.75rem;
-  border: 1px solid var(--border);
-  padding: 4px 8px;
-  border-radius: 999px;
-  color: var(--text-muted);
-}
 
 .form-grid {
   display: grid;
@@ -199,6 +204,13 @@ input, select {
   padding: 10px 12px;
   height: 42px;
   color-scheme: dark;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: rgba(197, 160, 89, 0.7);
+  box-shadow: 0 0 0 2px rgba(197, 160, 89, 0.2);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator,
@@ -217,11 +229,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   font-weight: 600;
   height: 42px;
   white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
 }
 
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .panel-actions {
@@ -244,7 +264,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .card {
-  background: #151a1f;
+  background: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
@@ -252,9 +272,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .card small { color: var(--text-muted); }
+.card:hover { transform: translateY(-2px); border-color: rgba(197, 160, 89, 0.4); }
 
 .card-actions {
   display: flex;
@@ -288,6 +310,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   padding: 20px;
   max-height: 85vh;
   overflow: auto;
+  box-shadow: var(--shadow-soft);
 }
 
 .details-grid {
@@ -307,7 +330,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .details-box {
-  background: #151a1f;
+  background: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px;
@@ -337,7 +360,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 .toast {
-  background: #151a1f;
+  background: var(--surface-soft);
   border: 1px solid var(--border);
   color: var(--text);
   padding: 10px 12px;
