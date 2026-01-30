@@ -29,4 +29,11 @@ export const configuracoesService = {
       await configuracoesRepository.setInt('desconto_valor_centavos', desconto_valor_centavos)
     }
   }
+  ,
+  async removerRegrasDesconto(): Promise<void> {
+    await Promise.all([
+      configuracoesRepository.delete('desconto_qtd_concluidos'),
+      configuracoesRepository.delete('desconto_valor_centavos')
+    ])
+  }
 }

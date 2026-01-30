@@ -3,18 +3,12 @@ import { db } from './database/sqlite'
 
 async function seed() {
   
-  // Clientes
-  await run(`INSERT INTO clientes (nome, email, telefone, password_hash, ativo) VALUES ('Cliente 1', 'cliente1@email.com', '11999999999', 'hash1', 1)`)
-  await run(`INSERT INTO clientes (nome, email, telefone, password_hash, ativo) VALUES ('Cliente 2', 'cliente2@email.com', '11888888888', 'hash2', 1)`)
-
-  // Barbeiros
-  await run(`INSERT INTO barbeiros (nome_profissional, bio, ativo) VALUES ('Barbeiro 1', 'Especialista em cortes', 1)`)
-  await run(`INSERT INTO barbeiros (nome_profissional, bio, ativo) VALUES ('Barbeiro 2', 'Barba e cabelo', 1)`)
-
-  // Serviços
-  await run(`INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES ('Corte Simples', 'Corte de cabelo tradicional', 20, 3000, 1)`)
-  await run(`INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES ('Barba', 'Barba completa', 15, 2000, 1)`)
-  await run(`INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES ('Sobrancelha', 'Design de sobrancelha', 10, 1500, 1)`)
+  // Agendamento de exemplo
+  // Assumindo que os IDs criados automaticamente para cliente e barbeiro são 1
+  // O serviço é relacionado via tabela agendamento_servicos
+  await run(`INSERT INTO agendamentos (cliente_id, barbeiro_id, inicio, fim, status, valor_original_centavos, desconto_aplicado_centavos, valor_total_centavos) VALUES (1, 1, '2026-02-01 10:00', '2026-02-01 10:20', 'AGENDADO', 3000, 0, 3000)`)
+  // Relaciona o serviço ao agendamento
+  await run(`INSERT INTO agendamento_servicos (agendamento_id, servico_id, preco_centavos, duracao_minutos) VALUES (1, 1, 3000, 20)`)
 
 
   console.log('Seed finalizado!')

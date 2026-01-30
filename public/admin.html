@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | BarberMarket</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="dark-theme">
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="material-icons">settings</span>
+        <h1>Admin</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="config">Configurações</button>
+        <button class="nav-item" data-tab="clientes">Clientes</button>
+        <button class="nav-item" data-tab="agendamentos">Agendamentos</button>
+        <button class="nav-item" data-tab="vagas">Vagas</button>
+        <button class="nav-item" data-tab="servicos">Serviços</button>
+        <button class="nav-item" data-tab="barbeiros">Barbeiros</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn ghost">Sair</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h2>Dashboard Administrativo</h2>
+          <p>Gerencie clientes, serviços, barbeiros, agendamentos, vagas e regras.</p>
+        </div>
+        <div class="token-box">
+          <label for="token-input">Token Admin</label>
+          <div class="token-row">
+            <input id="token-input" type="text" placeholder="Bearer token" />
+            <button id="save-token" class="btn">Salvar</button>
+          </div>
+          <span id="token-status" class="status">Usando token do localStorage (se existir).</span>
+        </div>
+      </header>
+
+      <!-- Configurações -->
+      <section class="tab-panel" id="tab-config">
+        <div class="panel config-panel">
+          <div class="panel-header">
+            <h3>Regras de Desconto</h3>
+            <span class="chip">/configuracoes/descontos</span>
+          </div>
+          <div class="panel-actions">
+            <button id="btn-config-create" class="btn">Criar regra</button>
+          </div>
+          <div id="config-card-container" class="config-grid"></div>
+        </div>
+      </section>
+
+      <!-- Clientes -->
+      <section class="tab-panel hidden" id="tab-clientes">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Clientes</h3>
+            <div class="panel-actions">
+              <button id="load-clientes" class="btn ghost">Atualizar</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Filtro ativo</label>
+              <select id="clientes-ativo">
+                <option value="">Todos</option>
+                <option value="1">Ativos</option>
+                <option value="0">Inativos</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Buscar</label>
+              <input type="text" id="clientes-busca" placeholder="Nome ou e-mail" />
+            </div>
+          </div>
+          <div id="clientes-list" class="cards"></div>
+        </div>
+      </section>
+
+      <!-- Agendamentos -->
+      <section class="tab-panel hidden" id="tab-agendamentos">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Agendamentos</h3>
+            <div class="panel-actions">
+              <button id="load-agendamentos" class="btn ghost">Listar</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Status</label>
+              <select id="agendamentos-status">
+                <option value="">Todos</option>
+                <option value="AGENDADO">Agendado</option>
+                <option value="CONCLUIDO">Concluído</option>
+                <option value="CANCELADO">Cancelado</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Buscar cliente/barbeiro</label>
+              <input type="text" id="agendamentos-busca" placeholder="ID cliente ou barbeiro" />
+            </div>
+          </div>
+          <div id="agendamentos-list" class="cards"></div>
+        </div>
+      </section>
+
+      <!-- Vagas -->
+      <section class="tab-panel hidden" id="tab-vagas">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Vagas</h3>
+            <span class="chip">/vagas</span>
+          </div>
+          <div class="panel-actions">
+            <button id="btn-abrir-gerar-vagas" class="btn">Gerar vagas</button>
+            <button id="btn-abrir-bloqueio" class="btn ghost">Bloquear horário</button>
+            <button id="btn-abrir-reserva" class="btn ghost">Reservar vagas</button>
+          </div>
+          <form id="form-vagas" class="form-grid">
+            <div class="form-group">
+              <label>Barbeiro</label>
+              <select id="vagas-barbeiro" class="barbeiro-select" required></select>
+            </div>
+            <div class="form-group">
+              <label>Data</label>
+              <input type="date" id="vagas-data" required />
+            </div>
+            <button class="btn">Buscar vagas</button>
+          </form>
+          <div id="vagas-list" class="cards"></div>
+        </div>
+      </section>
+
+      <!-- Serviços -->
+      <section class="tab-panel hidden" id="tab-servicos">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Serviços</h3>
+            <div class="panel-actions">
+              <button id="load-servicos" class="btn ghost">Atualizar</button>
+              <button id="btn-novo-servico" class="btn">Registrar serviço</button>
+            </div>
+          </div>
+          <div id="servicos-list" class="cards"></div>
+        </div>
+      </section>
+
+      <!-- Barbeiros -->
+      <section class="tab-panel hidden" id="tab-barbeiros">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Barbeiros</h3>
+            <div class="panel-actions">
+              <button id="load-barbeiros" class="btn ghost">Atualizar</button>
+              <button id="btn-novo-barbeiro" class="btn">Registrar barbeiro</button>
+            </div>
+          </div>
+          <div id="barbeiros-list" class="cards"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Editar</h3>
+        <button id="modal-close" class="btn ghost">Fechar</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

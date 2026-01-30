@@ -10,5 +10,6 @@ router.use(isAdmin)
 
 router.get('/descontos', configuracoesController.obterDescontos)
 router.put('/descontos', configuracoesController.atualizarDescontos)
+router.delete('/descontos', configuracoesController.removerDescontos)
 
 export default router
