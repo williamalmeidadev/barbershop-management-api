@@ -9,57 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
-    <style>
-        .login-section {
-            min-height: 80vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .login-card {
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
-        }
-
-        .form-label {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: block;
-            color: var(--text);
-            font-size: 0.9rem;
-        }
-
-        .register-link {
-            color: var(--primary);
-            font-weight: 700;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .register-link:hover {
-            color: var(--white);
-        }
-        
-        #email {
-            width: 100%;
-            padding: 1rem;
-            font-size: 1rem;
-        }
-
-        #password {
-            width: 60%;
-            padding: 1rem;
-            font-size: 1rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-    </style>
 </head>
 
 <body class="dark-theme">
@@ -76,55 +25,60 @@
             </div>
         </header>
 
-        <main id="content">
-            <section class="section login-section">
-                <div class="container" style="display: flex; justify-content: center; width: 100%;">
-                    
-                    <div class="card login-card">
-                        <div class="text-center">
-                            <h2 style="margin-bottom: 0.5rem; color: var(--primary);">Bem-vindo</h2>
-                            <p style="margin-bottom: 2rem; color: var(--text-muted); font-size: 0.95rem;">
-                                Acesse sua conta para continuar
-                            </p>
-                        </div>
-
-                        <form id="login-form">
-                            <div class="form-group">
-                                <label for="email" class="form-label">E-mail</label>
-                                <input type="email" id="email" placeholder="ex: joao@email.com" required />
+        <main id="content" class="auth-page">
+            <section class="auth-hero auth-hero-simple">
+                <div class="container auth-shell auth-shell-single">
+                    <div class="auth-panel">
+                        <div class="auth-card">
+                            <div class="auth-header">
+                                <h3>Bem-vindo</h3>
+                                <p>Acesse sua conta para continuar</p>
                             </div>
 
-                            <div class="form-group">
-                                <label for="password" class="form-label">Senha</label>
-                                <input type="password" id="password" placeholder="Sua senha secreta" required />
+                            <form id="login-form" class="auth-form">
+                                <div class="form-group">
+                                    <label for="email">E-mail</label>
+                                    <input type="email" id="email" placeholder="ex: joao@email.com" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="password">Senha</label>
+                                    <input type="password" id="password" placeholder="Sua senha secreta" required />
+                                </div>
+
+                                <button type="submit" id="btn-login" class="primary-button auth-submit">
+                                    Acessar Conta
+                                </button>
+                            </form>
+
+                            <div id="error-container" class="auth-error-box hidden">
+                                <span id="error-msg">Erro ao logar</span>
                             </div>
 
-                            <button type="submit" id="btn-login" class="primary-button" style="width: 100%; margin-top: 1rem;">
-                                Acessar Conta
-                            </button>
-                        </form>
-
-                        <div id="error-container" class="hidden" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; padding: 0.8rem; border-radius: 8px; margin-top: 1.5rem; text-align: center; font-size: 0.9rem;">
-                            <span id="error-msg">Erro ao logar</span>
-                        </div>
-
-                        <div class="text-center" style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
-                            <p style="font-size: 0.9rem; color: var(--text-muted);">
-                                Ainda não tem conta? <a href="/register" class="register-link">Criar conta grátis</a>
-                            </p>
-                            <p style="margin-top: 10px;">
-                                <a href="/admin-login" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">Acesso Administrativo</a>
-                            </p>
+                            <div class="auth-footer">
+                                <span>Ainda não tem conta?</span>
+                                <a href="/register" class="auth-link">Criar conta grátis</a>
+                            </div>
+                            <a href="/admin-login" class="auth-admin-link">Acesso Administrativo</a>
                         </div>
                     </div>
-
                 </div>
             </section>
         </main>
 
         <footer class="main-footer">
-            <div class="container text-center">
-                <p style="color: var(--text-muted); font-size: 0.8rem;">&copy; 2026 BarberMarket. Todos os direitos reservados.</p>
+            <div class="container footer-content">
+                <div class="footer-info">
+                    <h3>BarberMarket</h3>
+                    <p>Brasil</p>
+                </div>
+                <div class="footer-social">
+                    <a href="#"><span class="material-icons">facebook</span></a>
+                    <a href="#"><span class="material-icons">camera_alt</span></a>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 BarberMarket. Todos os direitos reservados.</p>
+                </div>
             </div>
         </footer>
     </div>

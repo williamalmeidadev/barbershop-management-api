@@ -57,6 +57,10 @@ main#content {
     padding-top: calc(var(--header-height) + 2rem);
 }
 
+body.app-page main#content {
+    padding-top: 0;
+}
+
 /* Removemos a fonte serifada (Playfair) para ficar igual ao protótipo */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-main);
@@ -170,7 +174,7 @@ nav {
     display: flex;
     align-items: center;
     margin-top: 0; /* Hero começa do topo */
-    padding-top: var(--header-height);
+    padding-top: calc(var(--header-height) + 2rem);
 }
 
 .hero-content {
@@ -225,6 +229,7 @@ nav {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
+    align-items: stretch;
 }
 
 /* --- CARDS (Estilo Flat/Dark) --- */
@@ -423,6 +428,118 @@ nav {
     padding: 1rem;
 }
 
+/* --- AUTH PAGES --- */
+.auth-page {
+    padding: 0;
+}
+
+.auth-hero {
+    padding: 6rem 0 5rem;
+}
+
+.auth-hero-simple {
+    padding: 6rem 0 5rem;
+}
+
+.auth-shell {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(320px, 440px);
+    gap: 3rem;
+    align-items: start;
+}
+
+.auth-shell-single {
+    grid-template-columns: minmax(320px, 440px);
+    justify-content: center;
+}
+
+.auth-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    margin: 0 auto;
+}
+
+.auth-card {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.auth-header h3 {
+    font-size: 1.4rem;
+    margin-bottom: 0.35rem;
+}
+
+.auth-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.auth-form {
+    display: grid;
+    gap: 1.1rem;
+}
+
+.auth-form .form-group {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.auth-form .form-group input {
+    width: 100%;
+}
+
+.auth-submit {
+    width: 100%;
+}
+
+.auth-error-box {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 0.8rem;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.auth-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    padding-top: 1.2rem;
+}
+
+.auth-link {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-link:hover { color: var(--white); }
+
+.auth-admin-link {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.5rem 1.2rem;
+}
+
+.auth-admin-link:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
 .form-group input:focus {
     border-color: var(--primary);
 }
@@ -473,6 +590,33 @@ nav {
     
     .about-wrapper { flex-direction: column; }
     .profile-content { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+    .auth-shell {
+        grid-template-columns: 1fr;
+    }
+    .auth-panel {
+        padding: 2rem;
+    }
+    .auth-intro {
+        text-align: center;
+    }
+}
+
+@media (max-width: 560px) {
+    .auth-hero,
+    .auth-hero-simple {
+        padding: 4.5rem 0 4rem;
+    }
+    .auth-panel {
+        padding: 1.5rem;
+    }
+    .auth-footer {
+        flex-direction: column;
+        gap: 0.6rem;
+        align-items: flex-start;
+    }
 }
 
 /* Appointments Card */

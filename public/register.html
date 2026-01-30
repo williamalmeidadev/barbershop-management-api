@@ -9,63 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
-  <style>
-    /* --- CORREÇÃO DO LAYOUT --- */
-    .register-section {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding-top: calc(var(--header-height) + 2rem); 
-        padding-bottom: 2rem;
-    }
-    
-    .register-card {
-        width: 100%;
-        max-width: 500px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
-        background-color: var(--surface); 
-    }
-
-    .form-label {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        display: block;
-        color: var(--text);
-        font-size: 0.9rem;
-    }
-
-    .login-link {
-        color: var(--primary);
-        font-weight: 700;
-        text-decoration: none;
-        transition: color 0.3s;
-    }
-    .login-link:hover {
-        color: var(--white);
-    }
-
-    /* --- ESTILOS DOS INPUTS (Hierarquia Visual) --- */
-    #nome, #email {
-        width: 100%;
-        padding: 1rem;
-        font-size: 1rem;
-    }
-
-    #password, #telefone {
-        width: 60%;
-        padding: 1rem;
-        font-size: 1rem;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        margin-bottom: 1.5rem;
-    }
-  </style>
 </head>
 
 <body class="dark-theme">
@@ -82,62 +25,69 @@
       </div>
     </header>
 
-    <main id="content">
-      <section class="register-section">
-        <div class="container" style="display: flex; justify-content: center; width: 100%;">
-          
-          <div class="card register-card">
-            <div class="text-center">
-                <h2 style="margin-bottom: 0.5rem; color: var(--primary);">Criar Conta</h2>
-                <p style="margin-bottom: 2rem; color: var(--text-muted); font-size: 0.95rem;">
-                  Junte-se ao marketplace de barbearias
-                </p>
-            </div>
-
-            <form id="register-form">
-              <div class="form-group">
-                <label for="nome" class="form-label">Nome Completo</label>
-                <input type="text" id="nome" placeholder="Como podemos te chamar?" required />
+    <main id="content" class="auth-page">
+      <section class="auth-hero auth-hero-simple">
+        <div class="container auth-shell auth-shell-single">
+          <div class="auth-panel">
+            <div class="auth-card">
+              <div class="auth-header">
+                <h3>Criar Conta</h3>
+                <p>Junte-se ao marketplace de barbearias.</p>
               </div>
 
-              <div class="form-group">
-                <label for="email" class="form-label">E-mail</label>
-                <input type="email" id="email" placeholder="seu@email.com" required />
-              </div>
+              <form id="register-form" class="auth-form">
+                <div class="form-group">
+                  <label for="nome">Nome Completo</label>
+                  <input type="text" id="nome" placeholder="Como podemos te chamar?" required />
+                </div>
 
-              <div class="form-group">
-                <label for="telefone" class="form-label">Telefone (opcional)</label>
-                <input type="tel" id="telefone" placeholder="(87) 9 9999-9999" />
-              </div>
+                <div class="form-group">
+                  <label for="email">E-mail</label>
+                  <input type="email" id="email" placeholder="seu@email.com" required />
+                </div>
 
-              <div class="form-group">
-                <label for="password" class="form-label">Senha</label>
-                <input type="password" id="password" placeholder="Mínimo 6 caracteres" required />
-              </div>
+                <div class="form-group">
+                  <label for="telefone">Telefone (opcional)</label>
+                  <input type="tel" id="telefone" placeholder="(87) 9 9999-9999" />
+                </div>
 
-              <button type="submit" id="btn-register" class="primary-button" style="width: 100%; margin-top: 1rem;">
-                Cadastrar Agora
-              </button>
-            </form>
+                <div class="form-group">
+                  <label for="password">Senha</label>
+                  <input type="password" id="password" placeholder="Mínimo 6 caracteres" required />
+                </div>
 
-            <div id="error-container" class="hidden" style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; padding: 0.8rem; border-radius: 8px; margin-top: 1.5rem; text-align: center; font-size: 0.9rem;">
+                <button type="submit" id="btn-register" class="primary-button auth-submit">
+                  Cadastrar Agora
+                </button>
+              </form>
+
+              <div id="error-container" class="auth-error-box hidden">
                 <span id="error-msg">Erro ao cadastrar</span>
-            </div>
+              </div>
 
-            <div class="text-center" style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
-              <p style="font-size: 0.9rem; color: var(--text-muted);">
-                Já tem uma conta? <a href="/login" class="login-link">Faça Login</a>
-              </p>
+              <div class="auth-footer">
+                <span>Já tem uma conta?</span>
+                <a href="/login" class="auth-link">Faça Login</a>
+              </div>
             </div>
           </div>
-
         </div>
       </section>
     </main>
 
     <footer class="main-footer">
-      <div class="container text-center">
-        <p style="color: var(--text-muted); font-size: 0.8rem;">&copy; 2026 BarberMarket. Petrolina/PE.</p>
+      <div class="container footer-content">
+        <div class="footer-info">
+          <h3>BarberMarket</h3>
+          <p>Brasil</p>
+        </div>
+        <div class="footer-social">
+          <a href="#"><span class="material-icons">facebook</span></a>
+          <a href="#"><span class="material-icons">camera_alt</span></a>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 BarberMarket. Petrolina/PE.</p>
+        </div>
       </div>
     </footer>
   </div>
