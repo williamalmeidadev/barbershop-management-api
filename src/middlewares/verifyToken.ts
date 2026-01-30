@@ -45,10 +45,19 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
 
 export function verifyTokenPage(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.redirect('/login');
+  let token: string | undefined;
+  if (authHeader) {
+    [, token] = authHeader.split(' ');
+  } else if (req.headers.cookie) {
+    const cookies = req.headers.cookie.split(';').map((c) => c.trim());
+    const found = cookies.find((c) => c.startsWith('admin_token='));
+    if (found) {
+      token = decodeURIComponent(found.split('=')[1] || '');
+    }
   }
-  const [, token] = authHeader.split(' ');
+  if (!token) {
+    return res.redirect('/admin-login');
+  }
   try {
     const secret = process.env.JWT_SECRET;
     if (!secret) {
@@ -58,6 +67,6 @@ export function verifyTokenPage(req: Request, res: Response, next: NextFunction)
     req.user = decoded as TokenPayload;
     return next();
   } catch (err) {
-    return res.redirect('/login');
+    return res.redirect('/admin-login');
   }
 }

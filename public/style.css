@@ -600,6 +600,31 @@ nav {
     text-decoration: underline;
 }
 
+.auth-admin-link {
+    margin-top: 0.5rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+}
+
+.auth-admin-link:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.auth-hero-simple {
+    padding-top: 5.5rem;
+}
+
+.auth-shell-single {
+    grid-template-columns: minmax(320px, 420px);
+    justify-content: center;
+}
+
 .auth-card .primary-button {
     margin-top: 0.25rem;
 }

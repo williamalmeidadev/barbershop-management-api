@@ -1,7 +1,18 @@
 const apiBase = '';
-const tokenInput = document.getElementById('token-input');
-const tokenStatus = document.getElementById('token-status');
-const saveTokenBtn = document.getElementById('save-token');
+
+function getCookie(name) {
+  return document.cookie
+    .split(';')
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${name}=`))
+    ?.split('=')[1];
+}
+
+const adminTokenCookie = getCookie('admin_token');
+const storedRole = localStorage.getItem('role');
+if (!adminTokenCookie || storedRole !== 'admin') {
+  window.location.replace('/admin-login');
+}
 const logoutBtn = document.getElementById('logout-btn');
 
 const navItems = document.querySelectorAll('.nav-item');
@@ -189,15 +200,14 @@ navItems.forEach(item => {
   item.addEventListener('click', () => switchTab(item.dataset.tab));
 });
 
-saveTokenBtn.addEventListener('click', () => {
-  const value = tokenInput.value.trim();
-  setToken(value);
-  tokenStatus.textContent = value ? 'Token salvo.' : 'Token removido.';
-});
-
 logoutBtn.addEventListener('click', () => {
   setToken('');
-  tokenStatus.textContent = 'Token removido.';
+  localStorage.removeItem('role');
+  document.cookie = 'admin_token=; Max-Age=0; path=/; SameSite=Lax';
+  showToast('Logout realizado.');
+  setTimeout(() => {
+    window.location.href = '/admin-login';
+  }, 300);
 });
 
 function populateBarbeiroSelect(select, selectedId) {
