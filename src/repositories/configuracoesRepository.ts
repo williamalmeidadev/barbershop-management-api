@@ -26,4 +26,13 @@ export const configuracoesRepository = {
       )
     })
   },
+
+  async delete(chave: string): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      db.run(`DELETE FROM configuracoes WHERE chave = ?`, [chave], (err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
+  },
 }

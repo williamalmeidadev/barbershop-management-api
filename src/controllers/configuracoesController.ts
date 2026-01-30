@@ -20,4 +20,13 @@ export const configuracoesController = {
       res.status(400).json({ error: err.message })
     }
   }
+  ,
+  async removerDescontos(_: Request, res: Response) {
+    try {
+      await configuracoesService.removerRegrasDesconto()
+      res.status(204).send()
+    } catch (err: any) {
+      res.status(400).json({ error: err.message })
+    }
+  }
 }
