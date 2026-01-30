@@ -13,15 +13,10 @@
   <style>
     /* --- CORREÇÃO DO LAYOUT --- */
     .register-section {
-        /* Garante que ocupe a altura toda da tela */
         min-height: 100vh;
-        
         display: flex;
         align-items: center;
         justify-content: center;
-        
-        /* O PULO DO GATO: Adiciona espaço no topo considerando a altura do Header (80px) */
-        /* Assim o card nunca sobe demais e fica escondido */
         padding-top: calc(var(--header-height) + 2rem); 
         padding-bottom: 2rem;
     }
@@ -30,7 +25,6 @@
         width: 100%;
         max-width: 500px;
         box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
-        /* Fundo do card para garantir contraste se passar por cima de algo */
         background-color: var(--surface); 
     }
 

@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM Elements ---
     const professionalsGrid = document.getElementById('professionals-grid');
-    const servicesGrid = document.getElementById('services-grid'); // NOVO
+    const servicesGrid = document.getElementById('services-grid');
     const barberProfileView = document.getElementById('barber-profile');
     const bookingWizardView = document.getElementById('booking-wizard-view');
     const menuToggle = document.getElementById('menu-toggle');
@@ -49,9 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadInitialData();
         
         renderProfessionals();
-        renderServices(); // NOVO: Renderiza os cards de serviço na home
+        renderServices();
         
-        setupNavigation(); // NOVO: Configura a navegação entre abas
+        setupNavigation();
         setupEventListeners();
 
         const today = new Date().toISOString().split('T')[0];
@@ -74,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadInitialData() {
         try {
-            // Assumes 'services' is a global object imported from services.js
             state.services = await services.fetchServices();
             state.professionals = await services.fetchBarbeiros();
         } catch (error) {
@@ -83,18 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Navigation Logic (NOVO) ---
+    // --- Navigation Logic ---
     function setupNavigation() {
-        // Define quais seções aparecem em cada "Tela"
         const views = {
-            home: ['hero', 'professionals', 'services'], // Home mostra Hero, Barbeiros e Serviços
-            about: ['about'],                            // Sobre mostra apenas a seção Sobre
-            appointments: ['appointments']               // Agendamentos mostra apenas a lista
+            home: ['hero', 'professionals', 'services'],
+            about: ['about'],
+            appointments: ['appointments']
         };
 
-        // Função interna para trocar de tela
         window.navigateTo = function(viewName) {
-            // 1. Esconde TODAS as seções principais e overlays
             const allSections = [
                 'hero', 'professionals', 'services', 'about', 'appointments', 
                 'barber-profile', 'booking-wizard-view'
@@ -105,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (el) el.classList.add('hidden');
             });
 
-            // 2. Mostra apenas as seções da tela escolhida
             if (views[viewName]) {
                 views[viewName].forEach(id => {
                     const el = document.getElementById(id);
@@ -113,26 +108,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // 3. Lógica específica da tela
             if (viewName === 'appointments') {
                 renderAppointments();
             }
 
-            // 4. Atualiza menu ativo
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             const activeLink = document.getElementById(`nav-${viewName}`);
             if (activeLink) activeLink.classList.add('active');
 
-            // 5. Fecha menu mobile se aberto
             if (navMenu.classList.contains('active')) {
                 navMenu.classList.remove('active');
             }
 
-            // 6. Scroll topo
             window.scrollTo(0, 0);
         };
 
-        // Event Listeners dos Links de Navegação
         document.getElementById('nav-home')?.addEventListener('click', (e) => {
             e.preventDefault();
             window.navigateTo('home');
@@ -148,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.navigateTo('appointments');
         });
 
-        // Inicialização baseada na URL (Hash)
         const hash = window.location.hash;
         if (hash === '#about') {
             window.navigateTo('about');
@@ -160,8 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Renderers ---
-
-    // NOVO: Renderiza os serviços na Home (Task #35)
     function renderServices() {
         if (!servicesGrid) return;
 
@@ -246,11 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const profileHeader = document.querySelector('.profile-header');
 
-        // Remove old avatar if exists
         const oldAvatar = document.querySelector('.profile-avatar, .profile-avatar-wrapper');
         if (oldAvatar) oldAvatar.remove();
 
-        // Fallback for profile image
         const fallbackIconBig = `<span class='material-icons' style='font-size: 4rem; color: var(--text-muted);'>person</span>`;
 
         const avatarUrl = pro.foto_url
@@ -283,14 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.isLoggedIn) {
             const input = wrapperDiv.querySelector('#avatar-upload-input');
 
-            // Click on wrapper to trigger file input
             wrapperDiv.onclick = (e) => {
                 if (!wrapperDiv.classList.contains('uploading')) {
                     input.click();
                 }
             };
 
-            // When a file is selected
             input.onchange = async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -310,11 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (response.ok) {
                         const updatedBarber = await response.json();
-
-                        // Update local state and images
                         pro.foto_url = updatedBarber.foto_url;
 
-                        // Update Profile Avatar (Big) with fallback
                         const newProfileContent = updatedBarber.foto_url
                             ? `<img src="${updatedBarber.foto_url}" class="barber-avatar-img" onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
                             : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
@@ -322,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         const imgContainer = wrapperDiv.querySelector('.profile-avatar');
                         imgContainer.innerHTML = newProfileContent;
 
-                        // Update Card Avatar (Small) with fallback
                         const cardAvatar = document.querySelector(`.card[data-id="${pro.id}"] .avatar-container`);
                         if (cardAvatar) {
                             const fallbackIconSmall = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
@@ -340,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error(error);
                     showNotification('Erro de conexão.', 'error');
                 } finally {
-                    // Remove loading feedback and clear input
                     wrapperDiv.classList.remove('uploading');
                     if (icon) icon.innerText = 'photo_camera';
                     input.value = '';
@@ -351,7 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderProfileServices();
         renderProfileTimeSlots([]);
 
-        // Hide main views and show profile
         const mainViews = ['hero', 'professionals', 'services', 'about', 'appointments'];
         mainViews.forEach(id => {
             const el = document.getElementById(id);
@@ -363,8 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderProfileServices() {
-        // Mock filtering: In a real marketplace, services would belong to a barber
-        // Here we just show all services as available for any barber for demo purposes
         profileServicesList.innerHTML = state.services.map(service => `
             <div class="profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}" data-id="${service.id}">
                 <div>
@@ -393,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appointmentsList.innerHTML = '<div class="loading">Buscando seus agendamentos...</div>';
 
         try {
-            const appointments = await services.fetchUserAppointments(1); // Client ID 1 as default
+            const appointments = await services.fetchUserAppointments(1);
             if (appointments.length === 0) {
                 appointmentsList.innerHTML = '<p style="grid-column: 1/-1;">Você ainda não possui agendamentos.</p>';
                 return;
@@ -425,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             btn.innerText = 'Cancelando...';
                             await services.deleteAppointment(id);
                             showNotification('Agendamento cancelado com sucesso!');
-                            renderAppointments(); // Refresh list
+                            renderAppointments();
                         } catch (error) {
                             showNotification('Erro ao cancelar: ' + error.message, 'error');
                             btn.disabled = false;
@@ -532,7 +507,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupEventListeners() {
         closeProfileBtn.onclick = () => {
             barberProfileView.classList.add('hidden');
-            // Retorna para a home ao fechar perfil
             document.getElementById('hero').classList.remove('hidden');
             document.getElementById('professionals').classList.remove('hidden');
             document.getElementById('services').classList.remove('hidden');

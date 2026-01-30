@@ -44,6 +44,13 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+
+    /* --- FUNDO COM TEXTURA --- */
+    background-image: 
+        linear-gradient(to bottom, rgba(18, 16, 14, 0.95), rgba(18, 16, 14, 0.85)),
+        url('https://www.transparenttextures.com/patterns/barber-shop.png');
+    background-repeat: repeat;
+    background-attachment: fixed;
 }
 
 /* Removemos a fonte serifada (Playfair) para ficar igual ao protótipo */
@@ -291,6 +298,14 @@ nav {
     margin-bottom: 1rem;
 }
 
+/* --- LOGIN / REGISTER ADJUSTMENTS --- */
+.login-card, .register-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    z-index: 10;
+}
+
 /* --- ABOUT SECTION (Layout Moderno) --- */
 .bg-light {
     background-color: #161311; /* Leve contraste com o fundo principal */
@@ -387,6 +402,7 @@ nav {
     border-radius: var(--radius);
     padding: 1rem;
     font-weight: 600;
+    color: white;
 }
 
 .primary-button:hover {
@@ -411,6 +427,9 @@ nav {
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--background);
+    padding: 0.5rem;
+    text-align: center;
+    cursor: pointer;
 }
 
 .time-slot-compact.selected {
@@ -457,14 +476,25 @@ nav {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
 }
 .appointment-status {
     background: rgba(242, 93, 39, 0.15);
     color: var(--primary);
     border: none;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 .btn-cancel {
     color: #ef4444;
-    border-color: #ef4444;
+    border: 1px solid #ef4444;
+    background: transparent;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
 }
 .btn-cancel:hover { background: #ef4444; color: white; }
