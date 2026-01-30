@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
-import { vagasService } from '../../src/services/vagasService'
-import { vagasRepository } from '../../src/repositories/vagasRepository'
-import { Vaga, StatusVaga } from '../../src/interfaces/vaga'
+import { vagasService } from '../../../src/services/vagasService'
+import { vagasRepository } from '../../../src/repositories/vagasRepository'
+import { Vaga, StatusVaga } from '../../../src/interfaces/vaga'
 
 describe('VagasService (Unitário)', () => {
     let sandbox: sinon.SinonSandbox
@@ -58,7 +58,7 @@ describe('VagasService (Unitário)', () => {
             ]
 
             sandbox.stub(vagasRepository, 'buscarDisponiveisPorBarbeiroEData').resolves(vagasMock)
-            
+
             const verifyStub = sandbox.stub(vagasRepository, 'verificarDisponiveisPorIds').resolves(true)
 
             const updateStub = sandbox.stub(vagasRepository, 'atualizarStatusLote').resolves()
@@ -79,7 +79,7 @@ describe('VagasService (Unitário)', () => {
             ]
 
             sandbox.stub(vagasRepository, 'buscarDisponiveisPorBarbeiroEData').resolves(vagasMock)
-            
+
             sandbox.stub(vagasRepository, 'verificarDisponiveisPorIds').resolves(false)
 
             const updateStub = sandbox.stub(vagasRepository, 'atualizarStatusLote').resolves()
@@ -87,32 +87,32 @@ describe('VagasService (Unitário)', () => {
             const resultado = await vagasService.reservarVagasParaAgendamento(1, '2026-01-29T14:00:00Z', 60, { manageTransaction: false })
 
             expect(resultado).to.be.null
-            expect(updateStub.called).to.be.false 
+            expect(updateStub.called).to.be.false
         })
     })
 
     describe('apagarVagaComValidacao', () => {
         it('NÃO deve apagar a vaga se existir um agendamento vinculado (Regra de Integridade)', async () => {
             const checkStub = sandbox.stub(vagasRepository, 'verificarAgendamentoNaVaga').resolves(true)
-            
+
             const deleteStub = sandbox.stub(vagasRepository, 'apagarVaga').resolves(true)
 
             const resultado = await vagasService.apagarVagaComValidacao(99)
 
             expect(resultado.success).to.be.false
             expect(resultado.message).to.include('existe agendamento')
-            
+
             expect(checkStub.calledOnce).to.be.true
-            expect(deleteStub.called).to.be.false 
+            expect(deleteStub.called).to.be.false
         })
 
         it('deve apagar a vaga se estiver livre', async () => {
             sandbox.stub(vagasRepository, 'verificarAgendamentoNaVaga').resolves(false)
-            
+
             sandbox.stub(vagasRepository, 'buscarVagasPorIds').resolves([
                 { id: 99, barbeiro_id: 1, inicio: '...', fim: '...', status: StatusVaga.DISPONIVEL }
             ])
-            
+
             const deleteStub = sandbox.stub(vagasRepository, 'apagarVaga').resolves(true)
 
             const resultado = await vagasService.apagarVagaComValidacao(99)

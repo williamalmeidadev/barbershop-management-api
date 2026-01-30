@@ -7,9 +7,9 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "cross-env NODE_ENV=test mocha -r ts-node/register tests/**/*.test.ts",
+    "test": "cross-env NODE_ENV=test JWT_SECRET=test_secret mocha -r ts-node/register tests/**/*.test.ts",
     "test:coverage": "nyc npm test",
-    "test:file": "cross-env NODE_ENV=test mocha -r ts-node/register"
+    "test:file": "cross-env NODE_ENV=test JWT_SECRET=test_secret mocha -r ts-node/register"
   },
   "repository": {
     "type": "git",
