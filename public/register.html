@@ -24,50 +24,82 @@
           <h1>BarberMarket</h1>
         </div>
         <nav id="nav-menu">
-          <a href="index.html" class="nav-link">Explorar</a>
-          <a href="login.html" class="nav-button">Login</a>
+          <a href="/" class="nav-link">Explorar</a>
+          <a href="/login" class="nav-button">Login</a>
         </nav>
       </div>
     </header>
 
-    <main id="content">
-      <section class="section">
-        <div class="container" style="max-width: 500px;">
-          <div class="card text-center">
-            <h2 class="section-title">Cadastro</h2>
-            <p style="margin-bottom: 2rem; color: var(--text-muted);">Crie sua conta no primeiro marketplace de
-              barbearia de Petrolina</p>
+    <main id="content" class="auth-page">
+      <section class="auth-hero">
+        <div class="container auth-shell">
+          <div class="auth-intro">
+            <span class="auth-kicker">Cadastro</span>
+            <h2>Seu perfil, seus horários, sua barbearia.</h2>
+            <p>Crie sua conta e tenha acesso a barbeiros verificados, horários em tempo real e ofertas personalizadas.</p>
+            <div class="auth-meta">
+              <div class="meta-card">
+                <span class="material-icons">person_add</span>
+                <div>
+                  <strong>Fácil</strong>
+                  <small>Cadastro em poucos passos</small>
+                </div>
+              </div>
+              <div class="meta-card">
+                <span class="material-icons">calendar_today</span>
+                <div>
+                  <strong>Organizado</strong>
+                  <small>Histórico completo de atendimentos</small>
+                </div>
+              </div>
+              <div class="meta-card">
+                <span class="material-icons">local_offer</span>
+                <div>
+                  <strong>Benefícios</strong>
+                  <small>Descontos e vantagens recorrentes</small>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            <form id="register-form">
-              <div class="form-group">
-                <label for="nome">Nome Completo</label>
-                <input type="text" id="nome" placeholder="Como podemos te chamar?" required />
+          <div class="auth-panel">
+            <div class="auth-card">
+              <div class="auth-header">
+                <h3>Criar conta</h3>
+                <p>Preencha seus dados e comece agora mesmo.</p>
               </div>
 
-              <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="seu@email.com" required />
+              <form id="register-form" class="auth-form">
+                <div class="form-group">
+                  <label for="nome">Nome Completo</label>
+                  <input type="text" id="nome" placeholder="Como podemos te chamar?" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="email">E-mail</label>
+                  <input type="email" id="email" placeholder="seu@email.com" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="password">Senha</label>
+                  <input type="password" id="password" placeholder="Mínimo 6 caracteres" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="telefone">Telefone (opcional)</label>
+                  <input type="text" id="telefone" placeholder="(87) 9 9999-9999" />
+                </div>
+
+                <button type="submit" class="primary-button">Cadastrar</button>
+              </form>
+
+              <p id="error" class="auth-error"></p>
+
+              <div class="auth-footer">
+                <span>Já tem uma conta?</span>
+                <a href="/login">Faça login</a>
               </div>
-
-              <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" placeholder="Mínimo 6 caracteres" required />
-              </div>
-
-              <div class="form-group">
-                <label for="telefone">Telefone (opcional)</label>
-                <input type="text" id="telefone" placeholder="(87) 9 9999-9999" />
-              </div>
-
-              <button type="submit" class="primary-button">Cadastrar</button>
-            </form>
-
-            <p id="error" style="color: #ff4d4d; margin-top: 1rem;"></p>
-
-            <p style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
-              Já tem uma conta? <a href="login.html"
-                style="color: var(--primary); text-decoration: none; font-weight: 600;">Faça login</a>
-            </p>
+            </div>
           </div>
         </div>
       </section>
@@ -92,6 +124,7 @@
 
   <script src="services.js"></script>
   <script src="register.js"></script>
+  <div id="notification-container"></div>
 </body>
 
 </html>

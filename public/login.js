@@ -9,7 +9,7 @@ form.addEventListener('submit', async (event) => {
 
     try {
         await window.services.login(email, password);
-        window.location.href = 'index.html';
+        window.location.href = '/';
     } catch (err) {
         error.textContent = err.message || 'E-mail ou senha inválidos';
     }
