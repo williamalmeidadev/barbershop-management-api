@@ -44,7 +44,17 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
 }
 
 function resolveBasePath(req: Request): string {
-  return req.originalUrl.startsWith('/server08') ? '/server08' : '';
+  const forwardedPrefix = req.headers['x-forwarded-prefix'];
+  const prefix =
+    (typeof forwardedPrefix === 'string' && forwardedPrefix) ||
+    (Array.isArray(forwardedPrefix) && forwardedPrefix[0]) ||
+    '';
+
+  if (prefix && prefix.includes('/server08')) return '/server08';
+  if (req.originalUrl.startsWith('/server08')) return '/server08';
+  if (req.baseUrl && req.baseUrl.startsWith('/server08')) return '/server08';
+  if (req.path && req.path.startsWith('/server08')) return '/server08';
+  return '';
 }
 
 export function verifyTokenPage(req: Request, res: Response, next: NextFunction) {
