@@ -76,12 +76,15 @@ export const bookingService = {
   },
 
 
-  async cancelarAgendamento(id: number): Promise<Agendamento> {
+  async cancelarAgendamento(id: number, requester: { id: number; role: string }): Promise<Agendamento> {
     if (!id) throw new Error('O id do agendamento é obrigatório.')
     return runInTransaction(async () => {
       const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
       if (!agendamento) {
         throw new Error('Agendamento não encontrado.')
+      }
+      if (requester.role !== 'admin' && agendamento.cliente_id !== requester.id) {
+        throw new Error('Acesso negado.')
       }
       if (agendamento.status === StatusAgendamento.CANCELADO) {
         throw new Error('Agendamento já cancelado.')

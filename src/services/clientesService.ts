@@ -29,5 +29,10 @@ export const clientesService = {
     })
 
     return { clienteId }
-  }
+  },
+
+  async buscarPorId(id: number) {
+    if (!id) throw new Error('Cliente ID é obrigatório.')
+    return clientesRepository.findById(id)
+  },
 }
