@@ -622,7 +622,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('role');
                 console.log('Session cleared. Redirecting to login...');
-                window.location.href = '/';
+                const basePath = window.BASE_PATH || '';
+                window.location.href = basePath || '/';
             }
         });
     }

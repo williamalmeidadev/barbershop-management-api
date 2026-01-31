@@ -6,6 +6,7 @@ import { isAdmin } from './middlewares/verifyAdmin'
 
 const app = express()
 const publicDir = path.join(__dirname, '../public')
+const basePath = '/server08'
 
 app.use(express.json())
 
@@ -20,6 +21,18 @@ app.get('/admin', verifyTokenPage, isAdmin, (_, res) => {
   res.sendFile(path.join(publicDir, 'admin.html'))
 })
 
+// Base path support (subpath deploy)
+app.get(`${basePath}`, (_, res) => res.redirect(`${basePath}/`))
+app.get(`${basePath}/`, (_, res) => res.sendFile(path.join(publicDir, 'index.html')))
+app.get(`${basePath}/login`, (_, res) => res.sendFile(path.join(publicDir, 'login.html')))
+app.get(`${basePath}/admin-login`, (_, res) => res.sendFile(path.join(publicDir, 'admin-login.html')))
+app.get(`${basePath}/register`, (_, res) => res.sendFile(path.join(publicDir, 'register.html')))
+app.get(`${basePath}/app`, verifyTokenPageClient, (_, res) => res.sendFile(path.join(publicDir, 'app.html')))
+app.get(`${basePath}/admin`, verifyTokenPage, isAdmin, (_, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.sendFile(path.join(publicDir, 'admin.html'))
+})
+
 // Block direct access to HTML files
 app.use((req, res, next) => {
   if (req.path.endsWith('.html')) {
@@ -29,7 +42,10 @@ app.use((req, res, next) => {
 })
 
 app.use(express.static(publicDir, { index: false }))
+app.use(basePath, express.static(publicDir, { index: false }))
 app.use(routes)
+app.use(basePath, routes)
 app.use('/images', express.static(path.resolve(__dirname, '..', 'public', 'images')))
+app.use(`${basePath}/images`, express.static(path.resolve(__dirname, '..', 'public', 'images')))
 
 export default app
