@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appointmentsList.innerHTML = '<div class="loading">Buscando seus agendamentos...</div>';
 
         try {
-            const appointments = await services.fetchUserAppointments(1);
+            const appointments = await services.fetchUserAppointments();
             if (appointments.length === 0) {
                 appointmentsList.innerHTML = '<p style="grid-column: 1/-1;">Você ainda não possui agendamentos.</p>';
                 return;

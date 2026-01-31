@@ -25,6 +25,18 @@ export const bookingController = {
     }
   },
 
+  async listarMe(req: Request, res: Response) {
+    try {
+      const user = req.user
+      if (!user) return res.status(401).json({ error: 'Token não fornecido.' })
+      if (user.role !== 'cliente') return res.status(403).json({ error: 'Acesso negado.' })
+      const agendamentos = await bookingService.listarAgendamentosDoCliente(user.id)
+      res.json(agendamentos)
+    } catch (err: any) {
+      res.status(400).json({ error: err.message })
+    }
+  },
+
   async listarPorCliente(req: Request, res: Response) {
     try {
       const clienteId = Number(req.params.id)

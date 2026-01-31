@@ -9,7 +9,9 @@ router.post('/', verifyToken, bookingController.criar)
 
 router.get('/', verifyToken, isAdmin, bookingController.listar)
 
-router.get('/cliente/:id', verifyToken, bookingController.listarPorCliente)
+router.get('/me', verifyToken, bookingController.listarMe)
+
+router.get('/cliente/:id', verifyToken, isAdmin, bookingController.listarPorCliente)
 
 router.post('/:id/cancelar', verifyToken, bookingController.cancelar)
 

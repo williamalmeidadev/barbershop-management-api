@@ -54,10 +54,10 @@ const services = {
         }
     },
 
-    async fetchUserAppointments(clienteId) {
+    async fetchUserAppointments() {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/agendamentos/cliente/${clienteId}`, {
+            const response = await fetch(`${API_BASE_URL}/agendamentos/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
