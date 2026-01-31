@@ -18,12 +18,16 @@ app.use((req, _res, next) => {
   next()
 })
 
+// Protect app routes (client area)
+app.use('/app', verifyTokenPageClient)
+app.use(`${basePath}/app`, verifyTokenPageClient)
+
 // HTML pages via explicit routes
 app.get('/', (_, res) => res.sendFile(path.join(publicDir, 'index.html')))
 app.get('/login', (_, res) => res.sendFile(path.join(publicDir, 'login.html')))
 app.get('/admin-login', (_, res) => res.sendFile(path.join(publicDir, 'admin-login.html')))
 app.get('/register', (_, res) => res.sendFile(path.join(publicDir, 'register.html')))
-app.get('/app', verifyTokenPageClient, (_, res) => res.sendFile(path.join(publicDir, 'app.html')))
+app.get('/app', (_, res) => res.sendFile(path.join(publicDir, 'app.html')))
 app.get('/admin', verifyTokenPage, isAdmin, (_, res) => {
   res.set('Cache-Control', 'no-store')
   res.sendFile(path.join(publicDir, 'admin.html'))
@@ -35,7 +39,7 @@ app.get(`${basePath}/`, (_, res) => res.sendFile(path.join(publicDir, 'index.htm
 app.get(`${basePath}/login`, (_, res) => res.sendFile(path.join(publicDir, 'login.html')))
 app.get(`${basePath}/admin-login`, (_, res) => res.sendFile(path.join(publicDir, 'admin-login.html')))
 app.get(`${basePath}/register`, (_, res) => res.sendFile(path.join(publicDir, 'register.html')))
-app.get(`${basePath}/app`, verifyTokenPageClient, (_, res) => res.sendFile(path.join(publicDir, 'app.html')))
+app.get(`${basePath}/app`, (_, res) => res.sendFile(path.join(publicDir, 'app.html')))
 app.get(`${basePath}/admin`, verifyTokenPage, isAdmin, (_, res) => {
   res.set('Cache-Control', 'no-store')
   res.sendFile(path.join(publicDir, 'admin.html'))

@@ -1,3 +1,19 @@
+const BASE_PATH = '/server08';
+
+function getCookieValue(name) {
+    return document.cookie
+        .split(';')
+        .map((c) => c.trim())
+        .find((c) => c.startsWith(`${name}=`))
+        ?.split('=')[1];
+}
+
+const clientTokenCookie = getCookieValue('client_token');
+const localToken = localStorage.getItem('token');
+if (!clientTokenCookie && !localToken) {
+    window.location.replace(`${BASE_PATH}/login`);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     const state = {
@@ -622,8 +638,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('role');
                 console.log('Session cleared. Redirecting to login...');
-                const basePath = '/server08';
-                window.location.href = basePath || '/';
+                document.cookie = 'client_token=; Max-Age=0; path=/; SameSite=Lax';
+                window.location.href = `${BASE_PATH}/login`;
             }
         });
     }
