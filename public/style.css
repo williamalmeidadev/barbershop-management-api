@@ -463,21 +463,89 @@ nav {
     border-radius: var(--radius);
     padding: 1.2rem;
     margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
+    gap: 1rem;
+    align-items: center;
 }
 
-.profile-service-card h4 {
-    margin: 0 0 0.5rem;
+.profile-service-media {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
-.profile-service-card p {
+.profile-service-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-service-media .material-icons {
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+.profile-service-info h4 {
+    margin: 0 0 0.35rem;
+}
+
+.profile-service-info p {
     margin: 0;
     color: var(--text-muted);
+}
+
+.profile-service-price {
+    text-align: right;
+    display: grid;
+    gap: 0.2rem;
+}
+
+.profile-service-price span {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.profile-service-price p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
 }
 
 .profile-service-card:hover, 
 .profile-service-card.selected {
     border-color: var(--primary);
     background-color: rgba(242, 93, 39, 0.05);
+}
+
+.service-media-app {
+    width: 100%;
+    height: 180px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.service-media-app img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.service-media-app .material-icons {
+    font-size: 2.75rem;
+    color: var(--primary);
 }
 
 .booking-flow-compact {

@@ -14,6 +14,17 @@ if (!clientTokenCookie && !localToken) {
     window.location.replace(`${BASE_PATH}/login`);
 }
 
+function normalizeImageUrl(url) {
+    if (!url) return '';
+    if (url.startsWith(`${BASE_PATH}/`)) return url;
+    if (url.startsWith('/images/')) return `${BASE_PATH}${url}`;
+    if (url.includes('/images/')) {
+        const idx = url.indexOf('/images/');
+        return `${BASE_PATH}${url.slice(idx)}`;
+    }
+    return url;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     const state = {
@@ -173,27 +184,82 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        servicesGrid.innerHTML = state.services.map(service => `
-            <div class="card service-card">
-                <div style="text-align: center; margin-bottom: 1rem;">
-                    <span class="material-icons" style="font-size: 3rem; color: var(--primary);">content_cut</span>
-                </div>
-                <h3 style="text-align: center;">${service.nome}</h3>
-                <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; min-height: 3em;">
-                    ${service.descricao || 'Procedimento realizado com os melhores produtos do mercado.'}
-                </p>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: auto;">
-                    <div style="display: flex; align-items: center; gap: 5px; color: var(--text-muted); font-size: 0.9rem;">
-                        <span class="material-icons" style="font-size: 1rem;">schedule</span>
-                        ${service.duracao_minutos} min
-                    </div>
-                    <div style="color: var(--primary); font-weight: 700; font-size: 1.2rem;">
-                        R$ ${(service.preco_centavos / 100).toFixed(2)}
-                    </div>
-                </div>
-            </div>
-        `).join('');
+        servicesGrid.replaceChildren();
+        state.services.forEach(service => {
+            const card = document.createElement('div');
+            card.className = 'card service-card';
+
+            const mediaWrap = document.createElement('div');
+            mediaWrap.className = 'service-media-app';
+
+            const mediaSrc = normalizeImageUrl(service.foto_url);
+            if (mediaSrc) {
+                const img = document.createElement('img');
+                img.src = mediaSrc;
+                img.alt = service.nome;
+                img.onerror = () => {
+                    const fallback = document.createElement('span');
+                    fallback.className = 'material-icons';
+                    fallback.textContent = 'content_cut';
+                    mediaWrap.replaceChildren(fallback);
+                };
+                mediaWrap.appendChild(img);
+            } else {
+                const fallback = document.createElement('span');
+                fallback.className = 'material-icons';
+                fallback.textContent = 'content_cut';
+                mediaWrap.appendChild(fallback);
+            }
+
+            const title = document.createElement('h3');
+            title.style.textAlign = 'center';
+            title.textContent = service.nome;
+
+            const desc = document.createElement('p');
+            desc.style.textAlign = 'center';
+            desc.style.color = 'var(--text-muted)';
+            desc.style.fontSize = '0.9rem';
+            desc.style.marginBottom = '1.5rem';
+            desc.style.minHeight = '3em';
+            desc.textContent = service.descricao || 'Procedimento realizado com os melhores produtos do mercado.';
+
+            const footer = document.createElement('div');
+            footer.style.display = 'flex';
+            footer.style.justifyContent = 'space-between';
+            footer.style.alignItems = 'center';
+            footer.style.borderTop = '1px solid var(--border)';
+            footer.style.paddingTop = '1rem';
+            footer.style.marginTop = 'auto';
+
+            const duration = document.createElement('div');
+            duration.style.display = 'flex';
+            duration.style.alignItems = 'center';
+            duration.style.gap = '5px';
+            duration.style.color = 'var(--text-muted)';
+            duration.style.fontSize = '0.9rem';
+            const durationIcon = document.createElement('span');
+            durationIcon.className = 'material-icons';
+            durationIcon.style.fontSize = '1rem';
+            durationIcon.textContent = 'schedule';
+            duration.appendChild(durationIcon);
+            duration.appendChild(document.createTextNode(` ${service.duracao_minutos} min`));
+
+            const price = document.createElement('div');
+            price.style.color = 'var(--primary)';
+            price.style.fontWeight = '700';
+            price.style.fontSize = '1.2rem';
+            price.textContent = `R$ ${(service.preco_centavos / 100).toFixed(2)}`;
+
+            footer.appendChild(duration);
+            footer.appendChild(price);
+
+            card.appendChild(mediaWrap);
+            card.appendChild(title);
+            card.appendChild(desc);
+            card.appendChild(footer);
+
+            servicesGrid.appendChild(card);
+        });
     }
 
     function renderProfessionals() {
@@ -206,8 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
         professionalsGrid.innerHTML = state.professionals.map(pro => {
             const fallbackIcon = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
 
-            const avatarContent = pro.foto_url
-                ? `<img src="${pro.foto_url}" 
+            const avatarSrc = normalizeImageUrl(pro.foto_url);
+            const avatarContent = avatarSrc
+                ? `<img src="${avatarSrc}" 
                        alt="${pro.nome_profissional}" 
                        class="barber-avatar-img" 
                        onerror="this.parentElement.innerHTML = &quot;${fallbackIcon}&quot;">`
@@ -254,8 +321,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fallbackIconBig = `<span class='material-icons' style='font-size: 4rem; color: var(--text-muted);'>person</span>`;
 
-        const avatarUrl = pro.foto_url
-            ? `<img src="${pro.foto_url}" 
+        const avatarSrc = normalizeImageUrl(pro.foto_url);
+        const avatarUrl = avatarSrc
+            ? `<img src="${avatarSrc}" 
                    alt="${pro.nome_profissional}" 
                    class="barber-avatar-img"
                    onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
@@ -285,18 +353,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderProfileServices() {
-        profileServicesList.innerHTML = state.services.map(service => `
-            <div class="profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}" data-id="${service.id}">
-                <div>
-                    <h4 style="margin-bottom: 0.2rem;">${service.nome}</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-muted);">${service.descricao || 'Serviço de alta qualidade'}</p>
-                </div>
-                <div style="text-align: right;">
-                    <span style="color: var(--primary); font-weight: 700;">R$ ${(service.preco_centavos / 100).toFixed(2)}</span>
-                    <p style="font-size: 0.7rem;">${service.duracao_minutos || 30} min</p>
-                </div>
-            </div>
-        `).join('');
+        profileServicesList.replaceChildren();
+        state.services.forEach(service => {
+            const card = document.createElement('div');
+            card.className = `profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}`;
+            card.dataset.id = String(service.id);
+
+            const mediaWrap = document.createElement('div');
+            mediaWrap.className = 'profile-service-media';
+
+            const mediaSrc = normalizeImageUrl(service.foto_url);
+            if (mediaSrc) {
+                const img = document.createElement('img');
+                img.src = mediaSrc;
+                img.alt = service.nome;
+                img.onerror = () => {
+                    const fallback = document.createElement('span');
+                    fallback.className = 'material-icons';
+                    fallback.textContent = 'content_cut';
+                    mediaWrap.replaceChildren(fallback);
+                };
+                mediaWrap.appendChild(img);
+            } else {
+                const fallback = document.createElement('span');
+                fallback.className = 'material-icons';
+                fallback.textContent = 'content_cut';
+                mediaWrap.appendChild(fallback);
+            }
+
+            const info = document.createElement('div');
+            info.className = 'profile-service-info';
+            const name = document.createElement('h4');
+            name.textContent = service.nome;
+            const desc = document.createElement('p');
+            desc.textContent = service.descricao || 'Serviço de alta qualidade';
+            info.appendChild(name);
+            info.appendChild(desc);
+
+            const price = document.createElement('div');
+            price.className = 'profile-service-price';
+            const priceValue = document.createElement('span');
+            priceValue.textContent = `R$ ${(service.preco_centavos / 100).toFixed(2)}`;
+            const duration = document.createElement('p');
+            duration.textContent = `${service.duracao_minutos || 30} min`;
+            price.appendChild(priceValue);
+            price.appendChild(duration);
+
+            card.appendChild(mediaWrap);
+            card.appendChild(info);
+            card.appendChild(price);
+
+            profileServicesList.appendChild(card);
+        });
 
         profileServicesList.querySelectorAll('.profile-service-card').forEach(card => {
             card.onclick = () => {
