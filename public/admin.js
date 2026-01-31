@@ -1,4 +1,4 @@
-const apiBase = '';
+const apiBase = window.BASE_PATH || '';
 
 function getCookie(name) {
   return document.cookie
