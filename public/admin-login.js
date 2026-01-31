@@ -1,6 +1,6 @@
 const form = document.getElementById('admin-login-form');
 const error = document.getElementById('error');
-const basePath = window.BASE_PATH || '';
+const basePath = '/server08';
 
 // Do not auto-redirect here; /admin will validate via cookie.
 

@@ -622,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('role');
                 console.log('Session cleared. Redirecting to login...');
-                const basePath = window.BASE_PATH || '';
+                const basePath = '/server08';
                 window.location.href = basePath || '/';
             }
         });

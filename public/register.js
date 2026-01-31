@@ -2,7 +2,7 @@ const form = document.getElementById('register-form');
 const btnRegister = document.getElementById('btn-register');
 const errorContainer = document.getElementById('error-container');
 const errorMsg = document.getElementById('error-msg');
-const basePath = window.BASE_PATH || '';
+const basePath = '/server08';
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ form.addEventListener('submit', async (e) => {
 
         btnRegister.innerText = 'Sucesso! Redirecionando...';
         setTimeout(() => {
-            window.location.href = `${basePath}/login`;
+      window.location.href = `${basePath}/login`;
         }, 1000);
 
     } catch (err) {

@@ -2,7 +2,7 @@ const form = document.getElementById('login-form');
 const btnLogin = document.getElementById('btn-login');
 const errorContainer = document.getElementById('error-container');
 const errorMsg = document.getElementById('error-msg');
-const basePath = window.BASE_PATH || '';
+const basePath = '/server08';
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -21,7 +21,7 @@ form.addEventListener('submit', async (event) => {
         
         btnLogin.innerText = 'Sucesso!';
         setTimeout(() => {
-            window.location.href = `${basePath}/app`;
+    window.location.href = `${basePath}/app`;
         }, 500);
 
     } catch (err) {

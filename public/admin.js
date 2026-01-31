@@ -1,4 +1,4 @@
-const apiBase = window.BASE_PATH || '';
+const apiBase = '/server08';
 
 function getCookie(name) {
   return document.cookie

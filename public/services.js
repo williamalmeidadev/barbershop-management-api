@@ -1,5 +1,4 @@
-const BASE_PATH = window.BASE_PATH || (window.location.pathname.startsWith('/server08') ? '/server08' : '');
-const API_BASE_URL = BASE_PATH; // Relative path
+const API_BASE_URL = '/server08';
 
 const services = {
     async fetchServices() {
