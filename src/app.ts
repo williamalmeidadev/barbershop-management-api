@@ -10,6 +10,14 @@ const basePath = '/server08'
 
 app.use(express.json())
 
+// Handle double-slash paths coming from reverse proxies
+app.use((req, _res, next) => {
+  if (req.url.startsWith('//')) {
+    req.url = req.url.replace(/^\/+/, '/')
+  }
+  next()
+})
+
 // HTML pages via explicit routes
 app.get('/', (_, res) => res.sendFile(path.join(publicDir, 'index.html')))
 app.get('/login', (_, res) => res.sendFile(path.join(publicDir, 'login.html')))
