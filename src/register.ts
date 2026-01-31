@@ -4,7 +4,7 @@ async function register(
     password: string,
     telefone?: string
 ) {
-    const response = await fetch('http://localhost:3333/clientes/register', {
+    const response = await fetch('/server08/clientes', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ form.addEventListener('submit', async (e) => {
 
     try {
         await register(nome, email, password, telefone);
-        window.location.href = 'login.html';
+        window.location.href = '/server08/login';
     } catch (err) {
         error.textContent = err instanceof Error
             ? err.message

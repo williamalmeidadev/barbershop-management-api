@@ -4,7 +4,7 @@ import { requireAuth } from './utils/authGuard';
 requireAuth();
 
 async function loadData() {
-  const response = await authFetch('http://localhost:3333/teste');
+  const response = await authFetch('/server08/teste');
   const data = await response.json();
   console.log(data);
 }
@@ -14,5 +14,5 @@ const logoutBtn = document.getElementById('logout');
 
 logoutBtn?.addEventListener('click', () => {
   localStorage.clear();
-  window.location.href = 'login.html';
+  window.location.href = '/server08/login';
 });

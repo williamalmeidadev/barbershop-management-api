@@ -88,7 +88,13 @@ export const barbeirosController = {
       }
 
       // Save new photo URL
-      const fotoUrl = `${req.protocol}://${req.get('host')}/images/${arquivo.filename}`
+      const forwardedPrefix = req.headers['x-forwarded-prefix']
+      const basePath =
+        (typeof forwardedPrefix === 'string' && forwardedPrefix) ||
+        (Array.isArray(forwardedPrefix) && forwardedPrefix[0]) ||
+        ''
+      const normalizedBase = basePath && basePath.includes('/server08') ? '/server08' : ''
+      const fotoUrl = `${req.protocol}://${req.get('host')}${normalizedBase}/images/${arquivo.filename}`
 
       const barbeiroAtualizado = await barbeirosService.atualizar(id, {
         foto_url: fotoUrl
