@@ -487,11 +487,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        profileTimeSlots.innerHTML = slots.map(slot => `
-            <div class="time-slot-compact ${state.selectedTime === slot ? 'selected' : ''}" data-time="${slot}">
-                ${slot}
+        profileTimeSlots.innerHTML = slots.map(slot => {
+            const inicioIso = slot.inicio;
+            const label = new Date(inicioIso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            return `
+            <div class="time-slot-compact ${state.selectedTime === inicioIso ? 'selected' : ''}" data-time="${inicioIso}">
+                ${label}
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         profileTimeSlots.querySelectorAll('.time-slot-compact').forEach(slot => {
             slot.onclick = () => {
@@ -530,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>Serviço:</strong> <span>${state.selectedService.nome}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                    <strong>Agendado para:</strong> <span>${new Date(state.selectedDate).toLocaleDateString()} às ${state.selectedTime}</span>
+                    <strong>Agendado para:</strong> <span>${new Date(state.selectedTime).toLocaleDateString('pt-BR')} às ${new Date(state.selectedTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-top: 1.5rem; border-top: 2px solid var(--primary); padding-top: 1rem; color: var(--primary); font-size: 1.3rem; font-weight: 700;">
                     <strong>Total:</strong> <span>R$ ${(state.selectedService.preco_centavos / 100).toFixed(2)}</span>
@@ -605,11 +609,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmBtn.innerText = 'Processando...';
 
                 const payload = {
-                    servicoId: state.selectedService.id,
-                    barbeiroId: state.selectedProfessional.id,
-                    data: state.selectedDate,
-                    horario: state.selectedTime,
-                    clienteId: 1 // Default
+                    barbeiro_id: state.selectedProfessional.id,
+                    inicio_desejado: state.selectedTime,
+                    servicos: [state.selectedService.id]
                 };
 
                 try {
