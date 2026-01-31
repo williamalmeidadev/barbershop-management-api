@@ -67,11 +67,17 @@ export function initDatabase() {
         descricao TEXT,
         duracao_minutos INTEGER NOT NULL CHECK (duracao_minutos > 0),
         preco_centavos INTEGER NOT NULL CHECK (preco_centavos >= 0),
+        foto_url TEXT,
         ativo INTEGER DEFAULT 1 CHECK (ativo IN (0,1))
       );
     `)
 
     db.run(`CREATE INDEX IF NOT EXISTS idx_servicos_ativo ON servicos(ativo);`)
+    db.run(`ALTER TABLE servicos ADD COLUMN foto_url TEXT`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna foto_url em servicos:', err.message)
+      }
+    })
 
     db.run(`
       CREATE TABLE IF NOT EXISTS configuracoes (

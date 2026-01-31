@@ -22,12 +22,13 @@ export const servicoRepository = {
     descricao?: string | null
     duracao_minutos: number
     preco_centavos: number
+    foto_url?: string | null
     ativo: number
   }): Promise<Servico> {
     const servicoId = await new Promise<number>((resolve, reject) => {
       db.run(
-        `INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, ativo) VALUES (?, ?, ?, ?, ?)`,
-        [payload.nome, payload.descricao ?? null, payload.duracao_minutos, payload.preco_centavos, payload.ativo],
+        `INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, ?)`,
+        [payload.nome, payload.descricao ?? null, payload.duracao_minutos, payload.preco_centavos, payload.foto_url ?? null, payload.ativo],
         function (err) {
           if (err) return reject(err)
           resolve(this.lastID)
@@ -64,6 +65,7 @@ export const servicoRepository = {
     descricao?: string | null
     duracao_minutos?: number
     preco_centavos?: number
+    foto_url?: string | null
     ativo?: number
   }): Promise<Servico> {
     const fields: string[] = []
@@ -84,6 +86,10 @@ export const servicoRepository = {
     if (payload.preco_centavos !== undefined) {
       fields.push('preco_centavos = ?')
       values.push(payload.preco_centavos)
+    }
+    if (payload.foto_url !== undefined) {
+      fields.push('foto_url = ?')
+      values.push(payload.foto_url ?? null)
     }
     if (payload.ativo !== undefined) {
       fields.push('ativo = ?')

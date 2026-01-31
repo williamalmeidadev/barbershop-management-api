@@ -25,6 +25,7 @@ export const servicoService = {
     descricao?: string | null
     duracao_minutos: number
     preco_centavos: number
+    foto_url?: string | null
     ativo?: number
   }): Promise<Servico> {
     if (!payload.nome || payload.duracao_minutos === undefined || payload.preco_centavos === undefined) {
@@ -45,6 +46,7 @@ export const servicoService = {
       descricao: payload.descricao ?? null,
       duracao_minutos: payload.duracao_minutos,
       preco_centavos: payload.preco_centavos,
+      foto_url: payload.foto_url ?? null,
       ativo
     })
   },
@@ -54,6 +56,7 @@ export const servicoService = {
     descricao?: string | null
     duracao_minutos?: number
     preco_centavos?: number
+    foto_url?: string | null
     ativo?: number
   }): Promise<Servico> {
     if (!id) throw new Error('O id do serviço é obrigatório.')

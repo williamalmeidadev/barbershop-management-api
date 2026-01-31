@@ -995,6 +995,23 @@ function renderServicos(items) {
 
   items.forEach(s => {
     const card = el('div', 'card');
+    card.dataset.id = String(s.id);
+
+    const media = el('div', 'service-media');
+    if (s.foto_url) {
+      const img = document.createElement('img');
+      img.src = s.foto_url;
+      img.alt = s.nome;
+      img.onerror = () => {
+        media.innerHTML = '';
+        media.appendChild(el('span', 'material-icons', 'image'));
+      };
+      media.appendChild(img);
+    } else {
+      media.appendChild(el('span', 'material-icons', 'image'));
+    }
+
+    card.appendChild(media);
     card.appendChild(el('strong', null, s.nome));
     card.appendChild(el('small', null, s.descricao || '-'));
     card.appendChild(el('small', null, `Duração: ${s.duracao_minutos} min`));
@@ -1017,6 +1034,33 @@ function renderServicos(items) {
 function editarServico(servico) {
   const container = el('div');
   const grid = el('div', 'form-grid');
+
+  const fotoGroup = el('div', 'form-group photo-group');
+  fotoGroup.appendChild(el('label', null, 'Imagem'));
+  const preview = el('div', 'service-photo-preview');
+  const previewIcon = el('span', 'material-icons', 'image');
+  if (servico.foto_url) {
+    const img = document.createElement('img');
+    img.src = servico.foto_url;
+    img.alt = servico.nome;
+    img.onerror = () => {
+      preview.replaceChildren(previewIcon);
+    };
+    preview.appendChild(img);
+  } else {
+    preview.appendChild(previewIcon);
+  }
+  const fotoRow = el('div', 'photo-actions');
+  const fotoInput = el('input', 'hidden-file');
+  fotoInput.type = 'file';
+  fotoInput.accept = 'image/*';
+  const fotoBtn = el('button', 'btn ghost', 'Trocar imagem');
+  const removeBtn = el('button', 'btn danger', 'Remover imagem');
+  fotoRow.appendChild(fotoBtn);
+  fotoRow.appendChild(removeBtn);
+  fotoRow.appendChild(fotoInput);
+  fotoGroup.appendChild(preview);
+  fotoGroup.appendChild(fotoRow);
 
   const g1 = el('div', 'form-group');
   g1.appendChild(el('label', null, 'Nome'));
@@ -1044,6 +1088,7 @@ function editarServico(servico) {
   i4.value = servico.preco_centavos;
   g4.appendChild(i4);
 
+  grid.appendChild(fotoGroup);
   grid.appendChild(g1);
   grid.appendChild(g2);
   grid.appendChild(g3);
@@ -1055,6 +1100,69 @@ function editarServico(servico) {
   container.appendChild(saveBtn);
 
   openModal('Editar Serviço', container);
+
+  fotoBtn.addEventListener('click', () => fotoInput.click());
+  if (!servico.foto_url) {
+    removeBtn.disabled = true;
+  }
+
+  fotoInput.addEventListener('change', async () => {
+    const file = fotoInput.files?.[0];
+    if (!file) return;
+    const err = validateImageFile(file);
+    if (err) {
+      showToast(err, 'error');
+      fotoInput.value = '';
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append('foto', file);
+      const updated = await requestFormData(`/servicos/${servico.id}/foto`, formData);
+      servico.foto_url = updated?.foto_url || servico.foto_url;
+      if (servico.foto_url) {
+        const img = document.createElement('img');
+        img.src = servico.foto_url;
+        img.alt = servico.nome;
+        img.onerror = () => {
+          preview.replaceChildren(el('span', 'material-icons', 'image'));
+        };
+        preview.replaceChildren(img);
+        removeBtn.disabled = false;
+      }
+      const cardMedia = document.querySelector(`.card[data-id="${servico.id}"] .service-media`);
+      if (cardMedia) {
+        const img = document.createElement('img');
+        img.src = servico.foto_url;
+        img.alt = servico.nome;
+        img.onerror = () => {
+          cardMedia.replaceChildren(el('span', 'material-icons', 'image'));
+        };
+        cardMedia.replaceChildren(img);
+      }
+      showToast('Imagem atualizada.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      fotoInput.value = '';
+    }
+  });
+
+  removeBtn.addEventListener('click', () => withButtonLock(removeBtn, async () => {
+    try {
+      const updated = await request(`/servicos/${servico.id}/foto`, { method: 'DELETE' });
+      servico.foto_url = updated?.foto_url || null;
+      preview.replaceChildren(el('span', 'material-icons', 'image'));
+      const cardMedia = document.querySelector(`.card[data-id="${servico.id}"] .service-media`);
+      if (cardMedia) {
+        cardMedia.replaceChildren(el('span', 'material-icons', 'image'));
+      }
+      removeBtn.disabled = true;
+      showToast('Imagem removida.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }));
 
   saveBtn.addEventListener('click', () => withButtonLock(saveBtn, async () => {
     try {
