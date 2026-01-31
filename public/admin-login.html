@@ -12,6 +12,13 @@
     rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+  <script>
+    if (window.location.pathname.startsWith('/server08')) {
+      const base = document.createElement('base');
+      base.href = '/server08/';
+      document.head.appendChild(base);
+    }
+  </script>
   <link rel="stylesheet" href="style.css">
   <script src="basepath.js"></script>
 </head>
