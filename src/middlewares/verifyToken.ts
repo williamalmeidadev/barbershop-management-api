@@ -44,6 +44,8 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
 }
 
 function resolveBasePath(req: Request): string {
+  const envBase = process.env.BASE_PATH;
+  if (envBase) return envBase;
   const forwardedPrefix = req.headers['x-forwarded-prefix'];
   const prefix =
     (typeof forwardedPrefix === 'string' && forwardedPrefix) ||
