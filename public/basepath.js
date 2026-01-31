@@ -1,7 +1,6 @@
 (() => {
   const base = window.location.pathname.startsWith('/server08') ? '/server08' : '';
   window.BASE_PATH = base;
-
   if (!base) return;
 
   const prefixIfNeeded = (value) => {
@@ -10,18 +9,26 @@
     return base + value;
   };
 
-  document.querySelectorAll('a[href^="/"]').forEach((el) => {
-    const raw = el.getAttribute('href');
-    el.setAttribute('href', prefixIfNeeded(raw));
-  });
+  const apply = () => {
+    document.querySelectorAll('a[href^="/"]').forEach((el) => {
+      const raw = el.getAttribute('href');
+      el.setAttribute('href', prefixIfNeeded(raw));
+    });
 
-  document.querySelectorAll('link[rel="stylesheet"][href^="/"]').forEach((el) => {
-    const raw = el.getAttribute('href');
-    el.setAttribute('href', prefixIfNeeded(raw));
-  });
+    document.querySelectorAll('link[rel="stylesheet"][href^="/"]').forEach((el) => {
+      const raw = el.getAttribute('href');
+      el.setAttribute('href', prefixIfNeeded(raw));
+    });
 
-  document.querySelectorAll('script[src^="/"]').forEach((el) => {
-    const raw = el.getAttribute('src');
-    el.setAttribute('src', prefixIfNeeded(raw));
-  });
+    document.querySelectorAll('script[src^="/"]').forEach((el) => {
+      const raw = el.getAttribute('src');
+      el.setAttribute('src', prefixIfNeeded(raw));
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else {
+    apply();
+  }
 })();
