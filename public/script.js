@@ -261,86 +261,15 @@ document.addEventListener('DOMContentLoaded', () => {
                    onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
             : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
 
-        const editOverlay = state.isLoggedIn
-            ? `
-                <div class="avatar-edit-overlay">
-                    <span class="material-icons">photo_camera</span>
-                    <input type="file" id="avatar-upload-input" accept="image/*" style="display: none;">
-                </div>
-              `
-            : '';
-
         const wrapperDiv = document.createElement('div');
         wrapperDiv.className = 'profile-avatar-wrapper';
         wrapperDiv.innerHTML = `
             <div class="profile-avatar" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--surface);">
                 ${avatarUrl}
             </div>
-            ${editOverlay}
         `;
 
         profileHeader.insertBefore(wrapperDiv, profileHeader.firstChild);
-
-        if (state.isLoggedIn) {
-            const input = wrapperDiv.querySelector('#avatar-upload-input');
-
-            wrapperDiv.onclick = (e) => {
-                if (!wrapperDiv.classList.contains('uploading')) {
-                    input.click();
-                }
-            };
-
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                wrapperDiv.classList.add('uploading');
-                const icon = wrapperDiv.querySelector('.avatar-edit-overlay .material-icons');
-                if (icon) icon.innerText = 'hourglass_empty';
-
-                const formData = new FormData();
-                formData.append('foto', file);
-
-                try {
-                    const response = await fetch(`http://localhost:3000/barbeiros/${pro.id}/foto`, {
-                        method: 'PATCH',
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        const updatedBarber = await response.json();
-                        pro.foto_url = updatedBarber.foto_url;
-
-                        const newProfileContent = updatedBarber.foto_url
-                            ? `<img src="${updatedBarber.foto_url}" class="barber-avatar-img" onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
-                            : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
-
-                        const imgContainer = wrapperDiv.querySelector('.profile-avatar');
-                        imgContainer.innerHTML = newProfileContent;
-
-                        const cardAvatar = document.querySelector(`.card[data-id="${pro.id}"] .avatar-container`);
-                        if (cardAvatar) {
-                            const fallbackIconSmall = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
-                            const newCardContent = updatedBarber.foto_url
-                                ? `<img src="${updatedBarber.foto_url}" alt="${pro.nome_profissional}" class="barber-avatar-img" onerror="this.parentElement.innerHTML = &quot;${fallbackIconSmall}&quot;">`
-                                : `<span class="material-icons" style="font-size: 2.5rem; color: var(--primary);">person</span>`;
-
-                            cardAvatar.innerHTML = newCardContent;
-                        }
-                        showNotification('Foto atualizada com sucesso!');
-                    } else {
-                        showNotification('Erro ao enviar foto.', 'error');
-                    }
-                } catch (error) {
-                    console.error(error);
-                    showNotification('Erro de conexão.', 'error');
-                } finally {
-                    wrapperDiv.classList.remove('uploading');
-                    if (icon) icon.innerText = 'photo_camera';
-                    input.value = '';
-                }
-            };
-        }
 
         renderProfileServices();
         renderProfileTimeSlots([]);

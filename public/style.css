@@ -371,16 +371,90 @@ nav {
     margin: 0 auto 4rem;
 }
 
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+}
+
+.back-button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.back-button .material-icons {
+    font-size: 1.1rem;
+}
+
 .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
     border-bottom: 1px solid var(--border);
     padding-bottom: 2rem;
 }
 
+.profile-avatar,
 .profile-avatar-wrapper {
-    width: 140px;
-    height: 140px;
-    border: 4px solid var(--surface);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     box-shadow: 0 0 0 1px var(--border);
+}
+
+.profile-avatar img,
+.profile-avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar .material-icons,
+.profile-avatar-wrapper .material-icons {
+    font-size: 3rem;
+    color: var(--text-muted);
+}
+
+.profile-info h2 {
+    margin: 0 0 0.4rem;
+}
+
+.profile-info p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.profile-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: start;
+}
+
+.services-column h3,
+.booking-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.profile-services-grid {
+    display: grid;
+    gap: 1rem;
 }
 
 .profile-service-card {
@@ -391,10 +465,40 @@ nav {
     margin-bottom: 1rem;
 }
 
+.profile-service-card h4 {
+    margin: 0 0 0.5rem;
+}
+
+.profile-service-card p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
 .profile-service-card:hover, 
 .profile-service-card.selected {
     border-color: var(--primary);
     background-color: rgba(242, 93, 39, 0.05);
+}
+
+.booking-flow-compact {
+    display: grid;
+    gap: 1rem;
+}
+
+.time-grid-compact {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.6rem;
+}
+
+.placeholder-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.sticky-sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + 1rem);
 }
 
 /* Booking Card (Lateral) */
