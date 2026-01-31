@@ -43,7 +43,12 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+function resolveBasePath(req: Request): string {
+  return req.originalUrl.startsWith('/server08') ? '/server08' : '';
+}
+
 export function verifyTokenPage(req: Request, res: Response, next: NextFunction) {
+  const basePath = resolveBasePath(req);
   const authHeader = req.headers.authorization;
   let token: string | undefined;
   if (authHeader) {
@@ -56,7 +61,7 @@ export function verifyTokenPage(req: Request, res: Response, next: NextFunction)
     }
   }
   if (!token) {
-    return res.redirect('/admin-login');
+    return res.redirect(`${basePath}/admin-login`);
   }
   try {
     const secret = process.env.JWT_SECRET;
@@ -67,11 +72,12 @@ export function verifyTokenPage(req: Request, res: Response, next: NextFunction)
     req.user = decoded as TokenPayload;
     return next();
   } catch (err) {
-    return res.redirect('/admin-login');
+    return res.redirect(`${basePath}/admin-login`);
   }
 }
 
 export function verifyTokenPageClient(req: Request, res: Response, next: NextFunction) {
+  const basePath = resolveBasePath(req);
   const authHeader = req.headers.authorization;
   let token: string | undefined;
   if (authHeader) {
@@ -84,7 +90,7 @@ export function verifyTokenPageClient(req: Request, res: Response, next: NextFun
     }
   }
   if (!token) {
-    return res.redirect('/login');
+    return res.redirect(`${basePath}/login`);
   }
   try {
     const secret = process.env.JWT_SECRET;
@@ -95,6 +101,6 @@ export function verifyTokenPageClient(req: Request, res: Response, next: NextFun
     req.user = decoded as TokenPayload;
     return next();
   } catch (err) {
-    return res.redirect('/login');
+    return res.redirect(`${basePath}/login`);
   }
 }
