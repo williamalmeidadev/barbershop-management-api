@@ -128,7 +128,7 @@ async function seed() {
     const agendamento2Fim = new Date(agendamento2Inicio.getTime() + 60 * 60000)
     const agendamentoId2 = await runWithId(
       `INSERT INTO agendamentos (cliente_id, barbeiro_id, inicio, fim, status, valor_original_centavos, desconto_aplicado_centavos, valor_total_centavos)
-       VALUES (?, ?, ?, ?, 'AGENDADO', ?, 0, ?)`,
+       VALUES (?, ?, ?, ?, 'SOLICITADO', ?, 0, ?)`,
       [clienteId2, barbeiroId1, agendamento2Inicio.toISOString(), agendamento2Fim.toISOString(), 6000, 6000]
     )
     await run(
@@ -143,7 +143,7 @@ async function seed() {
       `INSERT INTO agendamento_vagas (agendamento_id, vaga_id) VALUES (?, ?)`,
       [agendamentoId2, slots[3]]
     )
-    await run(`UPDATE vagas SET status = 'RESERVADO' WHERE id IN (?, ?)`, [slots[2], slots[3]])
+    // vagas do agendamento solicitado ficam DISPONIVEL
 
     console.log('Seed finalizado!')
     process.exit(0)

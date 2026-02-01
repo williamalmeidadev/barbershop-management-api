@@ -15,6 +15,10 @@ router.get('/cliente/:id', verifyToken, isAdmin, bookingController.listarPorClie
 
 router.post('/:id/cancelar', verifyToken, bookingController.cancelar)
 
+router.post('/:id/aceitar', verifyToken, isAdmin, bookingController.aceitar)
+
+router.post('/:id/recusar', verifyToken, isAdmin, bookingController.recusar)
+
 router.post('/:id/concluir', verifyToken, isAdmin, bookingController.concluir)
 
 export default router

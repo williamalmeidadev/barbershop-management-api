@@ -117,30 +117,45 @@ export const agendamentosRepository = {
     })
   },
 
-  async cancelarAgendamento(id: number): Promise<void> {
-    const vagaIds: number[] = await new Promise((resolve, reject) => {
-      db.all('SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?', [id], (err, rows) => {
-        if (err) return reject(err)
-        resolve(rows.map((r: any) => r.vaga_id))
+  async cancelarAgendamento(id: number, liberarVagas: boolean): Promise<void> {
+    if (liberarVagas) {
+      const vagaIds: number[] = await new Promise((resolve, reject) => {
+        db.all('SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?', [id], (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows.map((r: any) => r.vaga_id))
+        })
       })
-    })
-    if (vagaIds.length) {
-      await new Promise<void>((resolve, reject) => {
-        const placeholders = vagaIds.map(() => '?').join(',')
-        db.run(
-          `UPDATE vagas SET status = 'DISPONIVEL' WHERE id IN (${placeholders})`,
-          vagaIds,
-          err => {
-            if (err) return reject(err)
-            resolve()
-          }
-        )
-      })
+      if (vagaIds.length) {
+        await new Promise<void>((resolve, reject) => {
+          const placeholders = vagaIds.map(() => '?').join(',')
+          db.run(
+            `UPDATE vagas SET status = 'DISPONIVEL' WHERE id IN (${placeholders})`,
+            vagaIds,
+            err => {
+              if (err) return reject(err)
+              resolve()
+            }
+          )
+        })
+      }
     }
     await new Promise<void>((resolve, reject) => {
       db.run(
         `UPDATE agendamentos SET status = ? WHERE id = ?`,
         [StatusAgendamento.CANCELADO, id],
+        err => {
+          if (err) return reject(err)
+          resolve()
+        }
+      )
+    })
+  },
+
+  async atualizarStatus(id: number, status: StatusAgendamento): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE agendamentos SET status = ? WHERE id = ?`,
+        [status, id],
         err => {
           if (err) return reject(err)
           resolve()

@@ -534,24 +534,34 @@ function renderAgendamentos(items) {
     card.appendChild(actions);
 
     detailsBtn.addEventListener('click', () => verDetalhes(a));
-    if (a.status === 'CONCLUIDO') {
-      concludeBtn.textContent = 'Concluído';
-      concludeBtn.disabled = true;
-    } else if (a.status === 'CANCELADO') {
-      concludeBtn.textContent = 'Concluir';
-      concludeBtn.disabled = true;
+    if (a.status === 'SOLICITADO') {
+      concludeBtn.textContent = 'Aceitar';
+      cancelBtn.textContent = 'Recusar';
+      concludeBtn.addEventListener('click', () => withButtonLock(concludeBtn, () => aceitarAgendamento(a.id)));
+      cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => recusarAgendamento(a.id)));
     } else {
-      concludeBtn.addEventListener('click', () => abrirConcluirAgendamento(a.id));
-    }
+      if (a.status === 'CONCLUIDO') {
+        concludeBtn.textContent = 'Concluído';
+        concludeBtn.disabled = true;
+      } else if (a.status === 'CANCELADO' || a.status === 'RECUSADO') {
+        concludeBtn.textContent = 'Concluir';
+        concludeBtn.disabled = true;
+      } else {
+        concludeBtn.addEventListener('click', () => abrirConcluirAgendamento(a.id));
+      }
 
-    if (a.status === 'CANCELADO') {
-      cancelBtn.textContent = 'Cancelado';
-      cancelBtn.disabled = true;
-    } else if (a.status === 'CONCLUIDO') {
-      cancelBtn.textContent = 'Cancelar';
-      cancelBtn.disabled = true;
-    } else {
-      cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => cancelarAgendamento(a.id)));
+      if (a.status === 'CANCELADO') {
+        cancelBtn.textContent = 'Cancelado';
+        cancelBtn.disabled = true;
+      } else if (a.status === 'RECUSADO') {
+        cancelBtn.textContent = 'Recusado';
+        cancelBtn.disabled = true;
+      } else if (a.status === 'CONCLUIDO') {
+        cancelBtn.textContent = 'Cancelar';
+        cancelBtn.disabled = true;
+      } else {
+        cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => cancelarAgendamento(a.id)));
+      }
     }
 
     agendamentosList.appendChild(card);
@@ -654,6 +664,26 @@ async function cancelarAgendamento(id) {
   try {
     await request(`/agendamentos/${id}/cancelar`, { method: 'POST' });
     loadAgendamentosBtn.click();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function aceitarAgendamento(id) {
+  try {
+    await request(`/agendamentos/${id}/aceitar`, { method: 'POST' });
+    loadAgendamentosBtn.click();
+    showToast('Agendamento aceito.');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function recusarAgendamento(id) {
+  try {
+    await request(`/agendamentos/${id}/recusar`, { method: 'POST' });
+    loadAgendamentosBtn.click();
+    showToast('Agendamento recusado.');
   } catch (err) {
     showToast(err.message, 'error');
   }

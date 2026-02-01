@@ -1,7 +1,9 @@
 export enum StatusAgendamento {
+  SOLICITADO = 'SOLICITADO',
   AGENDADO = 'AGENDADO',
   CANCELADO = 'CANCELADO',
   CONCLUIDO = 'CONCLUIDO',
+  RECUSADO = 'RECUSADO',
 }
 
 export enum PagamentoTipo {

@@ -62,6 +62,33 @@ export const bookingController = {
         err.message?.includes('não encontrado') ? 404 :
           err.message?.includes('já') ? 409 :
             err.message?.includes('Acesso negado') ? 403 :
+              400
+      res.status(status).json({ error: err.message })
+    }
+  },
+
+  async aceitar(req: Request, res: Response) {
+    try {
+      const agendamento = await bookingService.aceitarAgendamento(Number(req.params.id))
+      res.status(200).json(agendamento)
+    } catch (err: any) {
+      const status =
+        err.message?.includes('não encontrado') ? 404 :
+          err.message?.includes('vagas') ? 409 :
+            err.message?.includes('aceitos') ? 409 :
+              400
+      res.status(status).json({ error: err.message })
+    }
+  },
+
+  async recusar(req: Request, res: Response) {
+    try {
+      const agendamento = await bookingService.recusarAgendamento(Number(req.params.id))
+      res.status(200).json(agendamento)
+    } catch (err: any) {
+      const status =
+        err.message?.includes('não encontrado') ? 404 :
+          err.message?.includes('recusados') ? 409 :
             400
       res.status(status).json({ error: err.message })
     }

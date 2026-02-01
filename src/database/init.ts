@@ -113,8 +113,8 @@ export function initDatabase() {
         fim DATETIME NOT NULL,
         concluido_em DATETIME,
         pagamento_tipo TEXT CHECK (pagamento_tipo IN ('DINHEIRO','PIX','CARTAO')),
-        status TEXT NOT NULL DEFAULT 'AGENDADO'
-          CHECK (status IN ('AGENDADO','CANCELADO','CONCLUIDO')),
+        status TEXT NOT NULL DEFAULT 'SOLICITADO'
+          CHECK (status IN ('SOLICITADO','AGENDADO','CANCELADO','CONCLUIDO','RECUSADO')),
         valor_original_centavos INTEGER NOT NULL DEFAULT 0,
         desconto_aplicado_centavos INTEGER NOT NULL DEFAULT 0,
         valor_total_centavos INTEGER NOT NULL DEFAULT 0,

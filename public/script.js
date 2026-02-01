@@ -434,7 +434,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="appointment-price">
                         R$ ${(servicoPreco / 100).toFixed(2)}
                     </div>
-                    <button class="btn-cancel" data-id="${appt.id}" ${appt.status !== 'AGENDADO' ? 'disabled' : ''}>Cancelar reserva</button>
+                    <button class="btn-cancel" data-id="${appt.id}" ${!(appt.status === 'AGENDADO' || appt.status === 'SOLICITADO') ? 'disabled' : ''}>
+                        ${appt.status === 'SOLICITADO' ? 'Cancelar solicitação' : appt.status === 'AGENDADO' ? 'Cancelar reserva' : appt.status === 'RECUSADO' ? 'Recusado' : appt.status === 'CONCLUIDO' ? 'Concluído' : 'Cancelado'}
+                    </button>
                 </div>
             `;
             }).join('');
@@ -595,7 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     await services.createAppointment(payload);
-                    showNotification('Agendamento confirmado com sucesso!');
+                    showNotification('Solicitação enviada! Aguarde a confirmação.');
 
                     setTimeout(() => {
                         bookingWizardView.classList.add('hidden');

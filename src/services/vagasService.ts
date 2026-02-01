@@ -102,7 +102,7 @@ export const vagasService = {
     return null
   },
 
-async reservarVagasParaAgendamento(
+  async reservarVagasParaAgendamento(
     barbeiroId: number,
     inicioDesejado: string,
     duracaoMinutos: number,
@@ -156,6 +156,41 @@ async reservarVagasParaAgendamento(
     return manageTransaction ? runInTransaction(reserva) : reserva()
   },
 
+  async selecionarVagasParaAgendamento(
+    barbeiroId: number,
+    inicioDesejado: string,
+    duracaoMinutos: number
+  ): Promise<Vaga[] | null> {
+    if (!barbeiroId || !inicioDesejado || !duracaoMinutos) {
+      throw new Error('Todos os campos são obrigatórios.')
+    }
+    if (duracaoMinutos <= 0) {
+      throw new Error('A duração deve ser positiva.')
+    }
+    if (!isIsoWithTimezone(inicioDesejado)) {
+      throw new Error('inicioDesejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
+    }
+    if (new Date(inicioDesejado).getTime() < Date.now()) {
+      throw new Error('Não é possível reservar vagas no passado.')
+    }
+
+    const inicio = new Date(inicioDesejado)
+    const fim = new Date(inicio.getTime() + duracaoMinutos * 60000)
+    const dataUtc = getUtcDateString(inicio)
+
+    const vagasDisponiveis = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, dataUtc)
+    const slotsExatos = vagasDisponiveis.filter(v => {
+      const vInicio = new Date(v.inicio)
+      const vFim = new Date(v.fim)
+      return vInicio >= inicio && vFim <= fim
+    })
+    const totalMinutosEncontrados = slotsExatos.reduce((acc, v) => acc + getVagaDuration(v), 0)
+    if (totalMinutosEncontrados !== duracaoMinutos) {
+      return null
+    }
+    return slotsExatos
+  },
+
   async bloquearHorario(barbeiroId: number, inicio: string, fim: string, motivo?: string): Promise<Vaga[]> {
     if (!barbeiroId || !inicio || !fim) {
       throw new Error('Todos os campos são obrigatórios.')
@@ -169,6 +204,15 @@ async reservarVagasParaAgendamento(
       throw new Error('O início deve ser antes do fim.')
     }
     return vagasRepository.bloquearIntervalo(barbeiroId, inicioDate.toISOString(), fimDate.toISOString())
+  },
+
+  async verificarDisponiveisPorIds(ids: number[]): Promise<boolean> {
+    return vagasRepository.verificarDisponiveisPorIds(ids)
+  },
+
+  async reservarVagasPorIds(ids: number[]): Promise<void> {
+    if (!ids.length) return
+    await vagasRepository.atualizarStatusLote(ids, StatusVaga.RESERVADO)
   },
 
   async liberarVagasDoAgendamento(vagaIds: number[]): Promise<Vaga[]> {

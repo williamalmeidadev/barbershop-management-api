@@ -31,11 +31,10 @@ export const bookingService = {
       const descontoUsado = Math.min(valorTotal, descontoDisponivel)
       const valorComDesconto = Math.max(0, valorTotal - descontoUsado)
 
-      const vagas = await vagasService.reservarVagasParaAgendamento(
+      const vagas = await vagasService.selecionarVagasParaAgendamento(
         payload.barbeiro_id,
         payload.inicio_desejado,
-        duracaoTotal,
-        { manageTransaction: false }
+        duracaoTotal
       )
       if (!vagas || vagas.length === 0) {
         throw new Error('Não há slots disponíveis para o horário e duração desejados')
@@ -47,7 +46,7 @@ export const bookingService = {
         barbeiro_id: payload.barbeiro_id,
         inicio,
         fim,
-        status: StatusAgendamento.AGENDADO,
+        status: StatusAgendamento.SOLICITADO,
         valor_original_centavos: valorTotal,
         desconto_aplicado_centavos: descontoUsado,
         valor_total_centavos: valorComDesconto
@@ -89,14 +88,58 @@ export const bookingService = {
       if (agendamento.status === StatusAgendamento.CANCELADO) {
         throw new Error('Agendamento já cancelado.')
       }
+      if (agendamento.status === StatusAgendamento.RECUSADO) {
+        throw new Error('Agendamento já recusado.')
+      }
       if (agendamento.status === StatusAgendamento.CONCLUIDO) {
         throw new Error('Agendamento já concluído.')
       }
-      await agendamentosRepository.cancelarAgendamento(id)
+      await agendamentosRepository.cancelarAgendamento(id, agendamento.status === StatusAgendamento.AGENDADO)
       const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
       if (!atualizado) {
         throw new Error('Agendamento não encontrado.')
       }
+      return atualizado
+    })
+  },
+
+  async aceitarAgendamento(id: number): Promise<Agendamento> {
+    if (!id) throw new Error('O id do agendamento é obrigatório.')
+    return runInTransaction(async () => {
+      const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
+      if (!agendamento) {
+        throw new Error('Agendamento não encontrado.')
+      }
+      if (agendamento.status !== StatusAgendamento.SOLICITADO) {
+        throw new Error('Apenas agendamentos solicitados podem ser aceitos.')
+      }
+      const vagas = await agendamentosRepository.buscarVagasDoAgendamento(id)
+      const ids = vagas.map(v => v.id)
+      const disponiveis = await vagasService.verificarDisponiveisPorIds(ids)
+      if (!disponiveis) {
+        throw new Error('Não foi possível aceitar: vagas já reservadas por outro agendamento.')
+      }
+      await vagasService.reservarVagasPorIds(ids)
+      await agendamentosRepository.atualizarStatus(id, StatusAgendamento.AGENDADO)
+      const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
+      if (!atualizado) throw new Error('Agendamento não encontrado.')
+      return atualizado
+    })
+  },
+
+  async recusarAgendamento(id: number): Promise<Agendamento> {
+    if (!id) throw new Error('O id do agendamento é obrigatório.')
+    return runInTransaction(async () => {
+      const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
+      if (!agendamento) {
+        throw new Error('Agendamento não encontrado.')
+      }
+      if (agendamento.status !== StatusAgendamento.SOLICITADO) {
+        throw new Error('Apenas agendamentos solicitados podem ser recusados.')
+      }
+      await agendamentosRepository.atualizarStatus(id, StatusAgendamento.RECUSADO)
+      const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
+      if (!atualizado) throw new Error('Agendamento não encontrado.')
       return atualizado
     })
   },
@@ -111,6 +154,12 @@ export const bookingService = {
       const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
       if (!agendamento) {
         throw new Error('Agendamento não encontrado.')
+      }
+      if (agendamento.status === StatusAgendamento.SOLICITADO) {
+        throw new Error('Agendamento ainda não foi aceito.')
+      }
+      if (agendamento.status === StatusAgendamento.RECUSADO) {
+        throw new Error('Agendamento recusado.')
       }
       if (agendamento.status === StatusAgendamento.CONCLUIDO) {
         throw new Error('Agendamento já concluído.')
