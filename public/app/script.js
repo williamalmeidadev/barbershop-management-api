@@ -1,6 +1,34 @@
+const BASE_PATH = window.BASE_PATH || '';
+
+function getCookieValue(name) {
+    return document.cookie
+        .split(';')
+        .map((c) => c.trim())
+        .find((c) => c.startsWith(`${name}=`))
+        ?.split('=')[1];
+}
+
+const clientTokenCookie = getCookieValue('client_token');
+const localToken = localStorage.getItem('token');
+if (!clientTokenCookie && !localToken) {
+    window.location.replace(`${BASE_PATH}/login`);
+}
+
+function normalizeImageUrl(url) {
+    if (!url) return '';
+    if (url.startsWith(`${BASE_PATH}/`)) return url;
+    if (url.startsWith('/images/')) return `${BASE_PATH}${url}`;
+    if (url.includes('/images/')) {
+        const idx = url.indexOf('/images/');
+        return `${BASE_PATH}${url.slice(idx)}`;
+    }
+    return url;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     const state = {
+        allServices: [],
         services: [],
         professionals: [],
         selectedService: null,
@@ -35,9 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Wizard Elements
     const cancelBookingBtn = document.getElementById('cancel-booking');
-    const customerNameInput = document.getElementById('customer-name');
-    const customerPhoneInput = document.getElementById('customer-phone');
-    const btnToSummary = document.getElementById('btn-to-summary');
     const bookingSummary = document.getElementById('booking-summary');
     const confirmBtn = document.getElementById('confirm-booking');
     const wizardSteps = document.querySelectorAll('.wizard-step');
@@ -74,7 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadInitialData() {
         try {
-            state.services = await services.fetchServices();
+            state.allServices = await services.fetchServices();
+            state.services = state.allServices;
             state.professionals = await services.fetchBarbeiros();
         } catch (error) {
             console.error('Falha ao carregar dados iniciais', error);
@@ -152,32 +178,75 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderServices() {
         if (!servicesGrid) return;
 
-        if (!state.services || state.services.length === 0) {
+        if (!state.allServices || state.allServices.length === 0) {
             servicesGrid.innerHTML = '<div class="loading">Carregando serviços...</div>';
             return;
         }
 
-        servicesGrid.innerHTML = state.services.map(service => `
-            <div class="card service-card">
-                <div style="text-align: center; margin-bottom: 1rem;">
-                    <span class="material-icons" style="font-size: 3rem; color: var(--primary);">content_cut</span>
-                </div>
-                <h3 style="text-align: center;">${service.nome}</h3>
-                <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; min-height: 3em;">
-                    ${service.descricao || 'Procedimento realizado com os melhores produtos do mercado.'}
-                </p>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: auto;">
-                    <div style="display: flex; align-items: center; gap: 5px; color: var(--text-muted); font-size: 0.9rem;">
-                        <span class="material-icons" style="font-size: 1rem;">schedule</span>
-                        ${service.duracao_minutos} min
-                    </div>
-                    <div style="color: var(--primary); font-weight: 700; font-size: 1.2rem;">
-                        R$ ${(service.preco_centavos / 100).toFixed(2)}
-                    </div>
-                </div>
-            </div>
-        `).join('');
+        servicesGrid.replaceChildren();
+        state.allServices.forEach(service => {
+            const card = document.createElement('div');
+            card.className = 'card service-card';
+
+            const mediaWrap = document.createElement('div');
+            mediaWrap.className = 'service-media-app';
+
+            const mediaSrc = normalizeImageUrl(service.foto_url);
+            if (mediaSrc) {
+                const img = document.createElement('img');
+                img.src = mediaSrc;
+                img.alt = service.nome;
+                img.onerror = () => {
+                    const fallback = document.createElement('span');
+                    fallback.className = 'material-icons';
+                    fallback.textContent = 'content_cut';
+                    mediaWrap.replaceChildren(fallback);
+                };
+                mediaWrap.appendChild(img);
+            } else {
+                const fallback = document.createElement('span');
+                fallback.className = 'material-icons';
+                fallback.textContent = 'content_cut';
+                mediaWrap.appendChild(fallback);
+            }
+
+            const title = document.createElement('h3');
+            title.style.textAlign = 'center';
+            title.textContent = service.nome;
+
+            const desc = document.createElement('p');
+            desc.style.textAlign = 'center';
+            desc.style.color = 'var(--text-muted)';
+            desc.style.fontSize = '0.9rem';
+            desc.style.marginBottom = '1.5rem';
+            desc.style.minHeight = '3em';
+            desc.textContent = service.descricao || 'Procedimento realizado com os melhores produtos do mercado.';
+
+            const footer = document.createElement('div');
+            footer.className = 'service-meta';
+
+            const duration = document.createElement('div');
+            duration.className = 'service-duration';
+            const durationIcon = document.createElement('span');
+            durationIcon.className = 'material-icons';
+            durationIcon.textContent = 'schedule';
+            duration.appendChild(durationIcon);
+            duration.appendChild(document.createTextNode(` ${service.duracao_minutos} min`));
+
+            const price = document.createElement('div');
+            price.className = 'service-price';
+            price.textContent = `R$ ${(service.preco_centavos / 100).toFixed(2)}`;
+
+            footer.appendChild(duration);
+            footer.appendChild(price);
+
+            card.appendChild(mediaWrap);
+            card.appendChild(title);
+            card.appendChild(desc);
+            card.appendChild(footer);
+
+            servicesGrid.appendChild(card);
+        });
     }
 
     function renderProfessionals() {
@@ -190,8 +259,9 @@ document.addEventListener('DOMContentLoaded', () => {
         professionalsGrid.innerHTML = state.professionals.map(pro => {
             const fallbackIcon = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
 
-            const avatarContent = pro.foto_url
-                ? `<img src="${pro.foto_url}" 
+            const avatarSrc = normalizeImageUrl(pro.foto_url);
+            const avatarContent = avatarSrc
+                ? `<img src="${avatarSrc}" 
                        alt="${pro.nome_profissional}" 
                        class="barber-avatar-img" 
                        onerror="this.parentElement.innerHTML = &quot;${fallbackIcon}&quot;">`
@@ -218,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showBarberProfile(id) {
+    async function showBarberProfile(id) {
         const pro = state.professionals.find(p => p.id === id);
         if (!pro) return;
 
@@ -231,6 +301,13 @@ document.addEventListener('DOMContentLoaded', () => {
         profileName.innerText = pro.nome_profissional || pro.nome;
         profileSpecialty.innerText = pro.bio || pro.especialidade || 'Barbeiro Profissional';
 
+        try {
+            state.services = await services.fetchServices(pro.id);
+        } catch (error) {
+            console.error('Falha ao carregar serviços do barbeiro', error);
+            state.services = [];
+        }
+
         const profileHeader = document.querySelector('.profile-header');
 
         const oldAvatar = document.querySelector('.profile-avatar, .profile-avatar-wrapper');
@@ -238,21 +315,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fallbackIconBig = `<span class='material-icons' style='font-size: 4rem; color: var(--text-muted);'>person</span>`;
 
-        const avatarUrl = pro.foto_url
-            ? `<img src="${pro.foto_url}" 
+        const avatarSrc = normalizeImageUrl(pro.foto_url);
+        const avatarUrl = avatarSrc
+            ? `<img src="${avatarSrc}" 
                    alt="${pro.nome_profissional}" 
                    class="barber-avatar-img"
                    onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
             : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
-
-        const editOverlay = state.isLoggedIn
-            ? `
-                <div class="avatar-edit-overlay">
-                    <span class="material-icons">photo_camera</span>
-                    <input type="file" id="avatar-upload-input" accept="image/*" style="display: none;">
-                </div>
-              `
-            : '';
 
         const wrapperDiv = document.createElement('div');
         wrapperDiv.className = 'profile-avatar-wrapper';
@@ -260,71 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="profile-avatar" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--surface);">
                 ${avatarUrl}
             </div>
-            ${editOverlay}
         `;
 
         profileHeader.insertBefore(wrapperDiv, profileHeader.firstChild);
-
-        if (state.isLoggedIn) {
-            const input = wrapperDiv.querySelector('#avatar-upload-input');
-
-            wrapperDiv.onclick = (e) => {
-                if (!wrapperDiv.classList.contains('uploading')) {
-                    input.click();
-                }
-            };
-
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                wrapperDiv.classList.add('uploading');
-                const icon = wrapperDiv.querySelector('.avatar-edit-overlay .material-icons');
-                if (icon) icon.innerText = 'hourglass_empty';
-
-                const formData = new FormData();
-                formData.append('foto', file);
-
-                try {
-                    const response = await fetch(`http://localhost:3000/barbeiros/${pro.id}/foto`, {
-                        method: 'PATCH',
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        const updatedBarber = await response.json();
-                        pro.foto_url = updatedBarber.foto_url;
-
-                        const newProfileContent = updatedBarber.foto_url
-                            ? `<img src="${updatedBarber.foto_url}" class="barber-avatar-img" onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
-                            : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
-
-                        const imgContainer = wrapperDiv.querySelector('.profile-avatar');
-                        imgContainer.innerHTML = newProfileContent;
-
-                        const cardAvatar = document.querySelector(`.card[data-id="${pro.id}"] .avatar-container`);
-                        if (cardAvatar) {
-                            const fallbackIconSmall = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
-                            const newCardContent = updatedBarber.foto_url
-                                ? `<img src="${updatedBarber.foto_url}" alt="${pro.nome_profissional}" class="barber-avatar-img" onerror="this.parentElement.innerHTML = &quot;${fallbackIconSmall}&quot;">`
-                                : `<span class="material-icons" style="font-size: 2.5rem; color: var(--primary);">person</span>`;
-
-                            cardAvatar.innerHTML = newCardContent;
-                        }
-                        showNotification('Foto atualizada com sucesso!');
-                    } else {
-                        showNotification('Erro ao enviar foto.', 'error');
-                    }
-                } catch (error) {
-                    console.error(error);
-                    showNotification('Erro de conexão.', 'error');
-                } finally {
-                    wrapperDiv.classList.remove('uploading');
-                    if (icon) icon.innerText = 'photo_camera';
-                    input.value = '';
-                }
-            };
-        }
 
         renderProfileServices();
         renderProfileTimeSlots([]);
@@ -340,18 +347,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderProfileServices() {
-        profileServicesList.innerHTML = state.services.map(service => `
-            <div class="profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}" data-id="${service.id}">
-                <div>
-                    <h4 style="margin-bottom: 0.2rem;">${service.nome}</h4>
-                    <p style="font-size: 0.8rem; color: var(--text-muted);">${service.descricao || 'Serviço de alta qualidade'}</p>
-                </div>
-                <div style="text-align: right;">
-                    <span style="color: var(--primary); font-weight: 700;">R$ ${(service.preco_centavos / 100).toFixed(2)}</span>
-                    <p style="font-size: 0.7rem;">${service.duracao_minutos || 30} min</p>
-                </div>
-            </div>
-        `).join('');
+        profileServicesList.replaceChildren();
+        if (!state.services || state.services.length === 0) {
+            profileServicesList.innerHTML = '<div class="placeholder-text">Nenhum serviço disponível para este barbeiro.</div>';
+            return;
+        }
+
+        state.services.forEach(service => {
+            const card = document.createElement('div');
+            card.className = `profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}`;
+            card.dataset.id = String(service.id);
+
+            const mediaWrap = document.createElement('div');
+            mediaWrap.className = 'profile-service-media';
+
+            const mediaSrc = normalizeImageUrl(service.foto_url);
+            if (mediaSrc) {
+                const img = document.createElement('img');
+                img.src = mediaSrc;
+                img.alt = service.nome;
+                img.onerror = () => {
+                    const fallback = document.createElement('span');
+                    fallback.className = 'material-icons';
+                    fallback.textContent = 'content_cut';
+                    mediaWrap.replaceChildren(fallback);
+                };
+                mediaWrap.appendChild(img);
+            } else {
+                const fallback = document.createElement('span');
+                fallback.className = 'material-icons';
+                fallback.textContent = 'content_cut';
+                mediaWrap.appendChild(fallback);
+            }
+
+            const info = document.createElement('div');
+            info.className = 'profile-service-info';
+            const name = document.createElement('h4');
+            name.textContent = service.nome;
+            const desc = document.createElement('p');
+            desc.textContent = service.descricao || 'Serviço de alta qualidade';
+            info.appendChild(name);
+            info.appendChild(desc);
+
+            const price = document.createElement('div');
+            price.className = 'profile-service-price';
+            const priceValue = document.createElement('span');
+            priceValue.textContent = `R$ ${(service.preco_centavos / 100).toFixed(2)}`;
+            const duration = document.createElement('p');
+            duration.textContent = `${service.duracao_minutos || 30} min`;
+            price.appendChild(priceValue);
+            price.appendChild(duration);
+
+            card.appendChild(mediaWrap);
+            card.appendChild(info);
+            card.appendChild(price);
+
+            profileServicesList.appendChild(card);
+        });
 
         profileServicesList.querySelectorAll('.profile-service-card').forEach(card => {
             card.onclick = () => {
@@ -368,28 +420,40 @@ document.addEventListener('DOMContentLoaded', () => {
         appointmentsList.innerHTML = '<div class="loading">Buscando seus agendamentos...</div>';
 
         try {
-            const appointments = await services.fetchUserAppointments(1);
+            const appointments = await services.fetchUserAppointments();
             if (appointments.length === 0) {
                 appointmentsList.innerHTML = '<p style="grid-column: 1/-1;">Você ainda não possui agendamentos.</p>';
                 return;
             }
 
-            appointmentsList.innerHTML = appointments.map(appt => `
+            appointmentsList.innerHTML = appointments.map(appt => {
+                const barbeiroNome = appt.barbeiro?.nome_profissional || appt.barbeiro?.nome || `#${appt.barbeiro_id}`;
+                const servico = appt.servicos?.[0];
+                const servicoNome = servico?.nome || 'Serviço';
+                const servicoPreco = servico?.preco_centavos ?? appt.valor_total_centavos ?? 0;
+                const dataHora = new Date(appt.inicio);
+                const dataFmt = dataHora.toLocaleDateString('pt-BR');
+                const horaFmt = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                return `
                 <div class="appointment-card" data-id="${appt.id}">
                     <div class="appointment-header">
-                        <h3 style="margin: 0;">${appt.barbeiro.nome}</h3>
+                        <h3 style="margin: 0;">${barbeiroNome}</h3>
                         <span class="appointment-status">${appt.status}</span>
                     </div>
                     <div class="appointment-details">
-                        <p><span class="material-icons">content_cut</span> ${appt.servico.nome}</p>
-                        <p><span class="material-icons">calendar_today</span> ${new Date(appt.data).toLocaleDateString()} às ${appt.horario}</p>
+                        <p><span class="material-icons">content_cut</span> ${servicoNome}</p>
+                        <p><span class="material-icons">calendar_today</span> ${dataFmt} às ${horaFmt}</p>
                     </div>
                     <div class="appointment-price">
-                        R$ ${(appt.servico.preco_centavos / 100).toFixed(2)}
+                        R$ ${(servicoPreco / 100).toFixed(2)}
                     </div>
-                    <button class="btn-cancel" data-id="${appt.id}">Cancelar reserva</button>
+                    <button class="btn-cancel" data-id="${appt.id}" ${!(appt.status === 'AGENDADO' || appt.status === 'SOLICITADO') ? 'disabled' : ''}>
+                        ${appt.status === 'SOLICITADO' ? 'Cancelar solicitação' : appt.status === 'AGENDADO' ? 'Cancelar reserva' : appt.status === 'RECUSADO' ? 'Recusado' : appt.status === 'CONCLUIDO' ? 'Concluído' : 'Cancelado'}
+                    </button>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             appointmentsList.querySelectorAll('.btn-cancel').forEach(btn => {
                 btn.onclick = async () => {
@@ -434,11 +498,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        profileTimeSlots.innerHTML = slots.map(slot => `
-            <div class="time-slot-compact ${state.selectedTime === slot ? 'selected' : ''}" data-time="${slot}">
-                ${slot}
+        profileTimeSlots.innerHTML = slots.map(slot => {
+            const inicioIso = slot.inicio;
+            const label = new Date(inicioIso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            return `
+            <div class="time-slot-compact ${state.selectedTime === inicioIso ? 'selected' : ''}" data-time="${inicioIso}">
+                ${label}
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         profileTimeSlots.querySelectorAll('.time-slot-compact').forEach(slot => {
             slot.onclick = () => {
@@ -477,15 +545,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>Serviço:</strong> <span>${state.selectedService.nome}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                    <strong>Agendado para:</strong> <span>${new Date(state.selectedDate).toLocaleDateString()} às ${state.selectedTime}</span>
+                    <strong>Agendado para:</strong> <span>${new Date(state.selectedTime).toLocaleDateString('pt-BR')} às ${new Date(state.selectedTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-top: 1.5rem; border-top: 2px solid var(--primary); padding-top: 1rem; color: var(--primary); font-size: 1.3rem; font-weight: 700;">
                     <strong>Total:</strong> <span>R$ ${(state.selectedService.preco_centavos / 100).toFixed(2)}</span>
                 </div>
             </div>
             <div style="padding: 0 1rem; color: var(--text-muted); font-size: 0.9rem;">
-                Cliente: ${state.customerName}<br>
-                Contato: ${state.customerPhone}
+                Pagamento e confirmação serão feitos no local.
             </div>
         `;
     }
@@ -523,6 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
             barberProfileView.classList.add('hidden');
             bookingWizardView.classList.remove('hidden');
             goToWizardStep(1);
+            renderSummary();
         };
 
         cancelBookingBtn.onclick = () => {
@@ -530,38 +598,20 @@ document.addEventListener('DOMContentLoaded', () => {
             barberProfileView.classList.remove('hidden');
         };
 
-        customerNameInput.addEventListener('input', (e) => {
-            state.customerName = e.target.value;
-            checkInfoFields();
-        });
-
-        customerPhoneInput.addEventListener('input', (e) => {
-            state.customerPhone = e.target.value;
-            checkInfoFields();
-        });
-
-        function checkInfoFields() {
-            btnToSummary.disabled = !(state.customerName.length > 2 && state.customerPhone.length > 8);
-        }
-
-        btnToSummary.onclick = () => goToWizardStep(2);
-
         confirmBtn.addEventListener('click', async () => {
             try {
                 confirmBtn.disabled = true;
                 confirmBtn.innerText = 'Processando...';
 
                 const payload = {
-                    servicoId: state.selectedService.id,
-                    barbeiroId: state.selectedProfessional.id,
-                    data: state.selectedDate,
-                    horario: state.selectedTime,
-                    clienteId: 1 // Default
+                    barbeiro_id: state.selectedProfessional.id,
+                    inicio_desejado: state.selectedTime,
+                    servicos: [state.selectedService.id]
                 };
 
                 try {
                     await services.createAppointment(payload);
-                    showNotification('Agendamento confirmado com sucesso!');
+                    showNotification('Solicitação enviada! Aguarde a confirmação.');
 
                     setTimeout(() => {
                         bookingWizardView.classList.add('hidden');
@@ -622,7 +672,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('role');
                 console.log('Session cleared. Redirecting to login...');
-                window.location.href = '/';
+                document.cookie = 'client_token=; Max-Age=0; path=/; SameSite=Lax';
+                window.location.href = `${BASE_PATH}/login`;
             }
         });
     }

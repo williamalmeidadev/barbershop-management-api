@@ -12,7 +12,15 @@
     rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+  <script>
+    if (window.location.pathname.startsWith('/server08')) {
+      const base = document.createElement('base');
+      base.href = '/server08/';
+      document.head.appendChild(base);
+    }
+  </script>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/basepath.js"></script>
 </head>
 
 <body class="dark-theme">
@@ -43,7 +51,7 @@
               <form id="admin-login-form" class="auth-form">
                 <div class="form-group">
                   <label for="email">E-mail</label>
-                  <input type="email" id="email" placeholder="admin@email.com" required />
+                  <input type="email" id="email" placeholder="Email" required />
                 </div>
 
                 <div class="form-group">
@@ -78,7 +86,7 @@
     </footer>
   </div>
 
-  <script src="admin-login.js"></script>
+  <script src="auth/admin-login.js"></script>
 </body>
 
 </html>

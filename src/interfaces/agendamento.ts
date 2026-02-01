@@ -1,17 +1,27 @@
 export enum StatusAgendamento {
+  SOLICITADO = 'SOLICITADO',
   AGENDADO = 'AGENDADO',
   CANCELADO = 'CANCELADO',
   CONCLUIDO = 'CONCLUIDO',
+  RECUSADO = 'RECUSADO',
+}
+
+export enum PagamentoTipo {
+  DINHEIRO = 'DINHEIRO',
+  PIX = 'PIX',
+  CARTAO = 'CARTAO',
 }
 
 export interface Agendamento {
   id: number;
   cliente_id: number;
+  cliente?: ClienteResumo;
   barbeiro_id: number;
   barbeiro?: BarbeiroResumo;
   inicio: string;
   fim: string;
   concluido_em?: string | null;
+  pagamento_tipo?: PagamentoTipo | null;
   status: StatusAgendamento;
   valor_original_centavos: number;
   desconto_aplicado_centavos: number;
@@ -32,6 +42,11 @@ export interface BarbeiroResumo {
   id: number;
   nome_profissional: string;
   bio: string | null;
+}
+
+export interface ClienteResumo {
+  id: number;
+  nome: string;
 }
 
 export interface ServicoAgendamento {

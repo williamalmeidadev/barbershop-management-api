@@ -53,6 +53,24 @@ body {
     background-attachment: fixed;
 }
 
+body.app-page {
+    min-height: 100vh;
+    display: flex;
+}
+
+body.app-page #app {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body.app-page main#content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 main#content {
     padding-top: calc(var(--header-height) + 2rem);
 }
@@ -344,9 +362,21 @@ nav {
     font-size: 1rem;
 }
 
+.about-text .section-title {
+    margin-bottom: 1rem;
+}
+
+.about-features {
+    margin-top: 1.5rem;
+}
+
 .about-features li {
     margin-bottom: 0.8rem;
     color: var(--text);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
 }
 
 .about-features .material-icons {
@@ -371,16 +401,90 @@ nav {
     margin: 0 auto 4rem;
 }
 
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+}
+
+.back-button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.back-button .material-icons {
+    font-size: 1.1rem;
+}
+
 .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
     border-bottom: 1px solid var(--border);
     padding-bottom: 2rem;
 }
 
+.profile-avatar,
 .profile-avatar-wrapper {
-    width: 140px;
-    height: 140px;
-    border: 4px solid var(--surface);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     box-shadow: 0 0 0 1px var(--border);
+}
+
+.profile-avatar img,
+.profile-avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar .material-icons,
+.profile-avatar-wrapper .material-icons {
+    font-size: 3rem;
+    color: var(--text-muted);
+}
+
+.profile-info h2 {
+    margin: 0 0 0.4rem;
+}
+
+.profile-info p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.profile-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: start;
+}
+
+.services-column h3,
+.booking-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.profile-services-grid {
+    display: grid;
+    gap: 1rem;
 }
 
 .profile-service-card {
@@ -389,12 +493,144 @@ nav {
     border-radius: var(--radius);
     padding: 1.2rem;
     margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.profile-service-media {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.profile-service-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-service-media .material-icons {
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+.profile-service-info h4 {
+    margin: 0 0 0.35rem;
+}
+
+.profile-service-info p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.profile-service-price {
+    text-align: right;
+    display: grid;
+    gap: 0.2rem;
+}
+
+.profile-service-price span {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.profile-service-price p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
 }
 
 .profile-service-card:hover, 
 .profile-service-card.selected {
     border-color: var(--primary);
     background-color: rgba(242, 93, 39, 0.05);
+}
+
+.service-media-app {
+    width: 100%;
+    height: 180px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.service-media-app img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.service-media-app .material-icons {
+    font-size: 2.75rem;
+    color: var(--primary);
+}
+
+.service-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-top: auto;
+}
+
+.service-duration {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.service-duration .material-icons {
+    font-size: 1rem;
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    top: 1px;
+}
+
+.service-price {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.booking-flow-compact {
+    display: grid;
+    gap: 1rem;
+}
+
+.time-grid-compact {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.6rem;
+}
+
+.placeholder-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.sticky-sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + 1rem);
 }
 
 /* Booking Card (Lateral) */
@@ -404,6 +640,78 @@ nav {
     border-radius: var(--radius);
     padding: 1.5rem;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* --- BOOKING WIZARD (Resumo de Agendamento) --- */
+.booking-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.booking-wizard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    border-radius: var(--radius);
+    max-width: 640px;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: grid;
+    gap: 1.5rem;
+}
+
+.wizard-step h3 {
+    margin-bottom: 1.2rem;
+}
+
+.summary-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.confirm-button {
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.confirm-button:hover {
+    background: var(--primary-dark);
+}
+
+/* --- NOTIFICATIONS --- */
+#notification-container {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    display: grid;
+    gap: 0.6rem;
+    z-index: 3000;
+}
+
+.notification {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    font-size: 0.9rem;
+    transition: opacity 0.3s ease;
+}
+
+.notification.error {
+    border-left-color: var(--danger);
 }
 
 .primary-button {
@@ -566,6 +874,48 @@ nav {
     padding: 4rem 0;
 }
 
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    align-items: start;
+}
+
+.footer-info h3 {
+    margin-bottom: 0.5rem;
+}
+
+.footer-info p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.footer-social {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.footer-social a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+    color: var(--text-muted);
+    line-height: 0;
+    text-decoration: none;
+}
+
+.footer-bottom {
+    grid-column: 1 / -1;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
 .footer-social a:hover { color: var(--primary); }
 
 /* --- RESPONSIVIDADE --- */
@@ -627,6 +977,33 @@ nav {
     padding: 1rem;
     margin-bottom: 1rem;
 }
+
+.appointment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.appointment-details {
+    display: grid;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.appointment-details .material-icons {
+    font-size: 1rem;
+    margin-right: 6px;
+    vertical-align: middle;
+    color: var(--primary);
+}
+
+.appointment-price {
+    font-weight: 700;
+    color: var(--primary);
+}
 .appointment-status {
     background: rgba(242, 93, 39, 0.15);
     color: var(--primary);
@@ -646,3 +1023,10 @@ nav {
     margin-top: 1rem;
 }
 .btn-cancel:hover { background: #ef4444; color: white; }
+.btn-cancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: transparent;
+    border-color: rgba(239, 68, 68, 0.4);
+    color: rgba(239, 68, 68, 0.6);
+}

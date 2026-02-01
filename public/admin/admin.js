@@ -1,4 +1,4 @@
-const apiBase = '';
+const apiBase = window.BASE_PATH || '';
 
 function getCookie(name) {
   return document.cookie
@@ -11,7 +11,7 @@ function getCookie(name) {
 const adminTokenCookie = getCookie('admin_token');
 const storedRole = localStorage.getItem('role');
 if (!adminTokenCookie || storedRole !== 'admin') {
-  window.location.replace('/admin-login');
+  window.location.replace(`${apiBase}/admin-login`);
 }
 const logoutBtn = document.getElementById('logout-btn');
 
@@ -22,13 +22,17 @@ const configContainer = document.getElementById('config-card-container');
 const btnConfigCreate = document.getElementById('btn-config-create');
 
 const loadClientesBtn = document.getElementById('load-clientes');
+const buscarClientesBtn = document.getElementById('buscar-clientes');
 const clientesAtivo = document.getElementById('clientes-ativo');
 const clientesBusca = document.getElementById('clientes-busca');
 const clientesList = document.getElementById('clientes-list');
 
 const loadAgendamentosBtn = document.getElementById('load-agendamentos');
+const buscarAgendamentosBtn = document.getElementById('buscar-agendamentos');
 const agendamentosStatus = document.getElementById('agendamentos-status');
 const agendamentosBusca = document.getElementById('agendamentos-busca');
+const agendamentosBarbeiro = document.getElementById('agendamentos-barbeiro');
+const agendamentosData = document.getElementById('agendamentos-data');
 const agendamentosList = document.getElementById('agendamentos-list');
 
 const formVagas = document.getElementById('form-vagas');
@@ -206,7 +210,7 @@ logoutBtn.addEventListener('click', () => {
   document.cookie = 'admin_token=; Max-Age=0; path=/; SameSite=Lax';
   showToast('Logout realizado.');
   setTimeout(() => {
-    window.location.href = '/admin-login';
+    window.location.href = `${apiBase}/admin-login`;
   }, 300);
 });
 
@@ -221,6 +225,11 @@ function populateBarbeiroSelect(select, selectedId) {
     if (Number(selectedId) === Number(b.id)) option.selected = true;
     select.appendChild(option);
   });
+}
+
+function getBarbeiroNomeById(id) {
+  const found = cachedBarbeiros.find(b => Number(b.id) === Number(id));
+  return found?.nome_profissional || (id ? `#${id}` : '—');
 }
 
 function populateBarbeiroSelects() {
@@ -328,10 +337,12 @@ function openConfigModal(data) {
   grid.appendChild(groupQtd);
   grid.appendChild(groupValor);
 
-  const saveBtn = el('button', 'btn', 'Salvar');
+  const actions = el('div', 'modal-actions center');
+  const saveBtn = el('button', 'btn primary', 'Salvar');
+  actions.appendChild(saveBtn);
 
   container.appendChild(grid);
-  container.appendChild(saveBtn);
+  container.appendChild(actions);
 
   openModal(data ? 'Editar regra' : 'Criar regra', container);
 
@@ -371,6 +382,11 @@ loadClientesBtn.addEventListener('click', () => withButtonLock(loadClientesBtn, 
     clientesList.appendChild(el('div', 'status', err.message));
   }
 }));
+
+buscarClientesBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  loadClientesBtn.click();
+});
 
 function renderClientes(clientes) {
   clear(clientesList);
@@ -440,7 +456,7 @@ function editarCliente(cliente) {
   grid.appendChild(telGroup);
   grid.appendChild(ativoGroup);
 
-  const saveBtn = el('button', 'btn', 'Salvar');
+  const saveBtn = el('button', 'btn primary', 'Salvar');
 
   container.appendChild(grid);
   container.appendChild(saveBtn);
@@ -486,11 +502,24 @@ loadAgendamentosBtn.addEventListener('click', () => withButtonLock(loadAgendamen
   try {
     const data = await request('/agendamentos');
     const status = agendamentosStatus.value;
-    const termo = (agendamentosBusca.value || '').trim();
+    const termo = (agendamentosBusca.value || '').trim().toLowerCase();
+    const barbeiroId = (agendamentosBarbeiro?.value || '').trim();
+    const dataFiltro = (agendamentosData?.value || '').trim();
     const filtrados = data.filter(a => {
       if (status && a.status !== status) return false;
+      if (barbeiroId) {
+        const atual = String(a.barbeiro?.id ?? a.barbeiro_id ?? '');
+        if (atual !== barbeiroId) return false;
+      }
+      if (dataFiltro) {
+        const inicio = a.inicio ? new Date(a.inicio) : null;
+        if (!inicio || Number.isNaN(inicio.getTime())) return false;
+        const inicioLocal = inicio.toLocaleDateString('en-CA');
+        if (inicioLocal !== dataFiltro) return false;
+      }
       if (!termo) return true;
-      return String(a.cliente_id) === termo || String(a.barbeiro_id) === termo;
+      const clienteNome = (a.cliente?.nome || a.cliente_nome || a.clienteName || '').toLowerCase();
+      return clienteNome.includes(termo);
     });
     renderAgendamentos(filtrados);
   } catch (err) {
@@ -498,6 +527,11 @@ loadAgendamentosBtn.addEventListener('click', () => withButtonLock(loadAgendamen
     agendamentosList.appendChild(el('div', 'status', err.message));
   }
 }));
+
+buscarAgendamentosBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  loadAgendamentosBtn.click();
+});
 
 function renderAgendamentos(items) {
   clear(agendamentosList);
@@ -518,10 +552,13 @@ function renderAgendamentos(items) {
     card.appendChild(el('small', null, `Barbeiro: ${a.barbeiro?.nome_profissional || a.barbeiro_id}`));
     card.appendChild(el('small', null, `Início: ${new Date(a.inicio).toLocaleString('pt-BR')}`));
     card.appendChild(el('small', null, `Valor: ${formatCurrency(a.valor_total_centavos)}`));
+    if (a.pagamento_tipo) {
+      card.appendChild(el('small', null, `Pagamento: ${a.pagamento_tipo}`));
+    }
 
     const actions = el('div', 'card-actions');
     const detailsBtn = el('button', 'btn ghost', 'Detalhes');
-    const concludeBtn = el('button', 'btn', 'Concluir');
+    const concludeBtn = el('button', 'btn primary', 'Concluir');
     const cancelBtn = el('button', 'btn danger', 'Cancelar');
     actions.appendChild(detailsBtn);
     actions.appendChild(concludeBtn);
@@ -529,8 +566,35 @@ function renderAgendamentos(items) {
     card.appendChild(actions);
 
     detailsBtn.addEventListener('click', () => verDetalhes(a));
-    concludeBtn.addEventListener('click', () => withButtonLock(concludeBtn, () => concluirAgendamento(a.id)));
-    cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => cancelarAgendamento(a.id)));
+    if (a.status === 'SOLICITADO') {
+      concludeBtn.textContent = 'Aceitar';
+      cancelBtn.textContent = 'Recusar';
+      concludeBtn.addEventListener('click', () => withButtonLock(concludeBtn, () => aceitarAgendamento(a.id)));
+      cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => recusarAgendamento(a.id)));
+    } else {
+      if (a.status === 'CONCLUIDO') {
+        concludeBtn.textContent = 'Concluído';
+        concludeBtn.disabled = true;
+      } else if (a.status === 'CANCELADO' || a.status === 'RECUSADO') {
+        concludeBtn.textContent = 'Concluir';
+        concludeBtn.disabled = true;
+      } else {
+        concludeBtn.addEventListener('click', () => abrirConcluirAgendamento(a.id));
+      }
+
+      if (a.status === 'CANCELADO') {
+        cancelBtn.textContent = 'Cancelado';
+        cancelBtn.disabled = true;
+      } else if (a.status === 'RECUSADO') {
+        cancelBtn.textContent = 'Recusado';
+        cancelBtn.disabled = true;
+      } else if (a.status === 'CONCLUIDO') {
+        cancelBtn.textContent = 'Cancelar';
+        cancelBtn.disabled = true;
+      } else {
+        cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => cancelarAgendamento(a.id)));
+      }
+    }
 
     agendamentosList.appendChild(card);
   });
@@ -554,6 +618,9 @@ function verDetalhes(agendamento) {
   grid.appendChild(el('p', null, `Preço original: ${formatCurrency(agendamento.valor_original_centavos)}`));
   grid.appendChild(el('p', null, `Desconto: ${formatCurrency(agendamento.desconto_aplicado_centavos)}`));
   grid.appendChild(el('p', null, `Final: ${formatCurrency(agendamento.valor_total_centavos)}`));
+  if (agendamento.pagamento_tipo) {
+    grid.appendChild(el('p', null, `Pagamento: ${agendamento.pagamento_tipo}`));
+  }
 
   const columns = el('div', 'details-columns');
 
@@ -588,19 +655,67 @@ function verDetalhes(agendamento) {
   openModal(`Agendamento #${agendamento.id}`, container);
 }
 
-async function concluirAgendamento(id) {
-  try {
-    await request(`/agendamentos/${id}/concluir`, { method: 'POST' });
-    loadAgendamentosBtn.click();
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
+function abrirConcluirAgendamento(id) {
+  const container = el('div');
+  const grid = el('div', 'form-grid');
+
+  const g1 = el('div', 'form-group');
+  g1.appendChild(el('label', null, 'Forma de pagamento'));
+  const select = el('select');
+  ['DINHEIRO', 'PIX', 'CARTAO'].forEach(opt => {
+    const o = document.createElement('option');
+    o.value = opt;
+    o.textContent = opt;
+    select.appendChild(o);
+  });
+  g1.appendChild(select);
+  grid.appendChild(g1);
+
+  const confirmBtn = el('button', 'btn', 'Concluir');
+  container.appendChild(grid);
+  container.appendChild(confirmBtn);
+
+  openModal('Concluir agendamento', container);
+
+  confirmBtn.addEventListener('click', () => withButtonLock(confirmBtn, async () => {
+    try {
+      await request(`/agendamentos/${id}/concluir`, {
+        method: 'POST',
+        body: JSON.stringify({ pagamento_tipo: select.value })
+      });
+      closeModal();
+      loadAgendamentosBtn.click();
+      showToast('Agendamento concluído.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }));
 }
 
 async function cancelarAgendamento(id) {
   try {
     await request(`/agendamentos/${id}/cancelar`, { method: 'POST' });
     loadAgendamentosBtn.click();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function aceitarAgendamento(id) {
+  try {
+    await request(`/agendamentos/${id}/aceitar`, { method: 'POST' });
+    loadAgendamentosBtn.click();
+    showToast('Agendamento aceito.');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function recusarAgendamento(id) {
+  try {
+    await request(`/agendamentos/${id}/recusar`, { method: 'POST' });
+    loadAgendamentosBtn.click();
+    showToast('Agendamento recusado.');
   } catch (err) {
     showToast(err.message, 'error');
   }
@@ -932,6 +1047,12 @@ btnNovoServico.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
+  const g0 = el('div', 'form-group');
+  g0.appendChild(el('label', null, 'Barbeiro'));
+  const s0 = el('select', 'barbeiro-select');
+  populateBarbeiroSelect(s0);
+  g0.appendChild(s0);
+
   const g1 = el('div', 'form-group');
   g1.appendChild(el('label', null, 'Nome'));
   const i1 = el('input');
@@ -956,6 +1077,7 @@ btnNovoServico.addEventListener('click', () => {
   i4.min = '0';
   g4.appendChild(i4);
 
+  grid.appendChild(g0);
   grid.appendChild(g1);
   grid.appendChild(g2);
   grid.appendChild(g3);
@@ -971,6 +1093,7 @@ btnNovoServico.addEventListener('click', () => {
   saveBtn.addEventListener('click', () => withButtonLock(saveBtn, async () => {
     try {
       const payload = {
+        barbeiro_id: Number(s0.value),
         nome: i1.value,
         descricao: i2.value,
         duracao_minutos: Number(i3.value),
@@ -995,8 +1118,26 @@ function renderServicos(items) {
 
   items.forEach(s => {
     const card = el('div', 'card');
+    card.dataset.id = String(s.id);
+
+    const media = el('div', 'service-media');
+    if (s.foto_url) {
+      const img = document.createElement('img');
+      img.src = s.foto_url;
+      img.alt = s.nome;
+      img.onerror = () => {
+        media.innerHTML = '';
+        media.appendChild(el('span', 'material-icons', 'image'));
+      };
+      media.appendChild(img);
+    } else {
+      media.appendChild(el('span', 'material-icons', 'image'));
+    }
+
+    card.appendChild(media);
     card.appendChild(el('strong', null, s.nome));
     card.appendChild(el('small', null, s.descricao || '-'));
+    card.appendChild(el('small', null, `Barbeiro: ${getBarbeiroNomeById(s.barbeiro_id)}`));
     card.appendChild(el('small', null, `Duração: ${s.duracao_minutos} min`));
     card.appendChild(el('small', null, `Preço: ${formatCurrency(s.preco_centavos)}`));
 
@@ -1016,7 +1157,41 @@ function renderServicos(items) {
 
 function editarServico(servico) {
   const container = el('div');
-  const grid = el('div', 'form-grid');
+  container.classList.add('modal-form', 'service-modal');
+  const grid = el('div', 'form-grid service-form');
+
+  const fotoGroup = el('div', 'form-group photo-group');
+  fotoGroup.appendChild(el('label', null, 'Imagem'));
+  const preview = el('div', 'preview-avatar');
+  const previewIcon = el('span', 'material-icons', 'image');
+  if (servico.foto_url) {
+    const img = document.createElement('img');
+    img.src = servico.foto_url;
+    img.alt = servico.nome;
+    img.onerror = () => {
+      preview.replaceChildren(previewIcon);
+    };
+    preview.appendChild(img);
+  } else {
+    preview.appendChild(previewIcon);
+  }
+  const fotoRow = el('div', 'photo-actions');
+  const fotoInput = el('input', 'hidden-file');
+  fotoInput.type = 'file';
+  fotoInput.accept = 'image/*';
+  const fotoBtn = el('button', 'btn ghost', 'Trocar imagem');
+  const removeBtn = el('button', 'btn danger', 'Remover imagem');
+  fotoRow.appendChild(fotoBtn);
+  fotoRow.appendChild(removeBtn);
+  fotoRow.appendChild(fotoInput);
+  fotoGroup.appendChild(preview);
+  fotoGroup.appendChild(fotoRow);
+
+  const g0 = el('div', 'form-group');
+  g0.appendChild(el('label', null, 'Barbeiro'));
+  const s0 = el('select', 'barbeiro-select');
+  populateBarbeiroSelect(s0, servico.barbeiro_id);
+  g0.appendChild(s0);
 
   const g1 = el('div', 'form-group');
   g1.appendChild(el('label', null, 'Nome'));
@@ -1044,23 +1219,91 @@ function editarServico(servico) {
   i4.value = servico.preco_centavos;
   g4.appendChild(i4);
 
+  grid.appendChild(fotoGroup);
+  grid.appendChild(g0);
   grid.appendChild(g1);
   grid.appendChild(g2);
   grid.appendChild(g3);
   grid.appendChild(g4);
 
-  const saveBtn = el('button', 'btn', 'Salvar');
+  const actions = el('div', 'modal-actions center');
+  const saveBtn = el('button', 'btn primary', 'Salvar');
+  actions.appendChild(saveBtn);
 
   container.appendChild(grid);
-  container.appendChild(saveBtn);
+  container.appendChild(actions);
 
   openModal('Editar Serviço', container);
+
+  fotoBtn.addEventListener('click', () => fotoInput.click());
+  if (!servico.foto_url) {
+    removeBtn.disabled = true;
+  }
+
+  fotoInput.addEventListener('change', async () => {
+    const file = fotoInput.files?.[0];
+    if (!file) return;
+    const err = validateImageFile(file);
+    if (err) {
+      showToast(err, 'error');
+      fotoInput.value = '';
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append('foto', file);
+      const updated = await requestFormData(`/servicos/${servico.id}/foto`, formData);
+      servico.foto_url = updated?.foto_url || servico.foto_url;
+      if (servico.foto_url) {
+        const img = document.createElement('img');
+        img.src = servico.foto_url;
+        img.alt = servico.nome;
+        img.onerror = () => {
+          preview.replaceChildren(el('span', 'material-icons', 'image'));
+        };
+        preview.replaceChildren(img);
+        removeBtn.disabled = false;
+      }
+      const cardMedia = document.querySelector(`.card[data-id="${servico.id}"] .service-media`);
+      if (cardMedia) {
+        const img = document.createElement('img');
+        img.src = servico.foto_url;
+        img.alt = servico.nome;
+        img.onerror = () => {
+          cardMedia.replaceChildren(el('span', 'material-icons', 'image'));
+        };
+        cardMedia.replaceChildren(img);
+      }
+      showToast('Imagem atualizada.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      fotoInput.value = '';
+    }
+  });
+
+  removeBtn.addEventListener('click', () => withButtonLock(removeBtn, async () => {
+    try {
+      const updated = await request(`/servicos/${servico.id}/foto`, { method: 'DELETE' });
+      servico.foto_url = updated?.foto_url || null;
+      preview.replaceChildren(el('span', 'material-icons', 'image'));
+      const cardMedia = document.querySelector(`.card[data-id="${servico.id}"] .service-media`);
+      if (cardMedia) {
+        cardMedia.replaceChildren(el('span', 'material-icons', 'image'));
+      }
+      removeBtn.disabled = true;
+      showToast('Imagem removida.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }));
 
   saveBtn.addEventListener('click', () => withButtonLock(saveBtn, async () => {
     try {
       await request(`/servicos/${servico.id}`, {
         method: 'PUT',
         body: JSON.stringify({
+          barbeiro_id: Number(s0.value),
           nome: i1.value,
           descricao: i2.value,
           duracao_minutos: Number(i3.value),
@@ -1249,7 +1492,7 @@ function editarBarbeiro(barbeiro) {
   grid.appendChild(g2);
   grid.appendChild(g3);
 
-  const saveBtn = el('button', 'btn', 'Salvar');
+  const saveBtn = el('button', 'btn primary', 'Salvar');
   const actions = el('div', 'modal-actions center');
   actions.appendChild(saveBtn);
   container.appendChild(grid);

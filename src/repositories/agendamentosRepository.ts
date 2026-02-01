@@ -117,25 +117,27 @@ export const agendamentosRepository = {
     })
   },
 
-  async cancelarAgendamento(id: number): Promise<void> {
-    const vagaIds: number[] = await new Promise((resolve, reject) => {
-      db.all('SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?', [id], (err, rows) => {
-        if (err) return reject(err)
-        resolve(rows.map((r: any) => r.vaga_id))
+  async cancelarAgendamento(id: number, liberarVagas: boolean): Promise<void> {
+    if (liberarVagas) {
+      const vagaIds: number[] = await new Promise((resolve, reject) => {
+        db.all('SELECT vaga_id FROM agendamento_vagas WHERE agendamento_id = ?', [id], (err, rows) => {
+          if (err) return reject(err)
+          resolve(rows.map((r: any) => r.vaga_id))
+        })
       })
-    })
-    if (vagaIds.length) {
-      await new Promise<void>((resolve, reject) => {
-        const placeholders = vagaIds.map(() => '?').join(',')
-        db.run(
-          `UPDATE vagas SET status = 'DISPONIVEL' WHERE id IN (${placeholders})`,
-          vagaIds,
-          err => {
-            if (err) return reject(err)
-            resolve()
-          }
-        )
-      })
+      if (vagaIds.length) {
+        await new Promise<void>((resolve, reject) => {
+          const placeholders = vagaIds.map(() => '?').join(',')
+          db.run(
+            `UPDATE vagas SET status = 'DISPONIVEL' WHERE id IN (${placeholders})`,
+            vagaIds,
+            err => {
+              if (err) return reject(err)
+              resolve()
+            }
+          )
+        })
+      }
     }
     await new Promise<void>((resolve, reject) => {
       db.run(
@@ -149,11 +151,24 @@ export const agendamentosRepository = {
     })
   },
 
-  async concluirAgendamento(id: number, concluidoEm?: string): Promise<void> {
+  async atualizarStatus(id: number, status: StatusAgendamento): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       db.run(
-        `UPDATE agendamentos SET status = ?, concluido_em = ? WHERE id = ?`,
-        [StatusAgendamento.CONCLUIDO, concluidoEm ?? null, id],
+        `UPDATE agendamentos SET status = ? WHERE id = ?`,
+        [status, id],
+        err => {
+          if (err) return reject(err)
+          resolve()
+        }
+      )
+    })
+  },
+
+  async concluirAgendamento(id: number, concluidoEm?: string, pagamentoTipo?: string): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE agendamentos SET status = ?, concluido_em = ?, pagamento_tipo = ? WHERE id = ?`,
+        [StatusAgendamento.CONCLUIDO, concluidoEm ?? null, pagamentoTipo ?? null, id],
         err => {
           if (err) return reject(err)
           resolve()
@@ -165,6 +180,16 @@ export const agendamentosRepository = {
 
 async function hydrateAgendamentos(agendamentos: Agendamento[]): Promise<Agendamento[]> {
   for (const agendamento of agendamentos) {
+    agendamento.cliente = await new Promise((resolve, reject) => {
+      db.get(
+        'SELECT id, nome FROM clientes WHERE id = ?',
+        [agendamento.cliente_id],
+        (err, row) => {
+          if (err) return reject(err)
+          resolve((row as any) ?? null)
+        }
+      )
+    })
     agendamento.barbeiro = await new Promise((resolve, reject) => {
       db.get(
         'SELECT id, nome_profissional, bio FROM barbeiros WHERE id = ?',

@@ -8,7 +8,15 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <script>
+        if (window.location.pathname.startsWith('/server08')) {
+            const base = document.createElement('base');
+            base.href = '/server08/';
+            document.head.appendChild(base);
+        }
+    </script>
+    <link rel="stylesheet" href="shared/style.css">
+    <script src="shared/basepath.js"></script>
 </head>
 
 <body class="dark-theme">
@@ -38,7 +46,7 @@
                             <form id="login-form" class="auth-form">
                                 <div class="form-group">
                                     <label for="email">E-mail</label>
-                                    <input type="email" id="email" placeholder="ex: joao@email.com" required />
+                                    <input type="email" id="email" placeholder="Email" required />
                                 </div>
 
                                 <div class="form-group">
@@ -83,7 +91,7 @@
         </footer>
     </div>
 
-    <script src="services.js"></script>
-    <script src="login.js"></script>
+    <script src="shared/services.js"></script>
+    <script src="auth/login.js"></script>
 </body>
 </html>

@@ -11,7 +11,15 @@
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css">
+    <script>
+        if (window.location.pathname.startsWith('/server08')) {
+            const base = document.createElement('base');
+            base.href = '/server08/';
+            document.head.appendChild(base);
+        }
+    </script>
+    <link rel="stylesheet" href="shared/style.css">
+    <script src="shared/basepath.js"></script>
 </head>
 
 <body class="dark-theme app-page">
@@ -138,19 +146,6 @@
 
                     <div class="booking-wizard">
                         <div class="wizard-step active" data-step="1">
-                            <h3>Suas Informações</h3>
-                            <div class="form-group">
-                                <label for="customer-name">Nome Completo</label>
-                                <input type="text" id="customer-name" placeholder="Como podemos te chamar?">
-                            </div>
-                            <div class="form-group">
-                                <label for="customer-phone">WhatsApp</label>
-                                <input type="tel" id="customer-phone" placeholder="(87) 9 9999-9999">
-                            </div>
-                            <button id="btn-to-summary" class="next-step" disabled>Revisar Agendamento <span
-                                    class="material-icons">chevron_right</span></button>
-                        </div>
-                        <div class="wizard-step" data-step="2">
                             <h3>Resumo do Agendamento</h3>
                             <div id="booking-summary" class="summary-card"></div>
                             <button id="confirm-booking" class="confirm-button">Confirmar Agora</button>
@@ -186,8 +181,8 @@
 
     <div id="notification-container"></div>
 
-    <script src="services.js"></script>
-    <script src="script.js"></script>
+    <script src="shared/services.js"></script>
+    <script src="app/script.js"></script>
 </body>
 
 </html>

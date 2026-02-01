@@ -1,5 +1,6 @@
 const form = document.getElementById('admin-login-form');
 const error = document.getElementById('error');
+const basePath = window.BASE_PATH || '';
 
 // Do not auto-redirect here; /admin will validate via cookie.
 
@@ -10,7 +11,7 @@ form.addEventListener('submit', async (event) => {
   const password = document.getElementById('password').value;
 
   try {
-    const response = await fetch('/auth/login/admin', {
+    const response = await fetch(`${basePath}/auth/login/admin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,7 +28,7 @@ form.addEventListener('submit', async (event) => {
     localStorage.setItem('token', data.token);
     localStorage.setItem('role', data.role);
     document.cookie = `admin_token=${encodeURIComponent(data.token)}; path=/; SameSite=Lax`;
-    window.location.href = '/admin';
+    window.location.href = `${basePath}/admin`;
   } catch (err) {
     error.textContent = err.message || 'E-mail ou senha inválidos';
   }

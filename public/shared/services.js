@@ -1,9 +1,10 @@
-const API_BASE_URL = ''; // Relative path
+const API_BASE_URL = window.BASE_PATH || '';
 
 const services = {
-    async fetchServices() {
+    async fetchServices(barbeiroId) {
         try {
-            const response = await fetch(`${API_BASE_URL}/servicos`);
+            const query = barbeiroId ? `?barbeiro_id=${barbeiroId}` : '';
+            const response = await fetch(`${API_BASE_URL}/servicos${query}`);
             if (!response.ok) throw new Error('Não foi possível carregar os serviços');
             return await response.json();
         } catch (error) {
@@ -54,10 +55,10 @@ const services = {
         }
     },
 
-    async fetchUserAppointments(clienteId) {
+    async fetchUserAppointments() {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/agendamentos/cliente/${clienteId}`, {
+            const response = await fetch(`${API_BASE_URL}/agendamentos/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -73,8 +74,8 @@ const services = {
     async deleteAppointment(id) {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/agendamentos/${id}`, {
-                method: 'DELETE',
+            const response = await fetch(`${API_BASE_URL}/agendamentos/${id}/cancelar`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

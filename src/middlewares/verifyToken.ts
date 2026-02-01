@@ -43,7 +43,24 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+function resolveBasePath(req: Request): string {
+  const envBase = process.env.BASE_PATH;
+  if (envBase) return envBase;
+  const forwardedPrefix = req.headers['x-forwarded-prefix'];
+  const prefix =
+    (typeof forwardedPrefix === 'string' && forwardedPrefix) ||
+    (Array.isArray(forwardedPrefix) && forwardedPrefix[0]) ||
+    '';
+
+  if (prefix && prefix.includes('/server08')) return '/server08';
+  if (req.originalUrl.startsWith('/server08')) return '/server08';
+  if (req.baseUrl && req.baseUrl.startsWith('/server08')) return '/server08';
+  if (req.path && req.path.startsWith('/server08')) return '/server08';
+  return '';
+}
+
 export function verifyTokenPage(req: Request, res: Response, next: NextFunction) {
+  const basePath = resolveBasePath(req);
   const authHeader = req.headers.authorization;
   let token: string | undefined;
   if (authHeader) {
@@ -56,7 +73,7 @@ export function verifyTokenPage(req: Request, res: Response, next: NextFunction)
     }
   }
   if (!token) {
-    return res.redirect('/admin-login');
+    return res.redirect(`${basePath}/admin-login`);
   }
   try {
     const secret = process.env.JWT_SECRET;
@@ -67,11 +84,12 @@ export function verifyTokenPage(req: Request, res: Response, next: NextFunction)
     req.user = decoded as TokenPayload;
     return next();
   } catch (err) {
-    return res.redirect('/admin-login');
+    return res.redirect(`${basePath}/admin-login`);
   }
 }
 
 export function verifyTokenPageClient(req: Request, res: Response, next: NextFunction) {
+  const basePath = resolveBasePath(req);
   const authHeader = req.headers.authorization;
   let token: string | undefined;
   if (authHeader) {
@@ -84,7 +102,7 @@ export function verifyTokenPageClient(req: Request, res: Response, next: NextFun
     }
   }
   if (!token) {
-    return res.redirect('/login');
+    return res.redirect(`${basePath}/login`);
   }
   try {
     const secret = process.env.JWT_SECRET;
@@ -95,6 +113,6 @@ export function verifyTokenPageClient(req: Request, res: Response, next: NextFun
     req.user = decoded as TokenPayload;
     return next();
   } catch (err) {
-    return res.redirect('/login');
+    return res.redirect(`${basePath}/login`);
   }
 }

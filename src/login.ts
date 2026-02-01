@@ -11,7 +11,7 @@ form.addEventListener('submit', async (event) => {
 
   try {
     await login(email, password);
-    window.location.href = 'index.html';
+    window.location.href = '/server08/app';
   } catch {
     error.textContent = 'E-mail ou senha inválidos';
   }

@@ -63,15 +63,29 @@ export function initDatabase() {
     db.run(`
       CREATE TABLE IF NOT EXISTS servicos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        barbeiro_id INTEGER NOT NULL,
         nome TEXT NOT NULL,
         descricao TEXT,
         duracao_minutos INTEGER NOT NULL CHECK (duracao_minutos > 0),
         preco_centavos INTEGER NOT NULL CHECK (preco_centavos >= 0),
-        ativo INTEGER DEFAULT 1 CHECK (ativo IN (0,1))
+        foto_url TEXT,
+        ativo INTEGER DEFAULT 1 CHECK (ativo IN (0,1)),
+        FOREIGN KEY (barbeiro_id) REFERENCES barbeiros(id)
       );
     `)
 
     db.run(`CREATE INDEX IF NOT EXISTS idx_servicos_ativo ON servicos(ativo);`)
+    db.run(`CREATE INDEX IF NOT EXISTS idx_servicos_barbeiro ON servicos(barbeiro_id);`)
+    db.run(`ALTER TABLE servicos ADD COLUMN barbeiro_id INTEGER`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna barbeiro_id em servicos:', err.message)
+      }
+    })
+    db.run(`ALTER TABLE servicos ADD COLUMN foto_url TEXT`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna foto_url em servicos:', err.message)
+      }
+    })
 
     db.run(`
       CREATE TABLE IF NOT EXISTS configuracoes (
@@ -106,8 +120,9 @@ export function initDatabase() {
         inicio DATETIME NOT NULL,
         fim DATETIME NOT NULL,
         concluido_em DATETIME,
-        status TEXT NOT NULL DEFAULT 'AGENDADO'
-          CHECK (status IN ('AGENDADO','CANCELADO','CONCLUIDO')),
+        pagamento_tipo TEXT CHECK (pagamento_tipo IN ('DINHEIRO','PIX','CARTAO')),
+        status TEXT NOT NULL DEFAULT 'SOLICITADO'
+          CHECK (status IN ('SOLICITADO','AGENDADO','CANCELADO','CONCLUIDO','RECUSADO')),
         valor_original_centavos INTEGER NOT NULL DEFAULT 0,
         desconto_aplicado_centavos INTEGER NOT NULL DEFAULT 0,
         valor_total_centavos INTEGER NOT NULL DEFAULT 0,
@@ -120,6 +135,11 @@ export function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_cliente ON agendamentos(cliente_id);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_barbeiro ON agendamentos(barbeiro_id);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_status ON agendamentos(status);`)
+    db.run(`ALTER TABLE agendamentos ADD COLUMN pagamento_tipo TEXT`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna pagamento_tipo em agendamentos:', err.message)
+      }
+    })
 
     db.run(`
       CREATE TABLE IF NOT EXISTS agendamento_servicos (

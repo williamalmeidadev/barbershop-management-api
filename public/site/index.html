@@ -8,7 +8,15 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <script>
+        if (window.location.pathname.startsWith('/server08')) {
+            const base = document.createElement('base');
+            base.href = '/server08/';
+            document.head.appendChild(base);
+        }
+    </script>
+    <link rel="stylesheet" href="shared/style.css">
+    <script src="shared/basepath.js"></script>
 
     <style>
         .landing-hero {
@@ -61,7 +69,7 @@
     <div id="app">
         <header class="main-header">
             <div class="container header-container">
-                <a href="#" class="logo">
+                <a href="/" class="logo">
                     <span class="material-icons">diversity_3</span>
                     <h1>BarberMarket</h1>
                 </a>
@@ -81,7 +89,7 @@
                     </p>
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                         <a href="/app" class="cta-button">Agendar Agora</a>
-                        <a href="/register" class="nav-button" style="padding: 1rem 2rem;">Sou Barbeiro</a>
+                        <a href="/admin" class="nav-button" style="padding: 1rem 2rem;">Sou Barbeiro</a>
                     </div>
                 </div>
             </section>
