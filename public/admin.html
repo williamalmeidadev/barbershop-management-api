@@ -94,6 +94,10 @@
               <label>Buscar</label>
               <input type="text" id="clientes-busca" placeholder="Nome ou e-mail" />
             </div>
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button id="buscar-clientes" class="btn">Pesquisar</button>
+            </div>
           </div>
           <div id="clientes-list" class="cards-grid"></div>
         </div>
@@ -118,8 +122,22 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Buscar (ID)</label>
-              <input type="text" id="agendamentos-busca" placeholder="ID Cliente/Barbeiro" />
+              <label>Cliente</label>
+              <input type="text" id="agendamentos-busca" placeholder="Nome do cliente" />
+            </div>
+            <div class="form-group">
+              <label>Barbeiro</label>
+              <select id="agendamentos-barbeiro" class="barbeiro-select">
+                <option value="">Todos</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Data</label>
+              <input type="date" id="agendamentos-data" />
+            </div>
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button id="buscar-agendamentos" class="btn">Pesquisar</button>
             </div>
           </div>
           <div id="agendamentos-list" class="cards-grid"></div>

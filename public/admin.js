@@ -22,13 +22,17 @@ const configContainer = document.getElementById('config-card-container');
 const btnConfigCreate = document.getElementById('btn-config-create');
 
 const loadClientesBtn = document.getElementById('load-clientes');
+const buscarClientesBtn = document.getElementById('buscar-clientes');
 const clientesAtivo = document.getElementById('clientes-ativo');
 const clientesBusca = document.getElementById('clientes-busca');
 const clientesList = document.getElementById('clientes-list');
 
 const loadAgendamentosBtn = document.getElementById('load-agendamentos');
+const buscarAgendamentosBtn = document.getElementById('buscar-agendamentos');
 const agendamentosStatus = document.getElementById('agendamentos-status');
 const agendamentosBusca = document.getElementById('agendamentos-busca');
+const agendamentosBarbeiro = document.getElementById('agendamentos-barbeiro');
+const agendamentosData = document.getElementById('agendamentos-data');
 const agendamentosList = document.getElementById('agendamentos-list');
 
 const formVagas = document.getElementById('form-vagas');
@@ -374,6 +378,11 @@ loadClientesBtn.addEventListener('click', () => withButtonLock(loadClientesBtn, 
   }
 }));
 
+buscarClientesBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  loadClientesBtn.click();
+});
+
 function renderClientes(clientes) {
   clear(clientesList);
   if (!clientes.length) {
@@ -488,11 +497,24 @@ loadAgendamentosBtn.addEventListener('click', () => withButtonLock(loadAgendamen
   try {
     const data = await request('/agendamentos');
     const status = agendamentosStatus.value;
-    const termo = (agendamentosBusca.value || '').trim();
+    const termo = (agendamentosBusca.value || '').trim().toLowerCase();
+    const barbeiroId = (agendamentosBarbeiro?.value || '').trim();
+    const dataFiltro = (agendamentosData?.value || '').trim();
     const filtrados = data.filter(a => {
       if (status && a.status !== status) return false;
+      if (barbeiroId) {
+        const atual = String(a.barbeiro?.id ?? a.barbeiro_id ?? '');
+        if (atual !== barbeiroId) return false;
+      }
+      if (dataFiltro) {
+        const inicio = a.inicio ? new Date(a.inicio) : null;
+        if (!inicio || Number.isNaN(inicio.getTime())) return false;
+        const inicioLocal = inicio.toLocaleDateString('en-CA');
+        if (inicioLocal !== dataFiltro) return false;
+      }
       if (!termo) return true;
-      return String(a.cliente_id) === termo || String(a.barbeiro_id) === termo;
+      const clienteNome = (a.cliente?.nome || a.cliente_nome || a.clienteName || '').toLowerCase();
+      return clienteNome.includes(termo);
     });
     renderAgendamentos(filtrados);
   } catch (err) {
@@ -500,6 +522,11 @@ loadAgendamentosBtn.addEventListener('click', () => withButtonLock(loadAgendamen
     agendamentosList.appendChild(el('div', 'status', err.message));
   }
 }));
+
+buscarAgendamentosBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  loadAgendamentosBtn.click();
+});
 
 function renderAgendamentos(items) {
   clear(agendamentosList);
