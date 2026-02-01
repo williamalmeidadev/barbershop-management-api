@@ -2,13 +2,16 @@ import { Servico } from '../interfaces/servico'
 import { db } from '../database/sqlite'
 
 export const servicoRepository = {
-  async findByIds(ids: number[]): Promise<Servico[]> {
+  async findByIds(ids: number[], barbeiroId?: number): Promise<Servico[]> {
     return new Promise((resolve, reject) => {
       if (ids.length === 0) return resolve([])
       const placeholders = ids.map(() => '?').join(',')
+      const params = [...ids]
+      const barberFilter = typeof barbeiroId === 'number' ? ' AND barbeiro_id = ?' : ''
+      if (typeof barbeiroId === 'number') params.push(barbeiroId)
       db.all(
-        `SELECT * FROM servicos WHERE id IN (${placeholders}) AND ativo = 1`,
-        ids,
+        `SELECT * FROM servicos WHERE id IN (${placeholders}) AND ativo = 1${barberFilter}`,
+        params,
         (err, rows) => {
           if (err) return reject(err)
           resolve(rows as Servico[])
@@ -18,6 +21,7 @@ export const servicoRepository = {
   },
 
   async create(payload: {
+    barbeiro_id: number
     nome: string
     descricao?: string | null
     duracao_minutos: number
@@ -27,8 +31,8 @@ export const servicoRepository = {
   }): Promise<Servico> {
     const servicoId = await new Promise<number>((resolve, reject) => {
       db.run(
-        `INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, ?)`,
-        [payload.nome, payload.descricao ?? null, payload.duracao_minutos, payload.preco_centavos, payload.foto_url ?? null, payload.ativo],
+        `INSERT INTO servicos (barbeiro_id, nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [payload.barbeiro_id, payload.nome, payload.descricao ?? null, payload.duracao_minutos, payload.preco_centavos, payload.foto_url ?? null, payload.ativo],
         function (err) {
           if (err) return reject(err)
           resolve(this.lastID)
@@ -49,9 +53,18 @@ export const servicoRepository = {
     })
   },
 
-  async list(ativo?: number): Promise<Servico[]> {
-    const where = typeof ativo === 'number' ? 'WHERE ativo = ?' : ''
-    const params = typeof ativo === 'number' ? [ativo] : []
+  async list(ativo?: number, barbeiroId?: number): Promise<Servico[]> {
+    const clauses: string[] = []
+    const params: any[] = []
+    if (typeof ativo === 'number') {
+      clauses.push('ativo = ?')
+      params.push(ativo)
+    }
+    if (typeof barbeiroId === 'number') {
+      clauses.push('barbeiro_id = ?')
+      params.push(barbeiroId)
+    }
+    const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : ''
     return await new Promise((resolve, reject) => {
       db.all(`SELECT * FROM servicos ${where} ORDER BY nome ASC`, params, (err, rows) => {
         if (err) return reject(err)
@@ -61,6 +74,7 @@ export const servicoRepository = {
   },
 
   async update(id: number, payload: {
+    barbeiro_id?: number
     nome?: string
     descricao?: string | null
     duracao_minutos?: number
@@ -71,6 +85,10 @@ export const servicoRepository = {
     const fields: string[] = []
     const values: any[] = []
 
+    if (payload.barbeiro_id !== undefined) {
+      fields.push('barbeiro_id = ?')
+      values.push(payload.barbeiro_id)
+    }
     if (payload.nome !== undefined) {
       fields.push('nome = ?')
       values.push(payload.nome)

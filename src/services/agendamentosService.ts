@@ -15,9 +15,9 @@ export const bookingService = {
     if (!isIsoWithTimezone(payload.inicio_desejado)) {
       throw new Error('inicio_desejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
     }
-    const servicos = await servicoService.buscarPorIds(payload.servicos)
+    const servicos = await servicoService.buscarPorIds(payload.servicos, payload.barbeiro_id)
     if (servicos.length !== payload.servicos.length) {
-      throw new Error('Um ou mais serviços não encontrados ou inativos')
+      throw new Error('Um ou mais serviços não encontrados, inativos ou não pertencem ao barbeiro selecionado')
     }
     const duracaoTotal = servicos.reduce((acc, s) => acc + s.duracao_minutos, 0)
     if (duracaoTotal <= 0) {

@@ -28,6 +28,7 @@ function normalizeImageUrl(url) {
 document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     const state = {
+        allServices: [],
         services: [],
         professionals: [],
         selectedService: null,
@@ -98,7 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadInitialData() {
         try {
-            state.services = await services.fetchServices();
+            state.allServices = await services.fetchServices();
+            state.services = state.allServices;
             state.professionals = await services.fetchBarbeiros();
         } catch (error) {
             console.error('Falha ao carregar dados iniciais', error);
@@ -176,13 +178,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderServices() {
         if (!servicesGrid) return;
 
-        if (!state.services || state.services.length === 0) {
+        if (!state.allServices || state.allServices.length === 0) {
             servicesGrid.innerHTML = '<div class="loading">Carregando serviços...</div>';
             return;
         }
 
         servicesGrid.replaceChildren();
-        state.services.forEach(service => {
+        state.allServices.forEach(service => {
             const card = document.createElement('div');
             card.className = 'card service-card';
 
@@ -286,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showBarberProfile(id) {
+    async function showBarberProfile(id) {
         const pro = state.professionals.find(p => p.id === id);
         if (!pro) return;
 
@@ -298,6 +300,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         profileName.innerText = pro.nome_profissional || pro.nome;
         profileSpecialty.innerText = pro.bio || pro.especialidade || 'Barbeiro Profissional';
+
+        try {
+            state.services = await services.fetchServices(pro.id);
+        } catch (error) {
+            console.error('Falha ao carregar serviços do barbeiro', error);
+            state.services = [];
+        }
 
         const profileHeader = document.querySelector('.profile-header');
 
@@ -339,6 +348,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderProfileServices() {
         profileServicesList.replaceChildren();
+        if (!state.services || state.services.length === 0) {
+            profileServicesList.innerHTML = '<div class="placeholder-text">Nenhum serviço disponível para este barbeiro.</div>';
+            return;
+        }
+
         state.services.forEach(service => {
             const card = document.createElement('div');
             card.className = `profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}`;

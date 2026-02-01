@@ -1,9 +1,10 @@
 const API_BASE_URL = '/server08';
 
 const services = {
-    async fetchServices() {
+    async fetchServices(barbeiroId) {
         try {
-            const response = await fetch(`${API_BASE_URL}/servicos`);
+            const query = barbeiroId ? `?barbeiro_id=${barbeiroId}` : '';
+            const response = await fetch(`${API_BASE_URL}/servicos${query}`);
             if (!response.ok) throw new Error('Não foi possível carregar os serviços');
             return await response.json();
         } catch (error) {

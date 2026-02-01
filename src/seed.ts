@@ -77,16 +77,16 @@ async function seed() {
 
     console.log('Inserindo Serviços...')
     const servicoId1 = await runWithId(
-      `INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, 1)`,
-      ['Corte Tradicional', 'Corte clássico com acabamento na navalha', 30, 3000, null]
+      `INSERT INTO servicos (barbeiro_id, nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      [barbeiroId1, 'Corte Tradicional', 'Corte clássico com acabamento na navalha', 30, 3000, null]
     )
     const servicoId2 = await runWithId(
-      `INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, 1)`,
-      ['Barba Completa', 'Modelagem com toalha quente', 30, 2500, null]
+      `INSERT INTO servicos (barbeiro_id, nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      [barbeiroId1, 'Barba Completa', 'Modelagem com toalha quente', 30, 2500, null]
     )
     const servicoId3 = await runWithId(
-      `INSERT INTO servicos (nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, 1)`,
-      ['Corte Premium', 'Corte + lavagem + finalização', 60, 6000, null]
+      `INSERT INTO servicos (barbeiro_id, nome, descricao, duracao_minutos, preco_centavos, foto_url, ativo) VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      [barbeiroId2, 'Corte Premium', 'Corte + lavagem + finalização', 60, 6000, null]
     )
 
     console.log('Inserindo Vagas...')

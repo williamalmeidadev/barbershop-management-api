@@ -17,7 +17,9 @@ export const servicosController = {
     try {
       const ativoParam = req.query.ativo
       const ativo = ativoParam !== undefined ? Number(ativoParam) : undefined
-      const servicos = await servicoService.listar(ativo)
+      const barbeiroParam = req.query.barbeiro_id ?? req.query.barbeiroId
+      const barbeiroId = barbeiroParam !== undefined ? Number(barbeiroParam) : undefined
+      const servicos = await servicoService.listar(ativo, barbeiroId)
       res.json(servicos)
     } catch (err: any) {
       res.status(400).json({ error: err.message })

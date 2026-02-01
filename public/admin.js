@@ -227,6 +227,11 @@ function populateBarbeiroSelect(select, selectedId) {
   });
 }
 
+function getBarbeiroNomeById(id) {
+  const found = cachedBarbeiros.find(b => Number(b.id) === Number(id));
+  return found?.nome_profissional || (id ? `#${id}` : '—');
+}
+
 function populateBarbeiroSelects() {
   document.querySelectorAll('.barbeiro-select').forEach(select => {
     const selected = select.getAttribute('data-selected');
@@ -1042,6 +1047,12 @@ btnNovoServico.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
+  const g0 = el('div', 'form-group');
+  g0.appendChild(el('label', null, 'Barbeiro'));
+  const s0 = el('select', 'barbeiro-select');
+  populateBarbeiroSelect(s0);
+  g0.appendChild(s0);
+
   const g1 = el('div', 'form-group');
   g1.appendChild(el('label', null, 'Nome'));
   const i1 = el('input');
@@ -1066,6 +1077,7 @@ btnNovoServico.addEventListener('click', () => {
   i4.min = '0';
   g4.appendChild(i4);
 
+  grid.appendChild(g0);
   grid.appendChild(g1);
   grid.appendChild(g2);
   grid.appendChild(g3);
@@ -1081,6 +1093,7 @@ btnNovoServico.addEventListener('click', () => {
   saveBtn.addEventListener('click', () => withButtonLock(saveBtn, async () => {
     try {
       const payload = {
+        barbeiro_id: Number(s0.value),
         nome: i1.value,
         descricao: i2.value,
         duracao_minutos: Number(i3.value),
@@ -1124,6 +1137,7 @@ function renderServicos(items) {
     card.appendChild(media);
     card.appendChild(el('strong', null, s.nome));
     card.appendChild(el('small', null, s.descricao || '-'));
+    card.appendChild(el('small', null, `Barbeiro: ${getBarbeiroNomeById(s.barbeiro_id)}`));
     card.appendChild(el('small', null, `Duração: ${s.duracao_minutos} min`));
     card.appendChild(el('small', null, `Preço: ${formatCurrency(s.preco_centavos)}`));
 
@@ -1173,6 +1187,12 @@ function editarServico(servico) {
   fotoGroup.appendChild(preview);
   fotoGroup.appendChild(fotoRow);
 
+  const g0 = el('div', 'form-group');
+  g0.appendChild(el('label', null, 'Barbeiro'));
+  const s0 = el('select', 'barbeiro-select');
+  populateBarbeiroSelect(s0, servico.barbeiro_id);
+  g0.appendChild(s0);
+
   const g1 = el('div', 'form-group');
   g1.appendChild(el('label', null, 'Nome'));
   const i1 = el('input');
@@ -1200,6 +1220,7 @@ function editarServico(servico) {
   g4.appendChild(i4);
 
   grid.appendChild(fotoGroup);
+  grid.appendChild(g0);
   grid.appendChild(g1);
   grid.appendChild(g2);
   grid.appendChild(g3);
@@ -1282,6 +1303,7 @@ function editarServico(servico) {
       await request(`/servicos/${servico.id}`, {
         method: 'PUT',
         body: JSON.stringify({
+          barbeiro_id: Number(s0.value),
           nome: i1.value,
           descricao: i2.value,
           duracao_minutos: Number(i3.value),

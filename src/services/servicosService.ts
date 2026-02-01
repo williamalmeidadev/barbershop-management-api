@@ -2,15 +2,18 @@ import { Servico } from '../interfaces/servico'
 import { servicoRepository } from '../repositories/servicosRepository'
 
 export const servicoService = {
-  async buscarPorIds(ids: number[]): Promise<Servico[]> {
-    return servicoRepository.findByIds(ids)
+  async buscarPorIds(ids: number[], barbeiroId?: number): Promise<Servico[]> {
+    return servicoRepository.findByIds(ids, barbeiroId)
   },
 
-  async listar(ativo?: number): Promise<Servico[]> {
+  async listar(ativo?: number, barbeiroId?: number): Promise<Servico[]> {
     if (ativo !== undefined && ![0, 1].includes(ativo)) {
       throw new Error('Parâmetro ativo inválido. Use 0 ou 1.')
     }
-    return servicoRepository.list(ativo)
+    if (barbeiroId !== undefined && barbeiroId <= 0) {
+      throw new Error('Parâmetro barbeiro_id inválido.')
+    }
+    return servicoRepository.list(ativo, barbeiroId)
   },
 
   async buscarPorId(id: number): Promise<Servico> {
@@ -21,6 +24,7 @@ export const servicoService = {
   },
 
   async criar(payload: {
+    barbeiro_id: number
     nome: string
     descricao?: string | null
     duracao_minutos: number
@@ -28,6 +32,9 @@ export const servicoService = {
     foto_url?: string | null
     ativo?: number
   }): Promise<Servico> {
+    if (!payload.barbeiro_id) {
+      throw new Error('Barbeiro é obrigatório.')
+    }
     if (!payload.nome || payload.duracao_minutos === undefined || payload.preco_centavos === undefined) {
       throw new Error('Nome, duração e preço são obrigatórios.')
     }
@@ -42,6 +49,7 @@ export const servicoService = {
       throw new Error('Ativo deve ser 0 ou 1.')
     }
     return servicoRepository.create({
+      barbeiro_id: payload.barbeiro_id,
       nome: payload.nome,
       descricao: payload.descricao ?? null,
       duracao_minutos: payload.duracao_minutos,
@@ -52,6 +60,7 @@ export const servicoService = {
   },
 
   async atualizar(id: number, payload: {
+    barbeiro_id?: number
     nome?: string
     descricao?: string | null
     duracao_minutos?: number
@@ -62,6 +71,9 @@ export const servicoService = {
     if (!id) throw new Error('O id do serviço é obrigatório.')
     if (Object.keys(payload).length === 0) {
       throw new Error('Informe ao menos um campo para atualizar.')
+    }
+    if (payload.barbeiro_id !== undefined && payload.barbeiro_id <= 0) {
+      throw new Error('Barbeiro inválido.')
     }
     if (payload.duracao_minutos !== undefined && payload.duracao_minutos <= 0) {
       throw new Error('A duração deve ser positiva.')
