@@ -80,6 +80,28 @@ const createButton = ui.createButton || ((label, className = 'btn') => {
   btn.textContent = label;
   return btn;
 });
+const createIcon = ui.createIcon || ((name, className = 'material-icons') => {
+  const icon = document.createElement('span');
+  icon.className = className;
+  icon.textContent = name;
+  return icon;
+});
+const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', className = 'media' } = {}) => {
+  const wrap = document.createElement('div');
+  wrap.className = className;
+  if (url) {
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = alt;
+    img.onerror = () => {
+      wrap.replaceChildren(createIcon(icon));
+    };
+    wrap.appendChild(img);
+    return wrap;
+  }
+  wrap.appendChild(createIcon(icon));
+  return wrap;
+});
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -193,7 +215,12 @@ function validateImageFile(file) {
   return null;
 }
 
+const modalApi = ui.createModalController
+  ? ui.createModalController({ modal, titleEl: modalTitle, bodyEl: modalBody, closeEl: modalClose })
+  : null;
+
 function openModal(title, contentNode) {
+  if (modalApi) return modalApi.open(title, contentNode);
   modalTitle.textContent = title;
   clear(modalBody);
   modalBody.appendChild(contentNode);
@@ -201,14 +228,10 @@ function openModal(title, contentNode) {
 }
 
 function closeModal() {
+  if (modalApi) return modalApi.close();
   modal.classList.add('hidden');
   clear(modalBody);
 }
-
-modalClose.addEventListener('click', closeModal);
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) closeModal();
-});
 
 navItems.forEach(item => {
   item.addEventListener('click', () => switchTab(item.dataset.tab));
@@ -1130,19 +1153,12 @@ function renderServicos(items) {
     const card = createCard('card');
     card.dataset.id = String(s.id);
 
-    const media = el('div', 'service-media');
-    if (s.foto_url) {
-      const img = document.createElement('img');
-      img.src = s.foto_url;
-      img.alt = s.nome;
-      img.onerror = () => {
-        media.innerHTML = '';
-        media.appendChild(el('span', 'material-icons', 'image'));
-      };
-      media.appendChild(img);
-    } else {
-      media.appendChild(el('span', 'material-icons', 'image'));
-    }
+    const media = createMedia({
+      url: s.foto_url,
+      alt: s.nome,
+      icon: 'image',
+      className: 'service-media'
+    });
 
     card.appendChild(media);
     card.appendChild(el('strong', null, s.nome));
@@ -1406,19 +1422,12 @@ function renderBarbeiros(items) {
   items.forEach(b => {
     const card = el('div', 'card');
     const header = el('div', 'card-header vertical');
-    const avatar = el('div', 'avatar avatar-large');
-    if (b.foto_url) {
-      const img = el('img');
-      img.src = b.foto_url;
-      img.alt = b.nome_profissional || 'Barbeiro';
-      img.onerror = () => {
-        img.remove();
-        avatar.appendChild(el('span', 'material-icons', 'person'));
-      };
-      avatar.appendChild(img);
-    } else {
-      avatar.appendChild(el('span', 'material-icons', 'person'));
-    }
+    const avatar = createMedia({
+      url: b.foto_url,
+      alt: b.nome_profissional || 'Barbeiro',
+      icon: 'person',
+      className: 'avatar avatar-large'
+    });
     const titleBox = el('div', 'card-title');
     titleBox.appendChild(el('strong', null, b.nome_profissional));
     titleBox.appendChild(el('small', null, b.bio || '-'));

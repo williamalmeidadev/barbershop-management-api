@@ -4,6 +4,33 @@ const formatCurrency = ui.formatCurrency || ((centavos) => {
     const value = Number(centavos || 0) / 100;
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 });
+const createCard = ui.createCard || ((className = 'card') => {
+    const card = document.createElement('div');
+    card.className = className;
+    return card;
+});
+const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', className = 'media' } = {}) => {
+    const wrap = document.createElement('div');
+    wrap.className = className;
+    if (url) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = alt;
+        img.onerror = () => {
+            const fallback = document.createElement('span');
+            fallback.className = 'material-icons';
+            fallback.textContent = icon;
+            wrap.replaceChildren(fallback);
+        };
+        wrap.appendChild(img);
+        return wrap;
+    }
+    const fallback = document.createElement('span');
+    fallback.className = 'material-icons';
+    fallback.textContent = icon;
+    wrap.appendChild(fallback);
+    return wrap;
+});
 
 function getCookieValue(name) {
     return document.cookie
@@ -190,30 +217,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         servicesGrid.replaceChildren();
         state.allServices.forEach(service => {
-            const card = document.createElement('div');
-            card.className = 'card service-card';
-
-            const mediaWrap = document.createElement('div');
-            mediaWrap.className = 'service-media-app';
+            const card = createCard('card service-card');
 
             const mediaSrc = normalizeImageUrl(service.foto_url);
-            if (mediaSrc) {
-                const img = document.createElement('img');
-                img.src = mediaSrc;
-                img.alt = service.nome;
-                img.onerror = () => {
-                    const fallback = document.createElement('span');
-                    fallback.className = 'material-icons';
-                    fallback.textContent = 'content_cut';
-                    mediaWrap.replaceChildren(fallback);
-                };
-                mediaWrap.appendChild(img);
-            } else {
-                const fallback = document.createElement('span');
-                fallback.className = 'material-icons';
-                fallback.textContent = 'content_cut';
-                mediaWrap.appendChild(fallback);
-            }
+            const mediaWrap = createMedia({
+                url: mediaSrc,
+                alt: service.nome,
+                icon: 'content_cut',
+                className: 'service-media-app'
+            });
 
             const title = document.createElement('h3');
             title.style.textAlign = 'center';
@@ -359,31 +371,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         state.services.forEach(service => {
-            const card = document.createElement('div');
-            card.className = `profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}`;
+            const card = createCard(`profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}`);
             card.dataset.id = String(service.id);
 
-            const mediaWrap = document.createElement('div');
-            mediaWrap.className = 'profile-service-media';
-
             const mediaSrc = normalizeImageUrl(service.foto_url);
-            if (mediaSrc) {
-                const img = document.createElement('img');
-                img.src = mediaSrc;
-                img.alt = service.nome;
-                img.onerror = () => {
-                    const fallback = document.createElement('span');
-                    fallback.className = 'material-icons';
-                    fallback.textContent = 'content_cut';
-                    mediaWrap.replaceChildren(fallback);
-                };
-                mediaWrap.appendChild(img);
-            } else {
-                const fallback = document.createElement('span');
-                fallback.className = 'material-icons';
-                fallback.textContent = 'content_cut';
-                mediaWrap.appendChild(fallback);
-            }
+            const mediaWrap = createMedia({
+                url: mediaSrc,
+                alt: service.nome,
+                icon: 'content_cut',
+                className: 'profile-service-media'
+            });
 
             const info = document.createElement('div');
             info.className = 'profile-service-info';
