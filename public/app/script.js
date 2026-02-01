@@ -1,4 +1,9 @@
 const BASE_PATH = window.BASE_PATH || '';
+const ui = window.UI || {};
+const formatCurrency = ui.formatCurrency || ((centavos) => {
+    const value = Number(centavos || 0) / 100;
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+});
 
 function getCookieValue(name) {
     return document.cookie
@@ -235,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const price = document.createElement('div');
             price.className = 'service-price';
-            price.textContent = `R$ ${(service.preco_centavos / 100).toFixed(2)}`;
+            price.textContent = formatCurrency(service.preco_centavos);
 
             footer.appendChild(duration);
             footer.appendChild(price);
@@ -392,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const price = document.createElement('div');
             price.className = 'profile-service-price';
             const priceValue = document.createElement('span');
-            priceValue.textContent = `R$ ${(service.preco_centavos / 100).toFixed(2)}`;
+            priceValue.textContent = formatCurrency(service.preco_centavos);
             const duration = document.createElement('p');
             duration.textContent = `${service.duracao_minutos || 30} min`;
             price.appendChild(priceValue);
@@ -446,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p><span class="material-icons">calendar_today</span> ${dataFmt} às ${horaFmt}</p>
                     </div>
                     <div class="appointment-price">
-                        R$ ${(servicoPreco / 100).toFixed(2)}
+                        ${formatCurrency(servicoPreco)}
                     </div>
                     <button class="btn-cancel" data-id="${appt.id}" ${!(appt.status === 'AGENDADO' || appt.status === 'SOLICITADO') ? 'disabled' : ''}>
                         ${appt.status === 'SOLICITADO' ? 'Cancelar solicitação' : appt.status === 'AGENDADO' ? 'Cancelar reserva' : appt.status === 'RECUSADO' ? 'Recusado' : appt.status === 'CONCLUIDO' ? 'Concluído' : 'Cancelado'}
@@ -548,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>Agendado para:</strong> <span>${new Date(state.selectedTime).toLocaleDateString('pt-BR')} às ${new Date(state.selectedTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-top: 1.5rem; border-top: 2px solid var(--primary); padding-top: 1rem; color: var(--primary); font-size: 1.3rem; font-weight: 700;">
-                    <strong>Total:</strong> <span>R$ ${(state.selectedService.preco_centavos / 100).toFixed(2)}</span>
+                    <strong>Total:</strong> <span>${formatCurrency(state.selectedService.preco_centavos)}</span>
                 </div>
             </div>
             <div style="padding: 0 1rem; color: var(--text-muted); font-size: 0.9rem;">

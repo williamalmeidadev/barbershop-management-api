@@ -61,16 +61,14 @@ function qs(id) {
   return document.getElementById(id);
 }
 
-function el(tag, className, text) {
+const ui = window.UI || {};
+const el = ui.el || ((tag, className, text) => {
   const node = document.createElement(tag);
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
-}
-
-function clear(node) {
-  node.replaceChildren();
-}
+});
+const clear = ui.clear || ((node) => node.replaceChildren());
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -88,13 +86,13 @@ function api(path) {
   return `${apiBase}${path}`;
 }
 
-function formatCurrency(centavos) {
+const formatCurrency = ui.formatCurrency || ((centavos) => {
   if (centavos === undefined || centavos === null) return '-';
   return (Number(centavos) / 100).toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   });
-}
+});
 
 function toIsoWithOffset(dateStr, timeStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
