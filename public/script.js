@@ -221,30 +221,18 @@ document.addEventListener('DOMContentLoaded', () => {
             desc.textContent = service.descricao || 'Procedimento realizado com os melhores produtos do mercado.';
 
             const footer = document.createElement('div');
-            footer.style.display = 'flex';
-            footer.style.justifyContent = 'space-between';
-            footer.style.alignItems = 'center';
-            footer.style.borderTop = '1px solid var(--border)';
-            footer.style.paddingTop = '1rem';
-            footer.style.marginTop = 'auto';
+            footer.className = 'service-meta';
 
             const duration = document.createElement('div');
-            duration.style.display = 'flex';
-            duration.style.alignItems = 'center';
-            duration.style.gap = '5px';
-            duration.style.color = 'var(--text-muted)';
-            duration.style.fontSize = '0.9rem';
+            duration.className = 'service-duration';
             const durationIcon = document.createElement('span');
             durationIcon.className = 'material-icons';
-            durationIcon.style.fontSize = '1rem';
             durationIcon.textContent = 'schedule';
             duration.appendChild(durationIcon);
             duration.appendChild(document.createTextNode(` ${service.duracao_minutos} min`));
 
             const price = document.createElement('div');
-            price.style.color = 'var(--primary)';
-            price.style.fontWeight = '700';
-            price.style.fontSize = '1.2rem';
+            price.className = 'service-price';
             price.textContent = `R$ ${(service.preco_centavos / 100).toFixed(2)}`;
 
             footer.appendChild(duration);

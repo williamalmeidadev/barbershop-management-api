@@ -560,6 +560,40 @@ nav {
     color: var(--primary);
 }
 
+.service-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-top: auto;
+}
+
+.service-duration {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.service-duration .material-icons {
+    font-size: 1rem;
+    line-height: 1;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    top: 1px;
+}
+
+.service-price {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
 .booking-flow-compact {
     display: grid;
     gap: 1rem;
