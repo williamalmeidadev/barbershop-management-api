@@ -306,7 +306,7 @@ function renderConfigCard(data, error) {
 
 function openConfigModal(data) {
   const container = el('div');
-  const grid = el('div', 'form-grid');
+  const grid = el('div', 'form-grid service-form');
 
   const groupQtd = el('div', 'form-group');
   groupQtd.appendChild(el('label', null, 'Quantidade de concluídos'));
@@ -328,7 +328,7 @@ function openConfigModal(data) {
   grid.appendChild(groupQtd);
   grid.appendChild(groupValor);
 
-  const saveBtn = el('button', 'btn', 'Salvar');
+  const saveBtn = el('button', 'btn primary', 'Salvar');
 
   container.appendChild(grid);
   container.appendChild(saveBtn);
@@ -440,7 +440,7 @@ function editarCliente(cliente) {
   grid.appendChild(telGroup);
   grid.appendChild(ativoGroup);
 
-  const saveBtn = el('button', 'btn', 'Salvar');
+  const saveBtn = el('button', 'btn primary', 'Salvar');
 
   container.appendChild(grid);
   container.appendChild(saveBtn);
@@ -524,7 +524,7 @@ function renderAgendamentos(items) {
 
     const actions = el('div', 'card-actions');
     const detailsBtn = el('button', 'btn ghost', 'Detalhes');
-    const concludeBtn = el('button', 'btn', 'Concluir');
+    const concludeBtn = el('button', 'btn primary', 'Concluir');
     const cancelBtn = el('button', 'btn danger', 'Cancelar');
     actions.appendChild(detailsBtn);
     actions.appendChild(concludeBtn);
@@ -532,8 +532,25 @@ function renderAgendamentos(items) {
     card.appendChild(actions);
 
     detailsBtn.addEventListener('click', () => verDetalhes(a));
-    concludeBtn.addEventListener('click', () => abrirConcluirAgendamento(a.id));
-    cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => cancelarAgendamento(a.id)));
+    if (a.status === 'CONCLUIDO') {
+      concludeBtn.textContent = 'Concluído';
+      concludeBtn.disabled = true;
+    } else if (a.status === 'CANCELADO') {
+      concludeBtn.textContent = 'Concluir';
+      concludeBtn.disabled = true;
+    } else {
+      concludeBtn.addEventListener('click', () => abrirConcluirAgendamento(a.id));
+    }
+
+    if (a.status === 'CANCELADO') {
+      cancelBtn.textContent = 'Cancelado';
+      cancelBtn.disabled = true;
+    } else if (a.status === 'CONCLUIDO') {
+      cancelBtn.textContent = 'Cancelar';
+      cancelBtn.disabled = true;
+    } else {
+      cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => cancelarAgendamento(a.id)));
+    }
 
     agendamentosList.appendChild(card);
   });
@@ -1067,11 +1084,12 @@ function renderServicos(items) {
 
 function editarServico(servico) {
   const container = el('div');
-  const grid = el('div', 'form-grid');
+  container.classList.add('modal-form', 'service-modal');
+  const grid = el('div', 'form-grid service-form');
 
   const fotoGroup = el('div', 'form-group photo-group');
   fotoGroup.appendChild(el('label', null, 'Imagem'));
-  const preview = el('div', 'service-photo-preview');
+  const preview = el('div', 'preview-avatar');
   const previewIcon = el('span', 'material-icons', 'image');
   if (servico.foto_url) {
     const img = document.createElement('img');
@@ -1128,10 +1146,12 @@ function editarServico(servico) {
   grid.appendChild(g3);
   grid.appendChild(g4);
 
-  const saveBtn = el('button', 'btn', 'Salvar');
+  const actions = el('div', 'modal-actions center');
+  const saveBtn = el('button', 'btn primary', 'Salvar');
+  actions.appendChild(saveBtn);
 
   container.appendChild(grid);
-  container.appendChild(saveBtn);
+  container.appendChild(actions);
 
   openModal('Editar Serviço', container);
 
@@ -1391,7 +1411,7 @@ function editarBarbeiro(barbeiro) {
   grid.appendChild(g2);
   grid.appendChild(g3);
 
-  const saveBtn = el('button', 'btn', 'Salvar');
+  const saveBtn = el('button', 'btn primary', 'Salvar');
   const actions = el('div', 'modal-actions center');
   actions.appendChild(saveBtn);
   container.appendChild(grid);

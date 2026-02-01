@@ -13,6 +13,7 @@ export enum PagamentoTipo {
 export interface Agendamento {
   id: number;
   cliente_id: number;
+  cliente?: ClienteResumo;
   barbeiro_id: number;
   barbeiro?: BarbeiroResumo;
   inicio: string;
@@ -39,6 +40,11 @@ export interface BarbeiroResumo {
   id: number;
   nome_profissional: string;
   bio: string | null;
+}
+
+export interface ClienteResumo {
+  id: number;
+  nome: string;
 }
 
 export interface ServicoAgendamento {
