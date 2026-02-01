@@ -564,6 +564,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showNotification(message, type = 'success') {
         const container = document.getElementById('notification-container');
+        if (ui.toast) {
+            ui.toast(container, message, { type, classBase: 'notification', duration: 3000 });
+            return;
+        }
         const note = document.createElement('div');
         note.className = `notification ${type}`;
         note.innerText = message;

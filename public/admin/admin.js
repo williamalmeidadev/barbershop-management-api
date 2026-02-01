@@ -162,12 +162,13 @@ function switchTab(tab) {
   if (tab === 'vagas') loadBarbeirosCache();
 }
 
-function showToast(message, type = 'success') {
+const showToast = (message, type = 'success') => {
+  if (ui.toast) return ui.toast(toastContainer, message, { type, classBase: 'toast' });
   const toast = el('div', `toast ${type}`);
   toast.textContent = message;
   toastContainer.appendChild(toast);
   setTimeout(() => toast.remove(), 3500);
-}
+};
 
 function validateImageFile(file) {
   const maxSize = 2 * 1024 * 1024;
