@@ -73,8 +73,8 @@ const services = {
     async deleteAppointment(id) {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/agendamentos/${id}`, {
-                method: 'DELETE',
+            const response = await fetch(`${API_BASE_URL}/agendamentos/${id}/cancelar`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

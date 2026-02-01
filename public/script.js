@@ -62,9 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Wizard Elements
     const cancelBookingBtn = document.getElementById('cancel-booking');
-    const customerNameInput = document.getElementById('customer-name');
-    const customerPhoneInput = document.getElementById('customer-phone');
-    const btnToSummary = document.getElementById('btn-to-summary');
     const bookingSummary = document.getElementById('booking-summary');
     const confirmBtn = document.getElementById('confirm-booking');
     const wizardSteps = document.querySelectorAll('.wizard-step');
@@ -449,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="appointment-price">
                         R$ ${(servicoPreco / 100).toFixed(2)}
                     </div>
-                    <button class="btn-cancel" data-id="${appt.id}">Cancelar reserva</button>
+                    <button class="btn-cancel" data-id="${appt.id}" ${appt.status !== 'AGENDADO' ? 'disabled' : ''}>Cancelar reserva</button>
                 </div>
             `;
             }).join('');
@@ -551,8 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
             <div style="padding: 0 1rem; color: var(--text-muted); font-size: 0.9rem;">
-                Cliente: ${state.customerName}<br>
-                Contato: ${state.customerPhone}
+                Pagamento e confirmação serão feitos no local.
             </div>
         `;
     }
@@ -590,28 +586,13 @@ document.addEventListener('DOMContentLoaded', () => {
             barberProfileView.classList.add('hidden');
             bookingWizardView.classList.remove('hidden');
             goToWizardStep(1);
+            renderSummary();
         };
 
         cancelBookingBtn.onclick = () => {
             bookingWizardView.classList.add('hidden');
             barberProfileView.classList.remove('hidden');
         };
-
-        customerNameInput.addEventListener('input', (e) => {
-            state.customerName = e.target.value;
-            checkInfoFields();
-        });
-
-        customerPhoneInput.addEventListener('input', (e) => {
-            state.customerPhone = e.target.value;
-            checkInfoFields();
-        });
-
-        function checkInfoFields() {
-            btnToSummary.disabled = !(state.customerName.length > 2 && state.customerPhone.length > 8);
-        }
-
-        btnToSummary.onclick = () => goToWizardStep(2);
 
         confirmBtn.addEventListener('click', async () => {
             try {
