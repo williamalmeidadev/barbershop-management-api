@@ -427,22 +427,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            appointmentsList.innerHTML = appointments.map(appt => `
+            appointmentsList.innerHTML = appointments.map(appt => {
+                const barbeiroNome = appt.barbeiro?.nome_profissional || appt.barbeiro?.nome || `#${appt.barbeiro_id}`;
+                const servico = appt.servicos?.[0];
+                const servicoNome = servico?.nome || 'Serviço';
+                const servicoPreco = servico?.preco_centavos ?? appt.valor_total_centavos ?? 0;
+                const dataHora = new Date(appt.inicio);
+                const dataFmt = dataHora.toLocaleDateString('pt-BR');
+                const horaFmt = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                return `
                 <div class="appointment-card" data-id="${appt.id}">
                     <div class="appointment-header">
-                        <h3 style="margin: 0;">${appt.barbeiro.nome}</h3>
+                        <h3 style="margin: 0;">${barbeiroNome}</h3>
                         <span class="appointment-status">${appt.status}</span>
                     </div>
                     <div class="appointment-details">
-                        <p><span class="material-icons">content_cut</span> ${appt.servico.nome}</p>
-                        <p><span class="material-icons">calendar_today</span> ${new Date(appt.data).toLocaleDateString()} às ${appt.horario}</p>
+                        <p><span class="material-icons">content_cut</span> ${servicoNome}</p>
+                        <p><span class="material-icons">calendar_today</span> ${dataFmt} às ${horaFmt}</p>
                     </div>
                     <div class="appointment-price">
-                        R$ ${(appt.servico.preco_centavos / 100).toFixed(2)}
+                        R$ ${(servicoPreco / 100).toFixed(2)}
                     </div>
                     <button class="btn-cancel" data-id="${appt.id}">Cancelar reserva</button>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             appointmentsList.querySelectorAll('.btn-cancel').forEach(btn => {
                 btn.onclick = async () => {
