@@ -69,6 +69,17 @@ const el = ui.el || ((tag, className, text) => {
   return node;
 });
 const clear = ui.clear || ((node) => node.replaceChildren());
+const createCard = ui.createCard || ((className = 'card') => {
+  const card = document.createElement('div');
+  card.className = className;
+  return card;
+});
+const createButton = ui.createButton || ((label, className = 'btn') => {
+  const btn = document.createElement('button');
+  btn.className = className;
+  btn.textContent = label;
+  return btn;
+});
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -395,7 +406,7 @@ function renderClientes(clientes) {
   }
 
   clientes.forEach(c => {
-    const card = el('div', 'card');
+    const card = createCard('card');
     card.appendChild(el('strong', null, c.nome));
     card.appendChild(el('small', null, c.email));
     card.appendChild(el('small', null, `Status: ${c.ativo === 1 ? 'Ativo' : 'Desativado'}`));
@@ -545,7 +556,7 @@ function renderAgendamentos(items) {
       a.cliente_nome ||
       a.clienteName ||
       (a.cliente_id ? `#${a.cliente_id}` : '—');
-    const card = el('div', 'card');
+    const card = createCard('card');
     card.appendChild(el('strong', null, `#${a.id} - ${a.status}`));
     card.appendChild(el('small', null, `Cliente: ${clienteNome}`));
     card.appendChild(el('small', null, `Barbeiro: ${a.barbeiro?.nome_profissional || a.barbeiro_id}`));
@@ -556,9 +567,9 @@ function renderAgendamentos(items) {
     }
 
     const actions = el('div', 'card-actions');
-    const detailsBtn = el('button', 'btn ghost', 'Detalhes');
-    const concludeBtn = el('button', 'btn primary', 'Concluir');
-    const cancelBtn = el('button', 'btn danger', 'Cancelar');
+    const detailsBtn = createButton('Detalhes', 'btn ghost');
+    const concludeBtn = createButton('Concluir', 'btn primary');
+    const cancelBtn = createButton('Cancelar', 'btn danger');
     actions.appendChild(detailsBtn);
     actions.appendChild(concludeBtn);
     actions.appendChild(cancelBtn);
@@ -744,13 +755,13 @@ function renderVagas(vagas) {
   }
 
   vagas.forEach(v => {
-    const card = el('div', 'card');
+    const card = createCard('card');
     card.appendChild(el('strong', null, `#${v.id} - ${v.status}`));
     card.appendChild(el('small', null, `Início: ${new Date(v.inicio).toLocaleString('pt-BR')}`));
     card.appendChild(el('small', null, `Fim: ${new Date(v.fim).toLocaleString('pt-BR')}`));
     const actions = el('div', 'card-actions');
-    const blockBtn = el('button', 'btn ghost', 'Bloquear');
-    const deleteBtn = el('button', 'btn danger', 'Apagar');
+    const blockBtn = createButton('Bloquear', 'btn ghost');
+    const deleteBtn = createButton('Apagar', 'btn danger');
     actions.appendChild(blockBtn);
     actions.appendChild(deleteBtn);
     card.appendChild(actions);
@@ -1116,7 +1127,7 @@ function renderServicos(items) {
   }
 
   items.forEach(s => {
-    const card = el('div', 'card');
+    const card = createCard('card');
     card.dataset.id = String(s.id);
 
     const media = el('div', 'service-media');
@@ -1141,8 +1152,8 @@ function renderServicos(items) {
     card.appendChild(el('small', null, `Preço: ${formatCurrency(s.preco_centavos)}`));
 
     const actions = el('div', 'card-actions');
-    const editBtn = el('button', 'btn ghost', 'Editar');
-    const toggleBtn = el('button', `btn ${s.ativo === 1 ? 'danger' : ''}`, s.ativo === 1 ? 'Desativar' : 'Ativar');
+    const editBtn = createButton('Editar', 'btn ghost');
+    const toggleBtn = createButton(s.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${s.ativo === 1 ? 'danger' : ''}`);
     actions.appendChild(editBtn);
     actions.appendChild(toggleBtn);
     card.appendChild(actions);
@@ -1417,8 +1428,8 @@ function renderBarbeiros(items) {
     card.appendChild(el('small', null, `Status: ${b.ativo === 1 ? 'Ativo' : 'Desativado'}`));
 
     const actions = el('div', 'card-actions');
-    const editBtn = el('button', 'btn ghost', 'Editar');
-    const toggleBtn = el('button', `btn ${b.ativo === 1 ? 'danger' : ''}`, b.ativo === 1 ? 'Desativar' : 'Ativar');
+    const editBtn = createButton('Editar', 'btn ghost');
+    const toggleBtn = createButton(b.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${b.ativo === 1 ? 'danger' : ''}`);
     actions.appendChild(editBtn);
     actions.appendChild(toggleBtn);
     card.appendChild(actions);
