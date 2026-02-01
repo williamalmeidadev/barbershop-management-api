@@ -69,12 +69,14 @@ export const bookingController = {
 
   async concluir(req: Request, res: Response) {
     try {
-      const agendamento = await bookingService.concluirAgendamento(Number(req.params.id))
+      const { pagamento_tipo } = req.body
+      const agendamento = await bookingService.concluirAgendamento(Number(req.params.id), pagamento_tipo)
       res.status(200).json(agendamento)
     } catch (err: any) {
       const status =
         err.message?.includes('não encontrado') ? 404 :
           err.message?.includes('já') ? 409 :
+            err.message?.includes('pagamento_tipo') ? 400 :
             400
       res.status(status).json({ error: err.message })
     }

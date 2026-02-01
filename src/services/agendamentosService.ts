@@ -1,4 +1,4 @@
-import { Agendamento, StatusAgendamento, CriarAgendamentoPayload, ServicoAgendamento } from '../interfaces/agendamento'
+import { Agendamento, StatusAgendamento, CriarAgendamentoPayload, ServicoAgendamento, PagamentoTipo } from '../interfaces/agendamento'
 import { servicoService } from './servicosService'
 import { vagasService } from './vagasService'
 import { agendamentosRepository } from '../repositories/agendamentosRepository'
@@ -101,8 +101,12 @@ export const bookingService = {
     })
   },
 
-  async concluirAgendamento(id: number): Promise<Agendamento> {
+  async concluirAgendamento(id: number, pagamentoTipo: PagamentoTipo): Promise<Agendamento> {
     if (!id) throw new Error('O id do agendamento é obrigatório.')
+    if (!pagamentoTipo) throw new Error('pagamento_tipo é obrigatório.')
+    if (!Object.values(PagamentoTipo).includes(pagamentoTipo)) {
+      throw new Error('pagamento_tipo inválido.')
+    }
     return runInTransaction(async () => {
       const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
       if (!agendamento) {
@@ -128,7 +132,7 @@ export const bookingService = {
           await vagasService.liberarVagasDoAgendamento(vagasLiberar)
         }
       }
-      await agendamentosRepository.concluirAgendamento(id, concluidoEm)
+      await agendamentosRepository.concluirAgendamento(id, concluidoEm, pagamentoTipo)
 
       const cliente = await clientesRepository.buscarResumo(agendamento.cliente_id)
       if (!cliente) {

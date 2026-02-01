@@ -518,6 +518,9 @@ function renderAgendamentos(items) {
     card.appendChild(el('small', null, `Barbeiro: ${a.barbeiro?.nome_profissional || a.barbeiro_id}`));
     card.appendChild(el('small', null, `Início: ${new Date(a.inicio).toLocaleString('pt-BR')}`));
     card.appendChild(el('small', null, `Valor: ${formatCurrency(a.valor_total_centavos)}`));
+    if (a.pagamento_tipo) {
+      card.appendChild(el('small', null, `Pagamento: ${a.pagamento_tipo}`));
+    }
 
     const actions = el('div', 'card-actions');
     const detailsBtn = el('button', 'btn ghost', 'Detalhes');
@@ -529,7 +532,7 @@ function renderAgendamentos(items) {
     card.appendChild(actions);
 
     detailsBtn.addEventListener('click', () => verDetalhes(a));
-    concludeBtn.addEventListener('click', () => withButtonLock(concludeBtn, () => concluirAgendamento(a.id)));
+    concludeBtn.addEventListener('click', () => abrirConcluirAgendamento(a.id));
     cancelBtn.addEventListener('click', () => withButtonLock(cancelBtn, () => cancelarAgendamento(a.id)));
 
     agendamentosList.appendChild(card);
@@ -554,6 +557,9 @@ function verDetalhes(agendamento) {
   grid.appendChild(el('p', null, `Preço original: ${formatCurrency(agendamento.valor_original_centavos)}`));
   grid.appendChild(el('p', null, `Desconto: ${formatCurrency(agendamento.desconto_aplicado_centavos)}`));
   grid.appendChild(el('p', null, `Final: ${formatCurrency(agendamento.valor_total_centavos)}`));
+  if (agendamento.pagamento_tipo) {
+    grid.appendChild(el('p', null, `Pagamento: ${agendamento.pagamento_tipo}`));
+  }
 
   const columns = el('div', 'details-columns');
 
@@ -588,13 +594,41 @@ function verDetalhes(agendamento) {
   openModal(`Agendamento #${agendamento.id}`, container);
 }
 
-async function concluirAgendamento(id) {
-  try {
-    await request(`/agendamentos/${id}/concluir`, { method: 'POST' });
-    loadAgendamentosBtn.click();
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
+function abrirConcluirAgendamento(id) {
+  const container = el('div');
+  const grid = el('div', 'form-grid');
+
+  const g1 = el('div', 'form-group');
+  g1.appendChild(el('label', null, 'Forma de pagamento'));
+  const select = el('select');
+  ['DINHEIRO', 'PIX', 'CARTAO'].forEach(opt => {
+    const o = document.createElement('option');
+    o.value = opt;
+    o.textContent = opt;
+    select.appendChild(o);
+  });
+  g1.appendChild(select);
+  grid.appendChild(g1);
+
+  const confirmBtn = el('button', 'btn', 'Concluir');
+  container.appendChild(grid);
+  container.appendChild(confirmBtn);
+
+  openModal('Concluir agendamento', container);
+
+  confirmBtn.addEventListener('click', () => withButtonLock(confirmBtn, async () => {
+    try {
+      await request(`/agendamentos/${id}/concluir`, {
+        method: 'POST',
+        body: JSON.stringify({ pagamento_tipo: select.value })
+      });
+      closeModal();
+      loadAgendamentosBtn.click();
+      showToast('Agendamento concluído.');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }));
 }
 
 async function cancelarAgendamento(id) {

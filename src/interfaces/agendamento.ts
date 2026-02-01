@@ -4,6 +4,12 @@ export enum StatusAgendamento {
   CONCLUIDO = 'CONCLUIDO',
 }
 
+export enum PagamentoTipo {
+  DINHEIRO = 'DINHEIRO',
+  PIX = 'PIX',
+  CARTAO = 'CARTAO',
+}
+
 export interface Agendamento {
   id: number;
   cliente_id: number;
@@ -12,6 +18,7 @@ export interface Agendamento {
   inicio: string;
   fim: string;
   concluido_em?: string | null;
+  pagamento_tipo?: PagamentoTipo | null;
   status: StatusAgendamento;
   valor_original_centavos: number;
   desconto_aplicado_centavos: number;

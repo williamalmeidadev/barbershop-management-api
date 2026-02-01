@@ -112,6 +112,7 @@ export function initDatabase() {
         inicio DATETIME NOT NULL,
         fim DATETIME NOT NULL,
         concluido_em DATETIME,
+        pagamento_tipo TEXT CHECK (pagamento_tipo IN ('DINHEIRO','PIX','CARTAO')),
         status TEXT NOT NULL DEFAULT 'AGENDADO'
           CHECK (status IN ('AGENDADO','CANCELADO','CONCLUIDO')),
         valor_original_centavos INTEGER NOT NULL DEFAULT 0,
@@ -126,6 +127,11 @@ export function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_cliente ON agendamentos(cliente_id);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_barbeiro ON agendamentos(barbeiro_id);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_agendamentos_status ON agendamentos(status);`)
+    db.run(`ALTER TABLE agendamentos ADD COLUMN pagamento_tipo TEXT`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna pagamento_tipo em agendamentos:', err.message)
+      }
+    })
 
     db.run(`
       CREATE TABLE IF NOT EXISTS agendamento_servicos (
