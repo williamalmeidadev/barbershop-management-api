@@ -113,6 +113,48 @@ body {
   gap: 1rem;
 }
 
+/* --- CONFIGURAÇÕES --- */
+.config-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.config-card {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 1.25rem;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.config-card .material-icons {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.config-card h4 {
+  margin: 0 0 0.35rem;
+}
+
+.config-card .output {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.config-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.config-card .btn {
+  padding: 0.6rem 1.1rem;
+}
+
 .card {
   background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; transition: all 0.3s ease;
@@ -139,6 +181,16 @@ input:focus, select:focus { outline: none; border-color: var(--primary); }
   border-radius: var(--radius);
   padding: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.form-grid.filters .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-grid.filters .form-group button {
+  margin-top: auto;
+  height: auto;
 }
 
 .form-group {

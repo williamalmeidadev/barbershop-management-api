@@ -306,7 +306,7 @@ function renderConfigCard(data, error) {
 
 function openConfigModal(data) {
   const container = el('div');
-  const grid = el('div', 'form-grid service-form');
+  const grid = el('div', 'form-grid');
 
   const groupQtd = el('div', 'form-group');
   groupQtd.appendChild(el('label', null, 'Quantidade de concluídos'));
@@ -328,10 +328,12 @@ function openConfigModal(data) {
   grid.appendChild(groupQtd);
   grid.appendChild(groupValor);
 
+  const actions = el('div', 'modal-actions center');
   const saveBtn = el('button', 'btn primary', 'Salvar');
+  actions.appendChild(saveBtn);
 
   container.appendChild(grid);
-  container.appendChild(saveBtn);
+  container.appendChild(actions);
 
   openModal(data ? 'Editar regra' : 'Criar regra', container);
 
