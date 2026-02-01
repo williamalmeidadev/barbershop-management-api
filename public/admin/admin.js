@@ -1,4 +1,4 @@
-const apiBase = '/server08';
+const apiBase = window.BASE_PATH || '';
 
 function getCookie(name) {
   return document.cookie
@@ -11,7 +11,7 @@ function getCookie(name) {
 const adminTokenCookie = getCookie('admin_token');
 const storedRole = localStorage.getItem('role');
 if (!adminTokenCookie || storedRole !== 'admin') {
-  window.location.replace('/server08/admin-login');
+  window.location.replace(`${apiBase}/admin-login`);
 }
 const logoutBtn = document.getElementById('logout-btn');
 
@@ -210,7 +210,7 @@ logoutBtn.addEventListener('click', () => {
   document.cookie = 'admin_token=; Max-Age=0; path=/; SameSite=Lax';
   showToast('Logout realizado.');
   setTimeout(() => {
-    window.location.href = '/server08/admin-login';
+    window.location.href = `${apiBase}/admin-login`;
   }, 300);
 });
 

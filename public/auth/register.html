@@ -4,14 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Admin - BarberMarket</title>
+  <title>Cadastro - BarberMarket</title>
 
-  <!-- Google Fonts -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
   <script>
     if (window.location.pathname.startsWith('/server08')) {
       const base = document.createElement('base');
@@ -19,21 +15,20 @@
       document.head.appendChild(base);
     }
   </script>
-  <link rel="stylesheet" href="/server08/style.css">
-  <script src="basepath.js"></script>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/basepath.js"></script>
 </head>
 
 <body class="dark-theme">
   <div id="app">
     <header class="main-header">
       <div class="container header-container">
-        <div class="logo">
+        <a href="/" class="logo">
           <span class="material-icons">diversity_3</span>
           <h1>BarberMarket</h1>
-        </div>
+        </a>
         <nav id="nav-menu">
-          <a href="/server08/" class="nav-link">Explorar</a>
-          <a href="/server08/login" class="nav-button">Login Cliente</a>
+            <a href="/" class="nav-link">Voltar ao Início</a>
         </nav>
       </div>
     </header>
@@ -44,25 +39,44 @@
           <div class="auth-panel">
             <div class="auth-card">
               <div class="auth-header">
-                <h3>Setor Administrativo</h3>
-                <p>Acesso restrito para gestão da barbearia.</p>
+                <h3>Criar Conta</h3>
+                <p>Junte-se ao marketplace de barbearias.</p>
               </div>
 
-              <form id="admin-login-form" class="auth-form">
+              <form id="register-form" class="auth-form">
+                <div class="form-group">
+                  <label for="nome">Nome Completo</label>
+                  <input type="text" id="nome" placeholder="Como podemos te chamar?" required />
+                </div>
+
                 <div class="form-group">
                   <label for="email">E-mail</label>
                   <input type="email" id="email" placeholder="Email" required />
                 </div>
 
                 <div class="form-group">
-                  <label for="password">Senha</label>
-                  <input type="password" id="password" placeholder="Sua senha" required />
+                  <label for="telefone">Telefone (opcional)</label>
+                  <input type="tel" id="telefone" placeholder="(87) 9 9999-9999" />
                 </div>
 
-                <button type="submit" class="primary-button">Entrar</button>
+                <div class="form-group">
+                  <label for="password">Senha</label>
+                  <input type="password" id="password" placeholder="Mínimo 6 caracteres" required />
+                </div>
+
+                <button type="submit" id="btn-register" class="primary-button auth-submit">
+                  Cadastrar Agora
+                </button>
               </form>
 
-              <p id="error" class="auth-error"></p>
+              <div id="error-container" class="auth-error-box hidden">
+                <span id="error-msg">Erro ao cadastrar</span>
+              </div>
+
+              <div class="auth-footer">
+                <span>Já tem uma conta?</span>
+                <a href="/login" class="auth-link">Faça Login</a>
+              </div>
             </div>
           </div>
         </div>
@@ -80,13 +94,13 @@
           <a href="#"><span class="material-icons">camera_alt</span></a>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2026 BarberMarket. Tradição e Tecnologia.</p>
+          <p>&copy; 2026 BarberMarket. Petrolina/PE.</p>
         </div>
       </div>
     </footer>
   </div>
 
-  <script src="/server08/admin-login.js"></script>
+  <script src="shared/services.js"></script>
+  <script src="auth/register.js"></script>
 </body>
-
 </html>

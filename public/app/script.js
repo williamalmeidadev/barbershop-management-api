@@ -1,4 +1,4 @@
-const BASE_PATH = '/server08';
+const BASE_PATH = window.BASE_PATH || '';
 
 function getCookieValue(name) {
     return document.cookie

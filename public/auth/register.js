@@ -2,7 +2,7 @@ const form = document.getElementById('register-form');
 const btnRegister = document.getElementById('btn-register');
 const errorContainer = document.getElementById('error-container');
 const errorMsg = document.getElementById('error-msg');
-const basePath = '/server08';
+const basePath = window.BASE_PATH || '';
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();

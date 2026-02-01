@@ -1,4 +1,4 @@
-const API_BASE_URL = '/server08';
+const API_BASE_URL = window.BASE_PATH || '';
 
 const services = {
     async fetchServices(barbeiroId) {
