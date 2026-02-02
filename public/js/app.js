@@ -18,6 +18,24 @@ const renderStatus = ui.renderStatus;
 const renderLoading = ui.renderLoading;
 const renderCardList = ui.renderCardList;
 
+const APP_TIMEZONE = 'America/Sao_Paulo';
+const dateFormatterBR = new Intl.DateTimeFormat('pt-BR', { timeZone: APP_TIMEZONE });
+const timeFormatterBR = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: APP_TIMEZONE,
+    hour: '2-digit',
+    minute: '2-digit'
+});
+const formatDateBR = (value) => {
+    const date = value ? new Date(value) : null;
+    if (!date || Number.isNaN(date.getTime())) return '';
+    return dateFormatterBR.format(date);
+};
+const formatTimeBR = (value) => {
+    const date = value ? new Date(value) : null;
+    if (!date || Number.isNaN(date.getTime())) return '';
+    return timeFormatterBR.format(date);
+};
+
 const clientTokenCookie = getCookieValue ? getCookieValue('client_token') : null;
 const localToken = localStorage.getItem('token');
 if (!clientTokenCookie && !localToken) {
@@ -312,9 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalCentavos = appt.valor_original_centavos ?? servico?.preco_centavos ?? 0;
         const descontoCentavos = appt.desconto_aplicado_centavos ?? 0;
         const finalCentavos = appt.valor_total_centavos ?? Math.max(0, originalCentavos - descontoCentavos);
-        const dataHora = new Date(appt.inicio);
-        const dataFmt = dataHora.toLocaleDateString('pt-BR');
-        const horaFmt = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const dataFmt = formatDateBR(appt.inicio);
+        const horaFmt = formatTimeBR(appt.inicio);
         const cancelLabel = getAppointmentStatusLabel(appt.status);
         const canCancel = appt.status === 'AGENDADO' || appt.status === 'SOLICITADO';
         const onCancel = async (_evt, btnRef) => {
@@ -385,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         profileTimeSlots.replaceChildren();
         slots.forEach((slot) => {
             const inicioIso = slot.inicio;
-            const label = new Date(inicioIso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const label = formatTimeBR(inicioIso);
             const item = createTimeSlotComponent({
                 label,
                 selected: state.selectedTime === inicioIso,
@@ -417,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSummary() {
         bookingSummary.replaceChildren();
-        const dateText = `${new Date(state.selectedTime).toLocaleDateString('pt-BR')} às ${new Date(state.selectedTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+        const dateText = `${formatDateBR(state.selectedTime)} às ${formatTimeBR(state.selectedTime)}`;
         const { summary, note } = createBookingSummaryComponent({
             professional: state.selectedProfessional.nome_profissional || state.selectedProfessional.nome,
             service: state.selectedService.nome,

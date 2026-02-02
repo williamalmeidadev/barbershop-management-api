@@ -6,11 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Admin - AlphaCuts</title>
 
+  <script>
+        if (window.location.pathname.startsWith('/server08')) {
+            const base = document.createElement('base');
+            base.href = '/server08/';
+            document.head.appendChild(base);
+        }
+    </script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
   <script src="components/fonts.js"></script>
-  <script src="components/basepath.js"></script>
+  <script src="components/basepath.js"></script>z
 </head>
 
 <body class="dark-theme">
