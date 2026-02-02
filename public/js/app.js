@@ -1,15 +1,10 @@
 const BASE_PATH = window.BASE_PATH || '';
 const ui = window.UI || {};
-const formatCurrency = ui.formatCurrency || ((centavos) => {
-    const value = Number(centavos || 0) / 100;
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-});
-const el = ui.el || ((tag, className, text) => {
-    const node = document.createElement(tag);
-    if (className) node.className = className;
-    if (text !== undefined) node.textContent = text;
-    return node;
-});
+const formatCurrency = ui.formatCurrency;
+const el = ui.el;
+const appUtils = window.APP_UTILS || {};
+const getCookieValue = appUtils.getCookieValue;
+const normalizeImageUrl = appUtils.normalizeImageUrl;
 const createMedia = ui.createMedia;
 const cards = window.CARDS || {};
 const createServiceCardComponent = cards.createServiceCard;
@@ -19,58 +14,14 @@ const createProfileServiceCardComponent = appComponents.createProfileServiceCard
 const createAppointmentCardComponent = appComponents.createAppointmentCard;
 const createBookingSummaryComponent = appComponents.createBookingSummary;
 const createTimeSlotComponent = appComponents.createTimeSlot;
-const renderStatus = ui.renderStatus || ((container, message, className = 'status') => {
-    if (!container) return;
-    container.replaceChildren();
-    const node = document.createElement('div');
-    node.className = className;
-    node.textContent = message;
-    container.appendChild(node);
-});
-const renderLoading = ui.renderLoading || ((container, message = 'Carregando...') => {
-    renderStatus(container, message, 'loading');
-});
-const renderCardList = ui.renderCardList || ((container, items, renderItem, { emptyMessage = 'Sem dados.' } = {}) => {
-    if (!container) return;
-    container.replaceChildren();
-    if (!items || items.length === 0) {
-        renderStatus(container, emptyMessage);
-        return;
-    }
-    items.forEach((item) => {
-        const node = renderItem(item);
-        if (node) container.appendChild(node);
-    });
-});
+const renderStatus = ui.renderStatus;
+const renderLoading = ui.renderLoading;
+const renderCardList = ui.renderCardList;
 
-function getCookieValue(name) {
-    return document.cookie
-        .split(';')
-        .map((c) => c.trim())
-        .find((c) => c.startsWith(`${name}=`))
-        ?.split('=')[1];
-}
-
-const clientTokenCookie = getCookieValue('client_token');
+const clientTokenCookie = getCookieValue ? getCookieValue('client_token') : null;
 const localToken = localStorage.getItem('token');
 if (!clientTokenCookie && !localToken) {
     window.location.replace(`${BASE_PATH}/login`);
-}
-
-function normalizeImageUrl(url) {
-    if (!url) return '';
-    if (url.startsWith(`${BASE_PATH}/`)) return url;
-    if (url.startsWith('/images/')) return `${BASE_PATH}${url.replace('/images/', '/assets/images/')}`;
-    if (url.startsWith('/assets/images/')) return `${BASE_PATH}${url}`;
-    if (url.includes('/images/')) {
-        const idx = url.indexOf('/images/');
-        return `${BASE_PATH}${url.slice(idx).replace('/images/', '/assets/images/')}`;
-    }
-    if (url.includes('/assets/images/')) {
-        const idx = url.indexOf('/assets/images/');
-        return `${BASE_PATH}${url.slice(idx)}`;
-    }
-    return url;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

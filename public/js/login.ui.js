@@ -1,49 +1,26 @@
 (function () {
   const basePath = window.BASE_PATH || '';
   const { renderAuthPage } = window.LAYOUT || {};
-  const { createInput, createFormGroup } = window.UI || {};
+  const { createAuthForm, createAuthErrorBox, createAuthFooter } = window.FORMS || {};
 
-  if (!renderAuthPage || !createInput || !createFormGroup) return;
+  if (!renderAuthPage || !createAuthForm || !createAuthErrorBox || !createAuthFooter) return;
 
-  const form = document.createElement('form');
-  form.id = 'login-form';
-  form.className = 'auth-form';
+  const { form } = createAuthForm({
+    id: 'login-form',
+    submitId: 'btn-login',
+    submitLabel: 'Acessar Conta',
+    fields: [
+      { id: 'email', name: 'email', label: 'E-mail', type: 'email', placeholder: 'Email', required: true },
+      { id: 'password', name: 'password', label: 'Senha', type: 'password', placeholder: 'Sua senha secreta', required: true }
+    ]
+  });
 
-  const email = createInput({ type: 'email', placeholder: 'Email' });
-  email.id = 'email';
-  email.required = true;
-  form.appendChild(createFormGroup('E-mail', email));
-
-  const password = createInput({ type: 'password', placeholder: 'Sua senha secreta' });
-  password.id = 'password';
-  password.required = true;
-  form.appendChild(createFormGroup('Senha', password));
-
-  const submit = document.createElement('button');
-  submit.type = 'submit';
-  submit.id = 'btn-login';
-  submit.className = 'primary-button auth-submit';
-  submit.textContent = 'Acessar Conta';
-  form.appendChild(submit);
-
-  const errorBox = document.createElement('div');
-  errorBox.id = 'error-container';
-  errorBox.className = 'auth-error-box hidden';
-  const errorMsg = document.createElement('span');
-  errorMsg.id = 'error-msg';
-  errorMsg.textContent = 'Credenciais inválidas';
-  errorBox.appendChild(errorMsg);
-
-  const footer = document.createElement('div');
-  footer.className = 'auth-footer';
-  const footerText = document.createElement('span');
-  footerText.textContent = 'Ainda não tem conta?';
-  const footerLink = document.createElement('a');
-  footerLink.className = 'auth-link';
-  footerLink.href = `${basePath}/register`;
-  footerLink.textContent = 'Criar conta grátis';
-  footer.appendChild(footerText);
-  footer.appendChild(footerLink);
+  const errorBox = createAuthErrorBox('Credenciais inválidas');
+  const footer = createAuthFooter({
+    text: 'Ainda não tem conta?',
+    linkText: 'Criar conta grátis',
+    href: `${basePath}/register`
+  });
 
   const adminLink = document.createElement('a');
   adminLink.className = 'auth-admin-link';
