@@ -59,6 +59,12 @@ const createIcon = ui.createIcon || ((name, className = 'material-icons') => {
     icon.textContent = name;
     return icon;
 });
+const createBadge = ui.createBadge || ((text, className = 'badge') => {
+    const badge = document.createElement('span');
+    badge.className = className;
+    badge.textContent = text;
+    return badge;
+});
 const createCardWithHeader = ui.createCardWithHeader || ((opts = {}) => {
     const card = createCard(opts.className || 'card');
     const header = document.createElement('div');
@@ -72,12 +78,6 @@ const createCardWithHeader = ui.createCardWithHeader || ((opts = {}) => {
         titleWrap.appendChild(t);
     }
     header.appendChild(titleWrap);
-    if (opts.status) {
-        const s = document.createElement('span');
-        s.className = opts.statusClass || 'card-status';
-        s.textContent = opts.status;
-        header.appendChild(s);
-    }
     card.appendChild(header);
     return { card, header, titleWrap };
 });
@@ -301,53 +301,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
         servicesGrid.replaceChildren();
         state.allServices.forEach(service => {
-            const card = createCard('card service-card');
-
-            const mediaSrc = normalizeImageUrl(service.foto_url);
-            const mediaWrap = createMedia({
-                url: mediaSrc,
-                alt: service.nome,
-                icon: 'content_cut',
-                className: 'service-media-app'
-            });
-
-            const title = document.createElement('h3');
-            title.style.textAlign = 'center';
-            title.textContent = service.nome;
-
-            const desc = document.createElement('p');
-            desc.style.textAlign = 'center';
-            desc.style.color = 'var(--text-muted)';
-            desc.style.fontSize = '0.9rem';
-            desc.style.marginBottom = '1.5rem';
-            desc.style.minHeight = '3em';
-            desc.textContent = service.descricao || 'Procedimento realizado com os melhores produtos do mercado.';
-
-            const footer = document.createElement('div');
-            footer.className = 'service-meta';
-
-            const duration = document.createElement('div');
-            duration.className = 'service-duration';
-            const durationIcon = document.createElement('span');
-            durationIcon.className = 'material-icons';
-            durationIcon.textContent = 'schedule';
-            duration.appendChild(durationIcon);
-            duration.appendChild(document.createTextNode(` ${service.duracao_minutos} min`));
-
-            const price = document.createElement('div');
-            price.className = 'service-price';
-            price.textContent = formatCurrency(service.preco_centavos);
-
-            footer.appendChild(duration);
-            footer.appendChild(price);
-
-            card.appendChild(mediaWrap);
-            card.appendChild(title);
-            card.appendChild(desc);
-            card.appendChild(footer);
-
-            servicesGrid.appendChild(card);
+            servicesGrid.appendChild(buildServiceCard(service));
         });
+    }
+
+    function buildServiceCard(service) {
+        const card = createCard('card service-card');
+
+        const mediaSrc = normalizeImageUrl(service.foto_url);
+        const mediaWrap = createMedia({
+            url: mediaSrc,
+            alt: service.nome,
+            icon: 'content_cut',
+            className: 'service-media-app'
+        });
+
+        const title = document.createElement('h3');
+        title.className = 'centered-title';
+        title.textContent = service.nome;
+
+        const desc = document.createElement('p');
+        desc.className = 'centered-muted';
+        desc.textContent = service.descricao || 'Procedimento realizado com os melhores produtos do mercado.';
+
+        const footer = document.createElement('div');
+        footer.className = 'service-meta';
+
+        const duration = document.createElement('div');
+        duration.className = 'service-duration';
+        duration.appendChild(createIcon('schedule'));
+        duration.appendChild(document.createTextNode(` ${service.duracao_minutos} min`));
+
+        const price = document.createElement('div');
+        price.className = 'service-price';
+        price.textContent = formatCurrency(service.preco_centavos);
+
+        footer.appendChild(duration);
+        footer.appendChild(price);
+
+        card.appendChild(mediaWrap);
+        card.appendChild(title);
+        card.appendChild(desc);
+        card.appendChild(footer);
+
+        return card;
     }
 
     function renderProfessionals() {
@@ -359,45 +356,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
         professionalsGrid.replaceChildren();
         state.professionals.forEach(pro => {
-            const card = createCard('card');
-            card.dataset.id = String(pro.id);
-
-            const avatarSrc = normalizeImageUrl(pro.foto_url);
-            const avatar = createMedia({
-                url: avatarSrc,
-                alt: pro.nome_profissional || pro.nome || 'Barbeiro',
-                icon: 'person',
-                className: 'avatar-container',
-                imgClass: 'barber-avatar-img'
-            });
-
-            const name = document.createElement('h3');
-            name.style.textAlign = 'center';
-            name.textContent = pro.nome_profissional || pro.nome;
-
-            const bio = document.createElement('p');
-            bio.style.textAlign = 'center';
-            bio.style.color = 'var(--text-muted)';
-            bio.textContent = pro.bio || pro.especialidade || 'Barbeiro Profissional';
-
-            const ctaWrap = document.createElement('div');
-            ctaWrap.style.marginTop = '1.5rem';
-            ctaWrap.style.textAlign = 'center';
-            const cta = document.createElement('span');
-            cta.style.color = 'var(--primary)';
-            cta.style.fontWeight = '700';
-            cta.style.fontSize = '0.9rem';
-            cta.textContent = 'Ver Serviços e Horários';
-            ctaWrap.appendChild(cta);
-
-            card.appendChild(avatar);
-            card.appendChild(name);
-            card.appendChild(bio);
-            card.appendChild(ctaWrap);
-
-            card.onclick = () => showBarberProfile(pro.id);
+            const card = buildProfessionalCard(pro);
             professionalsGrid.appendChild(card);
         });
+    }
+
+    function buildProfessionalCard(pro) {
+        const card = createCard('card');
+        card.dataset.id = String(pro.id);
+
+        const avatarSrc = normalizeImageUrl(pro.foto_url);
+        const avatar = createMedia({
+            url: avatarSrc,
+            alt: pro.nome_profissional || pro.nome || 'Barbeiro',
+            icon: 'person',
+            className: 'avatar-container',
+            imgClass: 'barber-avatar-img'
+        });
+
+        const name = document.createElement('h3');
+        name.className = 'centered-title';
+        name.textContent = pro.nome_profissional || pro.nome;
+
+        const bio = document.createElement('p');
+        bio.className = 'centered-muted';
+        bio.textContent = pro.bio || pro.especialidade || 'Barbeiro Profissional';
+
+        const ctaWrap = document.createElement('div');
+        ctaWrap.className = 'centered-cta';
+        const cta = document.createElement('span');
+        cta.textContent = 'Ver Serviços e Horários';
+        ctaWrap.appendChild(cta);
+
+        card.appendChild(avatar);
+        card.appendChild(name);
+        card.appendChild(bio);
+        card.appendChild(ctaWrap);
+
+        card.onclick = () => showBarberProfile(pro.id);
+        return card;
     }
 
     async function showBarberProfile(id) {
@@ -435,12 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
             className: 'profile-avatar',
             imgClass: 'barber-avatar-img'
         });
-        avatar.style.width = '100%';
-        avatar.style.height = '100%';
-        avatar.style.display = 'flex';
-        avatar.style.alignItems = 'center';
-        avatar.style.justifyContent = 'center';
-        avatar.style.backgroundColor = 'var(--surface)';
+        avatar.classList.add('profile-avatar-surface');
         wrapperDiv.appendChild(avatar);
 
         profileHeader.insertBefore(wrapperDiv, profileHeader.firstChild);
@@ -549,16 +541,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataFmt = dataHora.toLocaleDateString('pt-BR');
         const horaFmt = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-        const { card } = createCardWithHeader({
-            title: barbeiroNome,
-            status: appt.status,
-            icon: 'content_cut',
-            className: 'appointment-card',
-            headerClass: 'appointment-header',
-            titleClass: 'appointment-title',
-            statusClass: 'appointment-status'
-        });
-        card.dataset.id = String(appt.id);
+                const { card, header } = createCardWithHeader({
+                    title: barbeiroNome,
+                    icon: 'content_cut',
+                    className: 'appointment-card',
+                    headerClass: 'appointment-header',
+                    titleClass: 'appointment-title',
+                    statusClass: 'appointment-status'
+                });
+                card.dataset.id = String(appt.id);
+                header.appendChild(createBadge(appt.status, 'appointment-status'));
 
         const details = document.createElement('div');
         details.className = 'appointment-details';
@@ -652,17 +644,9 @@ document.addEventListener('DOMContentLoaded', () => {
         bookingSummary.replaceChildren();
         const summary = document.createElement('div');
         summary.className = 'summary-item';
-        summary.style.marginBottom = '1.5rem';
-        summary.style.padding = '1.5rem';
-        summary.style.background = 'rgba(255,255,255,0.05)';
-        summary.style.borderRadius = '8px';
 
         const title = document.createElement('div');
-        title.style.fontFamily = "'Playfair Display', serif";
-        title.style.fontSize = '1.2rem';
-        title.style.borderBottom = '1px solid var(--border)';
-        title.style.paddingBottom = '0.5rem';
-        title.style.marginBottom = '1rem';
+        title.className = 'summary-title';
         title.textContent = 'Resumo do Pedido';
 
         summary.appendChild(title);
@@ -676,18 +660,11 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         const totalRow = createInfoRow('Total:', formatCurrency(state.selectedService.preco_centavos));
-        totalRow.style.marginTop = '1.5rem';
-        totalRow.style.borderTop = '2px solid var(--primary)';
-        totalRow.style.paddingTop = '1rem';
-        totalRow.style.color = 'var(--primary)';
-        totalRow.style.fontSize = '1.3rem';
-        totalRow.style.fontWeight = '700';
+        totalRow.classList.add('summary-total');
         summary.appendChild(totalRow);
 
         const note = document.createElement('div');
-        note.style.padding = '0 1rem';
-        note.style.color = 'var(--text-muted)';
-        note.style.fontSize = '0.9rem';
+        note.className = 'summary-note';
         note.textContent = 'Pagamento e confirmação serão feitos no local.';
 
         bookingSummary.appendChild(summary);

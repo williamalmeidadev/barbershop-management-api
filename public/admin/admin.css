@@ -198,6 +198,11 @@ input:focus, select:focus { outline: none; border-color: var(--primary); }
   gap: 0.5rem;
 }
 
+.form-group.align-end {
+  display: flex;
+  align-items: flex-end;
+}
+
 .filters .form-group label {
   color: var(--text-muted);
   font-size: 0.85rem;

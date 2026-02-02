@@ -96,6 +96,32 @@ h1, h2, h3, h4, h5, h6 {
 
 .text-center { text-align: center; }
 .hidden { display: none !important; }
+.muted-paragraph { color: var(--text-muted); }
+
+.hero-description {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.nav-button-hero {
+    padding: 1rem 2rem;
+}
+
+.footer-note {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
 
 /* --- HEADER --- */
 .main-header {
@@ -592,6 +618,92 @@ nav {
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 0.8rem;
+}
+
+.centered-title {
+    text-align: center;
+}
+
+.centered-muted {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    min-height: 3em;
+}
+
+.centered-cta {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.centered-cta span {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.profile-avatar-surface {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--surface);
+}
+
+.summary-item {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+.summary-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.summary-total {
+    margin-top: 1.5rem;
+    border-top: 2px solid var(--primary);
+    padding-top: 1rem;
+    color: var(--primary);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.summary-note {
+    padding: 0 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.notification.fade-in,
+.toast.fade-in {
+    opacity: 1;
+}
+
+.notification.fade-out,
+.toast.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-active);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
 .service-duration {

@@ -59,10 +59,12 @@
                   <input type="password" id="password" placeholder="Sua senha" required />
                 </div>
 
-                <button type="submit" class="primary-button">Entrar</button>
+                <button type="submit" id="btn-admin-login" class="primary-button auth-submit">Entrar</button>
               </form>
 
-              <p id="error" class="auth-error"></p>
+              <div id="error-container" class="auth-error-box hidden">
+                <span id="error-msg">Credenciais inválidas</span>
+              </div>
             </div>
           </div>
         </div>
@@ -89,6 +91,7 @@
   <div id="notification-container"></div>
 
   <script src="shared/request.js"></script>
+  <script src="shared/notifications.js"></script>
   <script src="auth/admin-login.js"></script>
 </body>
 

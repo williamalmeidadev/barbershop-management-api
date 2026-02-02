@@ -18,8 +18,9 @@
     note.className = `${options.classBase || 'notification'} ${type}`;
     note.textContent = message;
     container.appendChild(note);
+    note.classList.add('fade-in');
     setTimeout(() => {
-      note.style.opacity = '0';
+      note.classList.add('fade-out');
       setTimeout(() => note.remove(), 300);
     }, options.duration || 3000);
   };

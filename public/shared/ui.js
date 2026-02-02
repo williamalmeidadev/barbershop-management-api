@@ -18,6 +18,13 @@
     return icon;
   };
 
+  const createBadge = (text, className = 'badge') => {
+    const badge = document.createElement('span');
+    badge.className = className;
+    badge.textContent = text;
+    return badge;
+  };
+
   const createMedia = ({ url, alt = '', icon = 'image', className = 'media', imgClass } = {}) => {
     const wrap = document.createElement('div');
     wrap.className = className;
@@ -94,7 +101,6 @@
 
   const createCardWithHeader = ({
     title,
-    status,
     icon,
     className = 'card',
     headerClass = 'card-header',
@@ -115,13 +121,6 @@
     }
 
     header.appendChild(titleWrap);
-
-    if (status) {
-      const statusEl = document.createElement('span');
-      statusEl.className = statusClass;
-      statusEl.textContent = status;
-      header.appendChild(statusEl);
-    }
 
     card.appendChild(header);
     return { card, header, titleWrap };
@@ -308,6 +307,7 @@
     formatCurrency,
     createButton,
     createIcon,
+    createBadge,
     createMedia,
     createCard,
     createInfoList,
