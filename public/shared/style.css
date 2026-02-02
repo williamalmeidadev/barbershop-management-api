@@ -587,6 +587,13 @@ nav {
     margin-top: auto;
 }
 
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+}
+
 .service-duration {
     display: inline-flex;
     align-items: center;

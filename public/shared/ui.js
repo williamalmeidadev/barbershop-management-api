@@ -73,6 +73,60 @@
     return card;
   };
 
+  const createSectionHeader = (titleText, className = 'section-title') => {
+    const header = document.createElement('h2');
+    header.className = className;
+    header.textContent = titleText;
+    return header;
+  };
+
+  const createInfoRow = (label, value) => {
+    const row = document.createElement('div');
+    row.className = 'info-row';
+    const l = document.createElement('strong');
+    l.textContent = label;
+    const v = document.createElement('span');
+    v.textContent = value;
+    row.appendChild(l);
+    row.appendChild(v);
+    return row;
+  };
+
+  const createCardWithHeader = ({
+    title,
+    status,
+    icon,
+    className = 'card',
+    headerClass = 'card-header',
+    titleClass = 'card-title',
+    statusClass = 'card-status'
+  } = {}) => {
+    const card = createCard(className);
+    const header = document.createElement('div');
+    header.className = headerClass;
+
+    const titleWrap = document.createElement('div');
+    titleWrap.className = titleClass;
+    if (icon) titleWrap.appendChild(createIcon(icon));
+    if (title) {
+      const titleEl = document.createElement('span');
+      titleEl.textContent = title;
+      titleWrap.appendChild(titleEl);
+    }
+
+    header.appendChild(titleWrap);
+
+    if (status) {
+      const statusEl = document.createElement('span');
+      statusEl.className = statusClass;
+      statusEl.textContent = status;
+      header.appendChild(statusEl);
+    }
+
+    card.appendChild(header);
+    return { card, header, titleWrap };
+  };
+
   const createInput = ({
     type = 'text',
     value,
@@ -259,6 +313,9 @@
     createInfoList,
     createActionsRow,
     createCardWithLines,
+    createSectionHeader,
+    createInfoRow,
+    createCardWithHeader,
     createInput,
     createSelect,
     createFormGroup,

@@ -123,6 +123,17 @@ const createCardWithLines = ui.createCardWithLines || (({ title, lines = [], act
   if (actions.length) card.appendChild(createActionsRow(actions));
   return card;
 });
+const createInfoRow = ui.createInfoRow || ((label, value) => {
+  const row = document.createElement('div');
+  row.className = 'info-row';
+  const l = document.createElement('strong');
+  l.textContent = label;
+  const v = document.createElement('span');
+  v.textContent = value;
+  row.appendChild(l);
+  row.appendChild(v);
+  return row;
+});
 const createInput = ui.createInput || ((opts = {}) => {
   const input = document.createElement('input');
   if (opts.type) input.type = opts.type;
@@ -687,16 +698,16 @@ function verDetalhes(agendamento) {
     agendamento.clienteName ||
     (agendamento.cliente_id ? `#${agendamento.cliente_id}` : '—');
 
-  grid.appendChild(el('p', null, `Status: ${agendamento.status}`));
-  grid.appendChild(el('p', null, `Cliente: ${clienteNome}`));
-  grid.appendChild(el('p', null, `Barbeiro: ${agendamento.barbeiro?.nome_profissional || agendamento.barbeiro_id}`));
-  grid.appendChild(el('p', null, `Início: ${new Date(agendamento.inicio).toLocaleString('pt-BR')}`));
-  grid.appendChild(el('p', null, `Fim: ${new Date(agendamento.fim).toLocaleString('pt-BR')}`));
-  grid.appendChild(el('p', null, `Preço original: ${formatCurrency(agendamento.valor_original_centavos)}`));
-  grid.appendChild(el('p', null, `Desconto: ${formatCurrency(agendamento.desconto_aplicado_centavos)}`));
-  grid.appendChild(el('p', null, `Final: ${formatCurrency(agendamento.valor_total_centavos)}`));
+  grid.appendChild(createInfoRow('Status:', agendamento.status));
+  grid.appendChild(createInfoRow('Cliente:', clienteNome));
+  grid.appendChild(createInfoRow('Barbeiro:', agendamento.barbeiro?.nome_profissional || agendamento.barbeiro_id));
+  grid.appendChild(createInfoRow('Início:', new Date(agendamento.inicio).toLocaleString('pt-BR')));
+  grid.appendChild(createInfoRow('Fim:', new Date(agendamento.fim).toLocaleString('pt-BR')));
+  grid.appendChild(createInfoRow('Preço original:', formatCurrency(agendamento.valor_original_centavos)));
+  grid.appendChild(createInfoRow('Desconto:', formatCurrency(agendamento.desconto_aplicado_centavos)));
+  grid.appendChild(createInfoRow('Final:', formatCurrency(agendamento.valor_total_centavos)));
   if (agendamento.pagamento_tipo) {
-    grid.appendChild(el('p', null, `Pagamento: ${agendamento.pagamento_tipo}`));
+    grid.appendChild(createInfoRow('Pagamento:', agendamento.pagamento_tipo));
   }
 
   const columns = el('div', 'details-columns');

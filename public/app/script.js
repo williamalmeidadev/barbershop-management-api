@@ -42,6 +42,45 @@ const createCardWithLines = ui.createCardWithLines || (({ title, lines = [], act
     if (actions.length) card.appendChild(createActionsRow(actions));
     return card;
 });
+const createInfoRow = ui.createInfoRow || ((label, value) => {
+    const row = document.createElement('div');
+    row.className = 'info-row';
+    const l = document.createElement('strong');
+    l.textContent = label;
+    const v = document.createElement('span');
+    v.textContent = value;
+    row.appendChild(l);
+    row.appendChild(v);
+    return row;
+});
+const createIcon = ui.createIcon || ((name, className = 'material-icons') => {
+    const icon = document.createElement('span');
+    icon.className = className;
+    icon.textContent = name;
+    return icon;
+});
+const createCardWithHeader = ui.createCardWithHeader || ((opts = {}) => {
+    const card = createCard(opts.className || 'card');
+    const header = document.createElement('div');
+    header.className = opts.headerClass || 'card-header';
+    const titleWrap = document.createElement('div');
+    titleWrap.className = opts.titleClass || 'card-title';
+    if (opts.icon) titleWrap.appendChild(createIcon(opts.icon));
+    if (opts.title) {
+        const t = document.createElement('span');
+        t.textContent = opts.title;
+        titleWrap.appendChild(t);
+    }
+    header.appendChild(titleWrap);
+    if (opts.status) {
+        const s = document.createElement('span');
+        s.className = opts.statusClass || 'card-status';
+        s.textContent = opts.status;
+        header.appendChild(s);
+    }
+    card.appendChild(header);
+    return { card, header, titleWrap };
+});
 const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', className = 'media', imgClass } = {}) => {
     const wrap = document.createElement('div');
     wrap.className = className;
@@ -486,76 +525,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
             appointmentsList.replaceChildren();
             appointments.forEach((appt) => {
-                const barbeiroNome = appt.barbeiro?.nome_profissional || appt.barbeiro?.nome || `#${appt.barbeiro_id}`;
-                const servico = appt.servicos?.[0];
-                const servicoNome = servico?.nome || 'Serviço';
-                const servicoPreco = servico?.preco_centavos ?? appt.valor_total_centavos ?? 0;
-                const dataHora = new Date(appt.inicio);
-                const dataFmt = dataHora.toLocaleDateString('pt-BR');
-                const horaFmt = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-                const card = createCard('appointment-card');
-                card.dataset.id = String(appt.id);
-
-                const header = document.createElement('div');
-                header.className = 'appointment-header';
-                const title = document.createElement('h3');
-                title.style.margin = '0';
-                title.textContent = barbeiroNome;
-                const status = document.createElement('span');
-                status.className = 'appointment-status';
-                status.textContent = appt.status;
-                header.appendChild(title);
-                header.appendChild(status);
-
-                const details = document.createElement('div');
-                details.className = 'appointment-details';
-                details.appendChild(el('p', null, `Serviço: ${servicoNome}`));
-                details.appendChild(el('p', null, `Data: ${dataFmt} às ${horaFmt}`));
-
-                const price = document.createElement('div');
-                price.className = 'appointment-price';
-                price.textContent = formatCurrency(servicoPreco);
-
-                const cancelBtn = createButton(
-                    appt.status === 'SOLICITADO'
-                        ? 'Cancelar solicitação'
-                        : appt.status === 'AGENDADO'
-                            ? 'Cancelar reserva'
-                            : appt.status === 'RECUSADO'
-                                ? 'Recusado'
-                                : appt.status === 'CONCLUIDO'
-                                    ? 'Concluído'
-                                    : 'Cancelado',
-                    'btn-cancel'
-                );
-                cancelBtn.disabled = !(appt.status === 'AGENDADO' || appt.status === 'SOLICITADO');
-                cancelBtn.onclick = async () => {
-                    const id = Number(appt.id);
-                    if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
-                    try {
-                        cancelBtn.disabled = true;
-                        cancelBtn.innerText = 'Cancelando...';
-                        await services.deleteAppointment(id);
-                        showNotification('Agendamento cancelado com sucesso!');
-                        renderAppointments();
-                    } catch (error) {
-                        showNotification('Erro ao cancelar: ' + error.message, 'error');
-                        cancelBtn.disabled = false;
-                        cancelBtn.innerText = 'Cancelar reserva';
-                    }
-                };
-
-                card.appendChild(header);
-                card.appendChild(details);
-                card.appendChild(price);
-                card.appendChild(cancelBtn);
-
-                appointmentsList.appendChild(card);
+                appointmentsList.appendChild(buildAppointmentCard(appt));
             });
         } catch (error) {
             renderStatus(appointmentsList, 'Erro ao carregar agendamentos.');
         }
+    }
+
+    function getAppointmentStatusLabel(status) {
+        if (status === 'SOLICITADO') return 'Cancelar solicitação';
+        if (status === 'AGENDADO') return 'Cancelar reserva';
+        if (status === 'RECUSADO') return 'Recusado';
+        if (status === 'CONCLUIDO') return 'Concluído';
+        return 'Cancelado';
+    }
+
+    function buildAppointmentCard(appt) {
+        const barbeiroNome = appt.barbeiro?.nome_profissional || appt.barbeiro?.nome || `#${appt.barbeiro_id}`;
+        const servico = appt.servicos?.[0];
+        const servicoNome = servico?.nome || 'Serviço';
+        const servicoPreco = servico?.preco_centavos ?? appt.valor_total_centavos ?? 0;
+        const dataHora = new Date(appt.inicio);
+        const dataFmt = dataHora.toLocaleDateString('pt-BR');
+        const horaFmt = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        const { card } = createCardWithHeader({
+            title: barbeiroNome,
+            status: appt.status,
+            icon: 'content_cut',
+            className: 'appointment-card',
+            headerClass: 'appointment-header',
+            titleClass: 'appointment-title',
+            statusClass: 'appointment-status'
+        });
+        card.dataset.id = String(appt.id);
+
+        const details = document.createElement('div');
+        details.className = 'appointment-details';
+        details.appendChild(createInfoRow('Serviço:', servicoNome));
+        details.appendChild(createInfoRow('Data:', `${dataFmt} às ${horaFmt}`));
+
+        const price = document.createElement('div');
+        price.className = 'appointment-price';
+        price.textContent = formatCurrency(servicoPreco);
+
+        const cancelBtn = createButton(getAppointmentStatusLabel(appt.status), 'btn-cancel');
+        cancelBtn.disabled = !(appt.status === 'AGENDADO' || appt.status === 'SOLICITADO');
+        cancelBtn.onclick = async () => {
+            const id = Number(appt.id);
+            if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+            try {
+                cancelBtn.disabled = true;
+                cancelBtn.innerText = 'Cancelando...';
+                await services.deleteAppointment(id);
+                showNotification('Agendamento cancelado com sucesso!');
+                renderAppointments();
+            } catch (error) {
+                showNotification('Erro ao cancelar: ' + error.message, 'error');
+                cancelBtn.disabled = false;
+                cancelBtn.innerText = 'Cancelar reserva';
+            }
+        };
+
+        card.appendChild(details);
+        card.appendChild(price);
+        card.appendChild(cancelBtn);
+
+        return card;
     }
 
     async function loadProfileTimeSlots() {
@@ -629,45 +665,23 @@ document.addEventListener('DOMContentLoaded', () => {
         title.style.marginBottom = '1rem';
         title.textContent = 'Resumo do Pedido';
 
-        const row = (label, value) => {
-            const line = document.createElement('div');
-            line.style.display = 'flex';
-            line.style.justifyContent = 'space-between';
-            line.style.marginBottom = '0.8rem';
-            const l = document.createElement('strong');
-            l.textContent = label;
-            const v = document.createElement('span');
-            v.textContent = value;
-            line.appendChild(l);
-            line.appendChild(v);
-            return line;
-        };
-
         summary.appendChild(title);
-        summary.appendChild(row('Profissional:', state.selectedProfessional.nome_profissional || state.selectedProfessional.nome));
-        summary.appendChild(row('Serviço:', state.selectedService.nome));
+        summary.appendChild(createInfoRow('Profissional:', state.selectedProfessional.nome_profissional || state.selectedProfessional.nome));
+        summary.appendChild(createInfoRow('Serviço:', state.selectedService.nome));
         summary.appendChild(
-            row(
+            createInfoRow(
                 'Agendado para:',
                 `${new Date(state.selectedTime).toLocaleDateString('pt-BR')} às ${new Date(state.selectedTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
             )
         );
 
-        const totalRow = document.createElement('div');
-        totalRow.style.display = 'flex';
-        totalRow.style.justifyContent = 'space-between';
+        const totalRow = createInfoRow('Total:', formatCurrency(state.selectedService.preco_centavos));
         totalRow.style.marginTop = '1.5rem';
         totalRow.style.borderTop = '2px solid var(--primary)';
         totalRow.style.paddingTop = '1rem';
         totalRow.style.color = 'var(--primary)';
         totalRow.style.fontSize = '1.3rem';
         totalRow.style.fontWeight = '700';
-        const totalLabel = document.createElement('strong');
-        totalLabel.textContent = 'Total:';
-        const totalValue = document.createElement('span');
-        totalValue.textContent = formatCurrency(state.selectedService.preco_centavos);
-        totalRow.appendChild(totalLabel);
-        totalRow.appendChild(totalValue);
         summary.appendChild(totalRow);
 
         const note = document.createElement('div');
