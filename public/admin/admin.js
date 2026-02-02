@@ -155,6 +155,7 @@ const createFormGroup = ui.createFormGroup || ((labelText, fieldEl, className = 
   if (fieldEl) group.appendChild(fieldEl);
   return group;
 });
+const createPhotoGroup = ui.createPhotoGroup;
 const renderStatus = ui.renderStatus || ((container, message, className = 'status') => {
   if (!container) return;
   container.replaceChildren();
@@ -1139,32 +1140,33 @@ function editarServico(servico) {
   container.classList.add('modal-form', 'service-modal');
   const grid = el('div', 'form-grid service-form');
 
-  const fotoGroup = el('div', 'form-group photo-group');
-  fotoGroup.appendChild(el('label', null, 'Imagem'));
-  const preview = el('div', 'preview-avatar');
-  const previewIcon = el('span', 'material-icons', 'image');
-  if (servico.foto_url) {
-    const img = document.createElement('img');
-    img.src = servico.foto_url;
-    img.alt = servico.nome;
-    img.onerror = () => {
-      preview.replaceChildren(previewIcon);
-    };
-    preview.appendChild(img);
-  } else {
-    preview.appendChild(previewIcon);
-  }
-  const fotoRow = el('div', 'photo-actions');
-  const fotoInput = el('input', 'hidden-file');
-  fotoInput.type = 'file';
-  fotoInput.accept = 'image/*';
-  const fotoBtn = el('button', 'btn ghost', 'Trocar imagem');
-  const removeBtn = el('button', 'btn danger', 'Remover imagem');
-  fotoRow.appendChild(fotoBtn);
-  fotoRow.appendChild(removeBtn);
-  fotoRow.appendChild(fotoInput);
-  fotoGroup.appendChild(preview);
-  fotoGroup.appendChild(fotoRow);
+  const photo = createPhotoGroup?.({
+    label: 'Imagem',
+    icon: 'image',
+    imageUrl: servico.foto_url,
+    alt: servico.nome,
+    changeLabel: 'Trocar imagem',
+    removeLabel: 'Remover imagem',
+    onFileSelected: ({ file, updatePreview, input, removeBtn }) => {
+      const err = validateImageFile(file);
+      if (err) {
+        showToast(err, 'error');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        updatePreview(String(reader.result));
+        removeBtn.disabled = false;
+      };
+      reader.readAsDataURL(file);
+    },
+    onRemove: () => {}
+  });
+  const fotoGroup = photo?.group || el('div', 'form-group photo-group');
+  const preview = photo?.preview;
+  const fotoInput = photo?.fileInput;
+  const removeBtn = photo?.removeBtn;
 
   const s0 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s0, servico.barbeiro_id);
@@ -1196,12 +1198,11 @@ function editarServico(servico) {
 
   openModal('Editar Serviço', container);
 
-  fotoBtn.addEventListener('click', () => fotoInput.click());
-  if (!servico.foto_url) {
+  if (!servico.foto_url && removeBtn) {
     removeBtn.disabled = true;
   }
 
-  fotoInput.addEventListener('change', async () => {
+  fotoInput?.addEventListener('change', async () => {
     const file = fotoInput.files?.[0];
     if (!file) return;
     const err = validateImageFile(file);
@@ -1215,7 +1216,7 @@ function editarServico(servico) {
       formData.append('foto', file);
       const updated = await requestFormData(`/servicos/${servico.id}/foto`, formData);
       servico.foto_url = updated?.foto_url || servico.foto_url;
-      if (servico.foto_url) {
+      if (servico.foto_url && preview) {
         const img = document.createElement('img');
         img.src = servico.foto_url;
         img.alt = servico.nome;
@@ -1223,7 +1224,7 @@ function editarServico(servico) {
           preview.replaceChildren(el('span', 'material-icons', 'image'));
         };
         preview.replaceChildren(img);
-        removeBtn.disabled = false;
+        if (removeBtn) removeBtn.disabled = false;
       }
       const cardMedia = document.querySelector(`.card[data-id="${servico.id}"] .service-media`);
       if (cardMedia) {
@@ -1243,16 +1244,16 @@ function editarServico(servico) {
     }
   });
 
-  removeBtn.addEventListener('click', () => withButtonLock(removeBtn, async () => {
+  removeBtn?.addEventListener('click', () => withButtonLock(removeBtn, async () => {
     try {
       const updated = await request(`/servicos/${servico.id}/foto`, { method: 'DELETE' });
       servico.foto_url = updated?.foto_url || null;
-      preview.replaceChildren(el('span', 'material-icons', 'image'));
+      if (preview) preview.replaceChildren(el('span', 'material-icons', 'image'));
       const cardMedia = document.querySelector(`.card[data-id="${servico.id}"] .service-media`);
       if (cardMedia) {
         cardMedia.replaceChildren(el('span', 'material-icons', 'image'));
       }
-      removeBtn.disabled = true;
+      if (removeBtn) removeBtn.disabled = true;
       showToast('Imagem removida.');
     } catch (err) {
       showToast(err.message, 'error');
@@ -1395,32 +1396,33 @@ function editarBarbeiro(barbeiro) {
   const g2 = createFormGroup('Bio', i2);
   const g3 = createFormGroup('Ativo', s1);
 
-  const fotoGroup = el('div', 'form-group photo-group');
-  fotoGroup.appendChild(el('label', null, 'Foto'));
-  const preview = el('div', 'avatar preview-avatar');
-  if (barbeiro.foto_url) {
-    const img = el('img');
-    img.src = barbeiro.foto_url;
-    img.alt = barbeiro.nome_profissional || 'Barbeiro';
-    img.onerror = () => {
-      img.remove();
-      preview.appendChild(el('span', 'material-icons', 'person'));
-    };
-    preview.appendChild(img);
-  } else {
-    preview.appendChild(el('span', 'material-icons', 'person'));
-  }
-  const fotoRow = el('div', 'photo-actions');
-  const fotoInput = el('input', 'hidden-file');
-  fotoInput.type = 'file';
-  fotoInput.accept = 'image/*';
-  const fotoBtn = el('button', 'btn ghost', 'Trocar foto');
-  const removeBtn = el('button', 'btn danger', 'Remover foto');
-  fotoRow.appendChild(fotoBtn);
-  fotoRow.appendChild(removeBtn);
-  fotoRow.appendChild(fotoInput);
-  fotoGroup.appendChild(preview);
-  fotoGroup.appendChild(fotoRow);
+  const photo = createPhotoGroup?.({
+    label: 'Foto',
+    icon: 'person',
+    imageUrl: barbeiro.foto_url,
+    alt: barbeiro.nome_profissional || 'Barbeiro',
+    changeLabel: 'Trocar foto',
+    removeLabel: 'Remover foto',
+    onFileSelected: ({ file, updatePreview, input, removeBtn }) => {
+      const error = validateImageFile(file);
+      if (error) {
+        showToast(error, 'error');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        updatePreview(String(reader.result));
+        removeBtn.disabled = false;
+      };
+      reader.readAsDataURL(file);
+    },
+    onRemove: () => {}
+  });
+  const fotoGroup = photo?.group || el('div', 'form-group photo-group');
+  const preview = photo?.preview;
+  const fotoInput = photo?.fileInput;
+  const removeBtn = photo?.removeBtn;
 
   grid.appendChild(fotoGroup);
   grid.appendChild(g1);
@@ -1435,38 +1437,19 @@ function editarBarbeiro(barbeiro) {
 
   openModal('Editar Barbeiro', container);
 
-  fotoBtn.addEventListener('click', () => fotoInput.click());
-  if (!barbeiro.foto_url) {
+  if (!barbeiro.foto_url && removeBtn) {
     removeBtn.disabled = true;
   }
-  fotoInput.addEventListener('change', () => {
-    const file = fotoInput.files?.[0];
-    if (!file) return;
-    const error = validateImageFile(file);
-    if (error) {
-      showToast(error, 'error');
-      fotoInput.value = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      preview.replaceChildren();
-      const img = el('img');
-      img.src = String(reader.result);
-      img.alt = barbeiro.nome_profissional || 'Barbeiro';
-      preview.appendChild(img);
-      removeBtn.disabled = false;
-    };
-    reader.readAsDataURL(file);
-  });
 
-  removeBtn.addEventListener('click', () => withButtonLock(removeBtn, async () => {
+  removeBtn?.addEventListener('click', () => withButtonLock(removeBtn, async () => {
     try {
       await request(`/barbeiros/${barbeiro.id}/foto`, { method: 'DELETE' });
       barbeiro.foto_url = null;
-      preview.replaceChildren();
-      preview.appendChild(el('span', 'material-icons', 'person'));
-      removeBtn.disabled = true;
+      if (preview) {
+        preview.replaceChildren();
+        preview.appendChild(el('span', 'material-icons', 'person'));
+      }
+      if (removeBtn) removeBtn.disabled = true;
       showToast('Foto removida.');
     } catch (err) {
       showToast(err.message, 'error');
@@ -1475,7 +1458,7 @@ function editarBarbeiro(barbeiro) {
 
   saveBtn.addEventListener('click', () => withButtonLock(saveBtn, async () => {
     try {
-      if (fotoInput.files && fotoInput.files[0]) {
+      if (fotoInput?.files && fotoInput.files[0]) {
         const formData = new FormData();
         formData.append('foto', fotoInput.files[0]);
         const updated = await requestFormData(`/barbeiros/${barbeiro.id}/foto`, formData);

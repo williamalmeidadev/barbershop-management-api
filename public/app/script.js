@@ -4,9 +4,42 @@ const formatCurrency = ui.formatCurrency || ((centavos) => {
     const value = Number(centavos || 0) / 100;
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 });
+const el = ui.el || ((tag, className, text) => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+});
 const createCard = ui.createCard || ((className = 'card') => {
     const card = document.createElement('div');
     card.className = className;
+    return card;
+});
+const createButton = ui.createButton || ((label, className = 'btn') => {
+    const btn = document.createElement('button');
+    btn.className = className;
+    btn.textContent = label;
+    return btn;
+});
+const createActionsRow = ui.createActionsRow || ((actions = [], className = 'card-actions') => {
+    const row = document.createElement('div');
+    row.className = className;
+    actions.forEach((btn) => btn && row.appendChild(btn));
+    return row;
+});
+const createCardWithLines = ui.createCardWithLines || (({ title, lines = [], actions = [], className = 'card', titleTag = 'strong' }) => {
+    const card = createCard(className);
+    if (title) {
+        const titleEl = document.createElement(titleTag);
+        titleEl.textContent = title;
+        card.appendChild(titleEl);
+    }
+    lines.forEach((text) => {
+        const line = document.createElement('small');
+        line.textContent = text;
+        card.appendChild(line);
+    });
+    if (actions.length) card.appendChild(createActionsRow(actions));
     return card;
 });
 const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', className = 'media', imgClass } = {}) => {
@@ -451,7 +484,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            appointmentsList.innerHTML = appointments.map(appt => {
+            appointmentsList.replaceChildren();
+            appointments.forEach((appt) => {
                 const barbeiroNome = appt.barbeiro?.nome_profissional || appt.barbeiro?.nome || `#${appt.barbeiro_id}`;
                 const servico = appt.servicos?.[0];
                 const servicoNome = servico?.nome || 'Serviço';
@@ -460,46 +494,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dataFmt = dataHora.toLocaleDateString('pt-BR');
                 const horaFmt = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                return `
-                <div class="appointment-card" data-id="${appt.id}">
-                    <div class="appointment-header">
-                        <h3 style="margin: 0;">${barbeiroNome}</h3>
-                        <span class="appointment-status">${appt.status}</span>
-                    </div>
-                    <div class="appointment-details">
-                        <p><span class="material-icons">content_cut</span> ${servicoNome}</p>
-                        <p><span class="material-icons">calendar_today</span> ${dataFmt} às ${horaFmt}</p>
-                    </div>
-                    <div class="appointment-price">
-                        ${formatCurrency(servicoPreco)}
-                    </div>
-                    <button class="btn-cancel" data-id="${appt.id}" ${!(appt.status === 'AGENDADO' || appt.status === 'SOLICITADO') ? 'disabled' : ''}>
-                        ${appt.status === 'SOLICITADO' ? 'Cancelar solicitação' : appt.status === 'AGENDADO' ? 'Cancelar reserva' : appt.status === 'RECUSADO' ? 'Recusado' : appt.status === 'CONCLUIDO' ? 'Concluído' : 'Cancelado'}
-                    </button>
-                </div>
-            `;
-            }).join('');
+                const card = createCard('appointment-card');
+                card.dataset.id = String(appt.id);
 
-            appointmentsList.querySelectorAll('.btn-cancel').forEach(btn => {
-                btn.onclick = async () => {
-                    const id = parseInt(btn.dataset.id);
-                    if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
-                        try {
-                            btn.disabled = true;
-                            btn.innerText = 'Cancelando...';
-                            await services.deleteAppointment(id);
-                            showNotification('Agendamento cancelado com sucesso!');
-                            renderAppointments();
-                        } catch (error) {
-                            showNotification('Erro ao cancelar: ' + error.message, 'error');
-                            btn.disabled = false;
-                            btn.innerText = 'Cancelar reserva';
-                        }
+                const header = document.createElement('div');
+                header.className = 'appointment-header';
+                const title = document.createElement('h3');
+                title.style.margin = '0';
+                title.textContent = barbeiroNome;
+                const status = document.createElement('span');
+                status.className = 'appointment-status';
+                status.textContent = appt.status;
+                header.appendChild(title);
+                header.appendChild(status);
+
+                const details = document.createElement('div');
+                details.className = 'appointment-details';
+                details.appendChild(el('p', null, `Serviço: ${servicoNome}`));
+                details.appendChild(el('p', null, `Data: ${dataFmt} às ${horaFmt}`));
+
+                const price = document.createElement('div');
+                price.className = 'appointment-price';
+                price.textContent = formatCurrency(servicoPreco);
+
+                const cancelBtn = createButton(
+                    appt.status === 'SOLICITADO'
+                        ? 'Cancelar solicitação'
+                        : appt.status === 'AGENDADO'
+                            ? 'Cancelar reserva'
+                            : appt.status === 'RECUSADO'
+                                ? 'Recusado'
+                                : appt.status === 'CONCLUIDO'
+                                    ? 'Concluído'
+                                    : 'Cancelado',
+                    'btn-cancel'
+                );
+                cancelBtn.disabled = !(appt.status === 'AGENDADO' || appt.status === 'SOLICITADO');
+                cancelBtn.onclick = async () => {
+                    const id = Number(appt.id);
+                    if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+                    try {
+                        cancelBtn.disabled = true;
+                        cancelBtn.innerText = 'Cancelando...';
+                        await services.deleteAppointment(id);
+                        showNotification('Agendamento cancelado com sucesso!');
+                        renderAppointments();
+                    } catch (error) {
+                        showNotification('Erro ao cancelar: ' + error.message, 'error');
+                        cancelBtn.disabled = false;
+                        cancelBtn.innerText = 'Cancelar reserva';
                     }
                 };
+
+                card.appendChild(header);
+                card.appendChild(details);
+                card.appendChild(price);
+                card.appendChild(cancelBtn);
+
+                appointmentsList.appendChild(card);
             });
         } catch (error) {
-            appointmentsList.innerHTML = '<p style="grid-column: 1/-1; color: var(--primary);">Erro ao carregar agendamentos.</p>';
+            renderStatus(appointmentsList, 'Erro ao carregar agendamentos.');
         }
     }
 
