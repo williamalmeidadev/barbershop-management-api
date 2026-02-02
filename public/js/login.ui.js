@@ -32,6 +32,6 @@
     title: 'Bem-vindo',
     subtitle: 'Acesse sua conta para continuar',
     bodyNodes: [form, errorBox, footer, adminLink],
-    footerNote: '© 2026 BarberMarket. Todos os direitos reservados.'
+    footerNote: '© 2026 AlphaCuts. Todos os direitos reservados.'
   });
 })();

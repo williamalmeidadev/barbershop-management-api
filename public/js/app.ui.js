@@ -25,9 +25,9 @@
   appendChildren(main, [hero, professionals, services, about, profile, bookingWizard, appointments]);
 
   const footer = createFooter({
-    brand: 'BarberMarket',
+    brand: 'AlphaCuts',
     location: 'Brasil',
-    note: '© 2026 BarberMarket. Tradição e Tecnologia.'
+    note: '© 2026 AlphaCuts. Tradição e Tecnologia.'
   });
 
   appendChildren(appRoot, [header, main, footer]);

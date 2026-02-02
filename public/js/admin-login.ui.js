@@ -25,6 +25,6 @@
     title: 'Setor Administrativo',
     subtitle: 'Acesso restrito para gestão da barbearia.',
     bodyNodes: [form, errorBox],
-    footerNote: '© 2026 BarberMarket. Tradição e Tecnologia.'
+    footerNote: '© 2026 AlphaCuts. Tradição e Tecnologia.'
   });
 })();

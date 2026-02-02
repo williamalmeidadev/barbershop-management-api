@@ -191,12 +191,12 @@
       text.className = 'about-text';
       const h2 = document.createElement('h2');
       h2.className = 'section-title';
-      h2.textContent = 'Sobre a BarberMarket';
+      h2.textContent = 'Sobre a AlphaCuts';
       const lead = document.createElement('p');
       lead.className = 'lead';
       lead.textContent = 'Tradição e estilo se encontram aqui.';
       const p1 = document.createElement('p');
-      p1.textContent = 'Fundada com o objetivo de conectar os melhores profissionais aos clientes mais exigentes, a BarberMarket moderniza a experiência da barbearia clássica.';
+      p1.textContent = 'Fundada com o objetivo de conectar os melhores profissionais aos clientes mais exigentes, a AlphaCuts moderniza a experiência da barbearia clássica.';
       const p2 = document.createElement('p');
       p2.textContent = 'Nossa plataforma garante agilidade no agendamento e qualidade no serviço, permitindo que você encontre o profissional ideal para o seu estilo.';
       const list = document.createElement('ul');
