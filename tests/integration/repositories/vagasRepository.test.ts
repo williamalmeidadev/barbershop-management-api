@@ -25,7 +25,7 @@ describe('VagasRepository Integration', function () {
 
     async function clearTables() {
         // Order matters due to FKs
-        const tables = ['agendamento_vagas', 'agendamentos', 'vagas', 'barbeiros', 'clientes'];
+        const tables = ['agendamento_servicos', 'agendamento_vagas', 'agendamentos', 'vagas', 'servicos', 'barbeiros', 'clientes'];
         for (const table of tables) {
             await new Promise<void>((resolve, reject) => {
                 db.run(`DELETE FROM ${table}`, (err) => {

@@ -68,7 +68,7 @@ describe('Agendamentos Route Integration (E2E)', function () {
 
         // 3. Create Service
         servicoId = await new Promise<number>((resolve, reject) => {
-            db.run(`INSERT INTO servicos (nome, duracao_minutos, preco_centavos, ativo) VALUES ('Corte E2E', 30, 5000, 1)`, function (err) {
+            db.run(`INSERT INTO servicos (nome, duracao_minutos, preco_centavos, ativo, barbeiro_id) VALUES ('Corte E2E', 30, 5000, 1, ?)`, [barbeiroId], function (err) {
                 if (err) reject(err); else resolve(this.lastID);
             });
         });
@@ -114,7 +114,7 @@ describe('Agendamentos Route Integration (E2E)', function () {
 
         expect(res.status).to.equal(201);
         expect(res.body).to.have.property('id');
-        expect(res.body).to.have.property('status', 'AGENDADO');
+        expect(res.body).to.have.property('status', 'SOLICITADO');
         expect(res.body).to.have.property('cliente_id', clienteId);
         expect(res.body).to.have.property('barbeiro_id', barbeiroId);
     });
