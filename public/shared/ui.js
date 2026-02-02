@@ -42,6 +42,80 @@
     return card;
   };
 
+  const createInfoList = (lines, tag = 'small') => {
+    const frag = document.createDocumentFragment();
+    (lines || []).forEach((text) => {
+      const node = document.createElement(tag);
+      node.textContent = text;
+      frag.appendChild(node);
+    });
+    return frag;
+  };
+
+  const createActionsRow = (actions = [], className = 'card-actions') => {
+    const row = document.createElement('div');
+    row.className = className;
+    actions.forEach((btn) => btn && row.appendChild(btn));
+    return row;
+  };
+
+  const createCardWithLines = ({ title, lines = [], actions = [], className = 'card', titleTag = 'strong' }) => {
+    const card = createCard(className);
+    if (title) {
+      const titleEl = document.createElement(titleTag);
+      titleEl.textContent = title;
+      card.appendChild(titleEl);
+    }
+    card.appendChild(createInfoList(lines));
+    if (actions.length) {
+      card.appendChild(createActionsRow(actions));
+    }
+    return card;
+  };
+
+  const createInput = ({
+    type = 'text',
+    value,
+    placeholder,
+    min,
+    max,
+    step,
+    className
+  } = {}) => {
+    const input = document.createElement('input');
+    input.type = type;
+    if (className) input.className = className;
+    if (value !== undefined) input.value = value;
+    if (placeholder) input.placeholder = placeholder;
+    if (min !== undefined) input.min = String(min);
+    if (max !== undefined) input.max = String(max);
+    if (step !== undefined) input.step = String(step);
+    return input;
+  };
+
+  const createSelect = ({ options = [], value, className } = {}) => {
+    const select = document.createElement('select');
+    if (className) select.className = className;
+    options.forEach((opt) => {
+      const option = document.createElement('option');
+      option.value = String(opt.value);
+      option.textContent = opt.label;
+      if (value !== undefined && String(value) === String(opt.value)) option.selected = true;
+      select.appendChild(option);
+    });
+    return select;
+  };
+
+  const createFormGroup = (labelText, fieldEl, className = 'form-group') => {
+    const group = document.createElement('div');
+    group.className = className;
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    group.appendChild(label);
+    if (fieldEl) group.appendChild(fieldEl);
+    return group;
+  };
+
   const createModalController = ({ modal, titleEl, bodyEl, closeEl }) => {
     if (!modal || !bodyEl) {
       return {
@@ -115,6 +189,12 @@
     createIcon,
     createMedia,
     createCard,
+    createInfoList,
+    createActionsRow,
+    createCardWithLines,
+    createInput,
+    createSelect,
+    createFormGroup,
     createModalController,
     toast,
     renderStatus,

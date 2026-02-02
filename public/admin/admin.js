@@ -102,6 +102,59 @@ const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', classNa
   wrap.appendChild(createIcon(icon));
   return wrap;
 });
+const createActionsRow = ui.createActionsRow || ((actions = [], className = 'card-actions') => {
+  const row = document.createElement('div');
+  row.className = className;
+  actions.forEach((btn) => btn && row.appendChild(btn));
+  return row;
+});
+const createCardWithLines = ui.createCardWithLines || (({ title, lines = [], actions = [], className = 'card', titleTag = 'strong' }) => {
+  const card = createCard(className);
+  if (title) {
+    const titleEl = document.createElement(titleTag);
+    titleEl.textContent = title;
+    card.appendChild(titleEl);
+  }
+  lines.forEach((text) => {
+    const line = document.createElement('small');
+    line.textContent = text;
+    card.appendChild(line);
+  });
+  if (actions.length) card.appendChild(createActionsRow(actions));
+  return card;
+});
+const createInput = ui.createInput || ((opts = {}) => {
+  const input = document.createElement('input');
+  if (opts.type) input.type = opts.type;
+  if (opts.value !== undefined) input.value = opts.value;
+  if (opts.placeholder) input.placeholder = opts.placeholder;
+  if (opts.min !== undefined) input.min = String(opts.min);
+  if (opts.max !== undefined) input.max = String(opts.max);
+  if (opts.step !== undefined) input.step = String(opts.step);
+  if (opts.className) input.className = opts.className;
+  return input;
+});
+const createSelect = ui.createSelect || (({ options = [], value, className } = {}) => {
+  const select = document.createElement('select');
+  if (className) select.className = className;
+  options.forEach((opt) => {
+    const option = document.createElement('option');
+    option.value = String(opt.value);
+    option.textContent = opt.label;
+    if (value !== undefined && String(value) === String(opt.value)) option.selected = true;
+    select.appendChild(option);
+  });
+  return select;
+});
+const createFormGroup = ui.createFormGroup || ((labelText, fieldEl, className = 'form-group') => {
+  const group = document.createElement('div');
+  group.className = className;
+  const label = document.createElement('label');
+  label.textContent = labelText;
+  group.appendChild(label);
+  if (fieldEl) group.appendChild(fieldEl);
+  return group;
+});
 const renderStatus = ui.renderStatus || ((container, message, className = 'status') => {
   if (!container) return;
   container.replaceChildren();
@@ -436,19 +489,21 @@ function renderClientes(clientes) {
   }
 
   clientes.forEach(c => {
-    const card = createCard('card');
-    card.appendChild(el('strong', null, c.nome));
-    card.appendChild(el('small', null, c.email));
-    card.appendChild(el('small', null, `Status: ${c.ativo === 1 ? 'Ativo' : 'Desativado'}`));
-    card.appendChild(el('small', null, `Concluídos: ${c.concluidos_count || 0}`));
-    card.appendChild(el('small', null, `Desconto: ${formatCurrency(c.desconto_disponivel_centavos || 0)}`));
+    const actions = [];
+    const editBtn = createButton('Editar', 'btn ghost');
+    const toggleBtn = createButton(c.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${c.ativo === 1 ? 'danger' : ''}`);
+    actions.push(editBtn, toggleBtn);
 
-    const actions = el('div', 'card-actions');
-    const editBtn = el('button', 'btn ghost', 'Editar');
-    const toggleBtn = el('button', `btn ${c.ativo === 1 ? 'danger' : ''}`, c.ativo === 1 ? 'Desativar' : 'Ativar');
-    actions.appendChild(editBtn);
-    actions.appendChild(toggleBtn);
-    card.appendChild(actions);
+    const card = createCardWithLines({
+      title: c.nome,
+      lines: [
+        c.email,
+        `Status: ${c.ativo === 1 ? 'Ativo' : 'Desativado'}`,
+        `Concluídos: ${c.concluidos_count || 0}`,
+        `Desconto: ${formatCurrency(c.desconto_disponivel_centavos || 0)}`
+      ],
+      actions
+    });
 
     editBtn.addEventListener('click', () => editarCliente(c));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleCliente(c.id, c.ativo)));
@@ -585,24 +640,25 @@ function renderAgendamentos(items) {
       a.cliente_nome ||
       a.clienteName ||
       (a.cliente_id ? `#${a.cliente_id}` : '—');
-    const card = createCard('card');
-    card.appendChild(el('strong', null, `#${a.id} - ${a.status}`));
-    card.appendChild(el('small', null, `Cliente: ${clienteNome}`));
-    card.appendChild(el('small', null, `Barbeiro: ${a.barbeiro?.nome_profissional || a.barbeiro_id}`));
-    card.appendChild(el('small', null, `Início: ${new Date(a.inicio).toLocaleString('pt-BR')}`));
-    card.appendChild(el('small', null, `Valor: ${formatCurrency(a.valor_total_centavos)}`));
-    if (a.pagamento_tipo) {
-      card.appendChild(el('small', null, `Pagamento: ${a.pagamento_tipo}`));
-    }
-
-    const actions = el('div', 'card-actions');
+    const actions = [];
     const detailsBtn = createButton('Detalhes', 'btn ghost');
     const concludeBtn = createButton('Concluir', 'btn primary');
     const cancelBtn = createButton('Cancelar', 'btn danger');
-    actions.appendChild(detailsBtn);
-    actions.appendChild(concludeBtn);
-    actions.appendChild(cancelBtn);
-    card.appendChild(actions);
+    actions.push(detailsBtn, concludeBtn, cancelBtn);
+
+    const lines = [
+      `Cliente: ${clienteNome}`,
+      `Barbeiro: ${a.barbeiro?.nome_profissional || a.barbeiro_id}`,
+      `Início: ${new Date(a.inicio).toLocaleString('pt-BR')}`,
+      `Valor: ${formatCurrency(a.valor_total_centavos)}`
+    ];
+    if (a.pagamento_tipo) lines.push(`Pagamento: ${a.pagamento_tipo}`);
+
+    const card = createCardWithLines({
+      title: `#${a.id} - ${a.status}`,
+      lines,
+      actions
+    });
 
     detailsBtn.addEventListener('click', () => verDetalhes(a));
     if (a.status === 'SOLICITADO') {
@@ -698,19 +754,17 @@ function abrirConcluirAgendamento(id) {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Forma de pagamento'));
-  const select = el('select');
-  ['DINHEIRO', 'PIX', 'CARTAO'].forEach(opt => {
-    const o = document.createElement('option');
-    o.value = opt;
-    o.textContent = opt;
-    select.appendChild(o);
+  const select = createSelect({
+    options: [
+      { value: 'DINHEIRO', label: 'DINHEIRO' },
+      { value: 'PIX', label: 'PIX' },
+      { value: 'CARTAO', label: 'CARTÃO' }
+    ]
   });
-  g1.appendChild(select);
+  const g1 = createFormGroup('Forma de pagamento', select);
   grid.appendChild(g1);
 
-  const confirmBtn = el('button', 'btn', 'Concluir');
+  const confirmBtn = createButton('Concluir', 'btn');
   container.appendChild(grid);
   container.appendChild(confirmBtn);
 
@@ -783,16 +837,19 @@ function renderVagas(vagas) {
   }
 
   vagas.forEach(v => {
-    const card = createCard('card');
-    card.appendChild(el('strong', null, `#${v.id} - ${v.status}`));
-    card.appendChild(el('small', null, `Início: ${new Date(v.inicio).toLocaleString('pt-BR')}`));
-    card.appendChild(el('small', null, `Fim: ${new Date(v.fim).toLocaleString('pt-BR')}`));
-    const actions = el('div', 'card-actions');
+    const actions = [];
     const blockBtn = createButton('Bloquear', 'btn ghost');
     const deleteBtn = createButton('Apagar', 'btn danger');
-    actions.appendChild(blockBtn);
-    actions.appendChild(deleteBtn);
-    card.appendChild(actions);
+    actions.push(blockBtn, deleteBtn);
+
+    const card = createCardWithLines({
+      title: `#${v.id} - ${v.status}`,
+      lines: [
+        `Início: ${new Date(v.inicio).toLocaleString('pt-BR')}`,
+        `Fim: ${new Date(v.fim).toLocaleString('pt-BR')}`
+      ],
+      actions
+    });
 
     blockBtn.addEventListener('click', () => abrirBloqueioVaga(v.barbeiro_id || 0, v.inicio));
     deleteBtn.addEventListener('click', () => withButtonLock(deleteBtn, () => apagarVaga(v.id)));
@@ -1084,35 +1141,18 @@ btnNovoServico.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const g0 = el('div', 'form-group');
-  g0.appendChild(el('label', null, 'Barbeiro'));
-  const s0 = el('select', 'barbeiro-select');
+  const s0 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s0);
-  g0.appendChild(s0);
+  const i1 = createInput();
+  const i2 = createInput();
+  const i3 = createInput({ type: 'number', min: 1 });
+  const i4 = createInput({ type: 'number', min: 0 });
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Nome'));
-  const i1 = el('input');
-  g1.appendChild(i1);
-
-  const g2 = el('div', 'form-group');
-  g2.appendChild(el('label', null, 'Descrição'));
-  const i2 = el('input');
-  g2.appendChild(i2);
-
-  const g3 = el('div', 'form-group');
-  g3.appendChild(el('label', null, 'Duração (min)'));
-  const i3 = el('input');
-  i3.type = 'number';
-  i3.min = '1';
-  g3.appendChild(i3);
-
-  const g4 = el('div', 'form-group');
-  g4.appendChild(el('label', null, 'Preço (centavos)'));
-  const i4 = el('input');
-  i4.type = 'number';
-  i4.min = '0';
-  g4.appendChild(i4);
+  const g0 = createFormGroup('Barbeiro', s0);
+  const g1 = createFormGroup('Nome', i1);
+  const g2 = createFormGroup('Descrição', i2);
+  const g3 = createFormGroup('Duração (min)', i3);
+  const g4 = createFormGroup('Preço (centavos)', i4);
 
   grid.appendChild(g0);
   grid.appendChild(g1);
@@ -1120,7 +1160,7 @@ btnNovoServico.addEventListener('click', () => {
   grid.appendChild(g3);
   grid.appendChild(g4);
 
-  const saveBtn = el('button', 'btn', 'Registrar');
+  const saveBtn = createButton('Registrar', 'btn');
 
   container.appendChild(grid);
   container.appendChild(saveBtn);
@@ -1154,9 +1194,6 @@ function renderServicos(items) {
   }
 
   items.forEach(s => {
-    const card = createCard('card');
-    card.dataset.id = String(s.id);
-
     const media = createMedia({
       url: s.foto_url,
       alt: s.nome,
@@ -1164,19 +1201,23 @@ function renderServicos(items) {
       className: 'service-media'
     });
 
-    card.appendChild(media);
-    card.appendChild(el('strong', null, s.nome));
-    card.appendChild(el('small', null, s.descricao || '-'));
-    card.appendChild(el('small', null, `Barbeiro: ${getBarbeiroNomeById(s.barbeiro_id)}`));
-    card.appendChild(el('small', null, `Duração: ${s.duracao_minutos} min`));
-    card.appendChild(el('small', null, `Preço: ${formatCurrency(s.preco_centavos)}`));
-
-    const actions = el('div', 'card-actions');
+    const actions = [];
     const editBtn = createButton('Editar', 'btn ghost');
     const toggleBtn = createButton(s.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${s.ativo === 1 ? 'danger' : ''}`);
-    actions.appendChild(editBtn);
-    actions.appendChild(toggleBtn);
-    card.appendChild(actions);
+    actions.push(editBtn, toggleBtn);
+
+    const card = createCardWithLines({
+      title: s.nome,
+      lines: [
+        s.descricao || '-',
+        `Barbeiro: ${getBarbeiroNomeById(s.barbeiro_id)}`,
+        `Duração: ${s.duracao_minutos} min`,
+        `Preço: ${formatCurrency(s.preco_centavos)}`
+      ],
+      actions
+    });
+    card.dataset.id = String(s.id);
+    card.insertBefore(media, card.firstChild);
 
     editBtn.addEventListener('click', () => editarServico(s));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleServico(s.id, s.ativo)));
@@ -1219,35 +1260,19 @@ function editarServico(servico) {
 
   const g0 = el('div', 'form-group');
   g0.appendChild(el('label', null, 'Barbeiro'));
-  const s0 = el('select', 'barbeiro-select');
+  const s0 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s0, servico.barbeiro_id);
   g0.appendChild(s0);
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Nome'));
-  const i1 = el('input');
-  i1.value = servico.nome || '';
-  g1.appendChild(i1);
+  const i1 = createInput({ value: servico.nome || '' });
+  const i2 = createInput({ value: servico.descricao || '' });
+  const i3 = createInput({ type: 'number', value: servico.duracao_minutos });
+  const i4 = createInput({ type: 'number', value: servico.preco_centavos });
 
-  const g2 = el('div', 'form-group');
-  g2.appendChild(el('label', null, 'Descrição'));
-  const i2 = el('input');
-  i2.value = servico.descricao || '';
-  g2.appendChild(i2);
-
-  const g3 = el('div', 'form-group');
-  g3.appendChild(el('label', null, 'Duração'));
-  const i3 = el('input');
-  i3.type = 'number';
-  i3.value = servico.duracao_minutos;
-  g3.appendChild(i3);
-
-  const g4 = el('div', 'form-group');
-  g4.appendChild(el('label', null, 'Preço (centavos)'));
-  const i4 = el('input');
-  i4.type = 'number';
-  i4.value = servico.preco_centavos;
-  g4.appendChild(i4);
+  const g1 = createFormGroup('Nome', i1);
+  const g2 = createFormGroup('Descrição', i2);
+  const g3 = createFormGroup('Duração', i3);
+  const g4 = createFormGroup('Preço (centavos)', i4);
 
   grid.appendChild(fotoGroup);
   grid.appendChild(g0);
@@ -1380,20 +1405,15 @@ btnNovoBarbeiro.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Nome profissional'));
-  const i1 = el('input');
-  g1.appendChild(i1);
-
-  const g2 = el('div', 'form-group');
-  g2.appendChild(el('label', null, 'Bio'));
-  const i2 = el('input');
-  g2.appendChild(i2);
+  const i1 = createInput();
+  const i2 = createInput();
+  const g1 = createFormGroup('Nome profissional', i1);
+  const g2 = createFormGroup('Bio', i2);
 
   grid.appendChild(g1);
   grid.appendChild(g2);
 
-  const saveBtn = el('button', 'btn', 'Registrar');
+  const saveBtn = createButton('Registrar', 'btn');
 
   container.appendChild(grid);
   container.appendChild(saveBtn);
@@ -1424,7 +1444,7 @@ function renderBarbeiros(items) {
   }
 
   items.forEach(b => {
-    const card = el('div', 'card');
+    const card = createCard('card');
     const header = el('div', 'card-header vertical');
     const avatar = createMedia({
       url: b.foto_url,
@@ -1440,12 +1460,9 @@ function renderBarbeiros(items) {
     card.appendChild(header);
     card.appendChild(el('small', null, `Status: ${b.ativo === 1 ? 'Ativo' : 'Desativado'}`));
 
-    const actions = el('div', 'card-actions');
     const editBtn = createButton('Editar', 'btn ghost');
     const toggleBtn = createButton(b.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${b.ativo === 1 ? 'danger' : ''}`);
-    actions.appendChild(editBtn);
-    actions.appendChild(toggleBtn);
-    card.appendChild(actions);
+    card.appendChild(createActionsRow([editBtn, toggleBtn]));
 
     editBtn.addEventListener('click', () => editarBarbeiro(b));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleBarbeiro(b.id, b.ativo)));
@@ -1459,29 +1476,18 @@ function editarBarbeiro(barbeiro) {
   container.classList.add('modal-form', 'barbeiro-modal');
   const grid = el('div', 'form-grid barber-form');
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Nome'));
-  const i1 = el('input');
-  i1.value = barbeiro.nome_profissional || '';
-  g1.appendChild(i1);
-
-  const g2 = el('div', 'form-group');
-  g2.appendChild(el('label', null, 'Bio'));
-  const i2 = el('input');
-  i2.value = barbeiro.bio || '';
-  g2.appendChild(i2);
-
-  const g3 = el('div', 'form-group');
-  g3.appendChild(el('label', null, 'Ativo'));
-  const s1 = el('select');
-  const optA = el('option', null, 'Ativo');
-  optA.value = '1';
-  const optI = el('option', null, 'Inativo');
-  optI.value = '0';
-  if (barbeiro.ativo === 1) optA.selected = true; else optI.selected = true;
-  s1.appendChild(optA);
-  s1.appendChild(optI);
-  g3.appendChild(s1);
+  const i1 = createInput({ value: barbeiro.nome_profissional || '' });
+  const i2 = createInput({ value: barbeiro.bio || '' });
+  const s1 = createSelect({
+    value: barbeiro.ativo === 1 ? '1' : '0',
+    options: [
+      { value: '1', label: 'Ativo' },
+      { value: '0', label: 'Inativo' }
+    ]
+  });
+  const g1 = createFormGroup('Nome', i1);
+  const g2 = createFormGroup('Bio', i2);
+  const g3 = createFormGroup('Ativo', s1);
 
   const fotoGroup = el('div', 'form-group photo-group');
   fotoGroup.appendChild(el('label', null, 'Foto'));
@@ -1515,7 +1521,7 @@ function editarBarbeiro(barbeiro) {
   grid.appendChild(g2);
   grid.appendChild(g3);
 
-  const saveBtn = el('button', 'btn primary', 'Salvar');
+  const saveBtn = createButton('Salvar', 'btn primary');
   const actions = el('div', 'modal-actions center');
   actions.appendChild(saveBtn);
   container.appendChild(grid);

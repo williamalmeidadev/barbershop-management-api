@@ -32,6 +32,17 @@ const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', classNa
     wrap.appendChild(fallback);
     return wrap;
 });
+const renderStatus = ui.renderStatus || ((container, message, className = 'status') => {
+    if (!container) return;
+    container.replaceChildren();
+    const node = document.createElement('div');
+    node.className = className;
+    node.textContent = message;
+    container.appendChild(node);
+});
+const renderLoading = ui.renderLoading || ((container, message = 'Carregando...') => {
+    renderStatus(container, message, 'loading');
+});
 
 function getCookieValue(name) {
     return document.cookie
@@ -212,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!servicesGrid) return;
 
         if (!state.allServices || state.allServices.length === 0) {
-            servicesGrid.innerHTML = '<div class="loading">Carregando serviços...</div>';
+            renderLoading(servicesGrid, 'Carregando serviços...');
             return;
         }
 
@@ -270,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProfessionals() {
         if (!professionalsGrid) return;
         if (!state.professionals.length) {
-            professionalsGrid.innerHTML = '<div class="loading">Nenhum barbeiro disponível no momento.</div>';
+            renderStatus(professionalsGrid, 'Nenhum barbeiro disponível no momento.');
             return;
         }
 
@@ -431,12 +442,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function renderAppointments() {
         if (!appointmentsList) return;
-        appointmentsList.innerHTML = '<div class="loading">Buscando seus agendamentos...</div>';
+        renderLoading(appointmentsList, 'Buscando seus agendamentos...');
 
         try {
             const appointments = await services.fetchUserAppointments();
             if (appointments.length === 0) {
-                appointmentsList.innerHTML = '<p style="grid-column: 1/-1;">Você ainda não possui agendamentos.</p>';
+                renderStatus(appointmentsList, 'Você ainda não possui agendamentos.');
                 return;
             }
 
