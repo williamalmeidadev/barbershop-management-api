@@ -75,7 +75,7 @@ const createCardWithLines = ui.createCardWithLines;
 const createInfoRow = ui.createInfoRow;
 const createInput = adminModals.createInput || ui.createInput;
 const createSelect = adminModals.createSelect || ui.createSelect;
-const createFormGroup = adminModals.createFormGroup || ui.createFormGroup;
+const createFormGroup = ui.createFormGroup;
 const createPhotoGroup = ui.createPhotoGroup;
 const renderStatus = ui.renderStatus;
 const renderCardList = ui.renderCardList;
@@ -1248,13 +1248,13 @@ btnNovoServico?.addEventListener('click', () => {
   const i1 = createInput();
   const i2 = createInput();
   const i3 = createInput({ type: 'number', min: 1 });
-  const i4 = createInput({ type: 'number', min: 0 });
+  const i4 = createInput({ type: 'number', min: 0, step: '0.01' });
 
   const g0 = createFormGroup('Barbeiro', s0);
   const g1 = createFormGroup('Nome', i1);
   const g2 = createFormGroup('Descrição', i2);
-  const g3 = createFormGroup('Duração (min)', i3);
-  const g4 = createFormGroup('Preço (centavos)', i4);
+  const g3 = createFormGroup('Duração (minutos)', i3);
+  const g4 = createFormGroup('Preço (R$)', i4);
 
   grid.appendChild(g0);
   grid.appendChild(g1);
@@ -1277,7 +1277,7 @@ btnNovoServico?.addEventListener('click', () => {
         nome: i1.value,
         descricao: i2.value,
         duracao_minutos: Number(i3.value),
-        preco_centavos: Number(i4.value)
+        preco_centavos: Math.round(Number(i4.value) * 100)
       };
       await request('/servicos', { method: 'POST', body: JSON.stringify(payload) });
       closeModal();
@@ -1380,12 +1380,16 @@ function editarServico(servico) {
   const i1 = createInput({ value: servico.nome || '' });
   const i2 = createInput({ value: servico.descricao || '' });
   const i3 = createInput({ type: 'number', value: servico.duracao_minutos });
-  const i4 = createInput({ type: 'number', value: servico.preco_centavos });
+  const i4 = createInput({
+    type: 'number',
+    step: '0.01',
+    value: servico.preco_centavos ? (servico.preco_centavos / 100).toFixed(2) : ''
+  });
 
   const g1 = createFormGroup('Nome', i1);
   const g2 = createFormGroup('Descrição', i2);
-  const g3 = createFormGroup('Duração', i3);
-  const g4 = createFormGroup('Preço (centavos)', i4);
+  const g3 = createFormGroup('Duração (minutos)', i3);
+  const g4 = createFormGroup('Preço (R$)', i4);
 
   grid.appendChild(fotoGroup);
   grid.appendChild(g0);
@@ -1474,7 +1478,7 @@ function editarServico(servico) {
           nome: i1.value,
           descricao: i2.value,
           duracao_minutos: Number(i3.value),
-          preco_centavos: Number(i4.value)
+          preco_centavos: Math.round(Number(i4.value) * 100)
         })
       });
       closeModal();
