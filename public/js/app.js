@@ -104,6 +104,9 @@ const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', classNa
     wrap.appendChild(fallback);
     return wrap;
 });
+const cards = window.CARDS || {};
+const createServiceCardComponent = cards.createServiceCard;
+const createProfessionalCardComponent = cards.createProfessionalCard;
 const renderStatus = ui.renderStatus || ((container, message, className = 'status') => {
     if (!container) return;
     container.replaceChildren();
@@ -316,7 +319,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        renderCardList(servicesGrid, state.allServices, buildServiceCard, {
+        const renderer = createServiceCardComponent
+            ? (service) => createServiceCardComponent({
+                  name: service.nome,
+                  description: service.descricao,
+                  duration: service.duracao_minutos,
+                  price: service.preco_centavos,
+                  mediaUrl: normalizeImageUrl(service.foto_url)
+              })
+            : buildServiceCard;
+
+        renderCardList(servicesGrid, state.allServices, renderer, {
             emptyMessage: 'Nenhum serviço disponível.'
         });
     }
@@ -365,7 +378,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderProfessionals() {
         if (!professionalsGrid) return;
-        renderCardList(professionalsGrid, state.professionals, buildProfessionalCard, {
+        const renderer = createProfessionalCardComponent
+            ? (pro) =>
+                  createProfessionalCardComponent({
+                      name: pro.nome_profissional || pro.nome,
+                      bio: pro.bio || pro.especialidade,
+                      mediaUrl: normalizeImageUrl(pro.foto_url),
+                      onClick: () => showBarberProfile(pro.id)
+                  })
+            : buildProfessionalCard;
+
+        renderCardList(professionalsGrid, state.professionals, renderer, {
             emptyMessage: 'Nenhum barbeiro disponível no momento.'
         });
     }
