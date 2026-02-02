@@ -308,6 +308,30 @@ function api(path) {
 }
 
 const formatCurrency = ui.formatCurrency;
+const APP_TIMEZONE = 'America/Sao_Paulo';
+const dateFormatterBR = new Intl.DateTimeFormat('pt-BR', { timeZone: APP_TIMEZONE });
+const timeFormatterBR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: APP_TIMEZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit'
+});
+const dateFormatterISO = new Intl.DateTimeFormat('en-CA', { timeZone: APP_TIMEZONE });
+function formatDateBR(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return dateFormatterBR.format(date);
+}
+function formatDateISO(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return dateFormatterISO.format(date);
+}
+function formatDateTimeBR(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return `${dateFormatterBR.format(date)} ${timeFormatterBR.format(date)}`;
+}
 
 function toIsoWithOffset(dateStr, timeStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -736,7 +760,7 @@ async function fetchAgendamentos() {
       if (dataFiltro) {
         const inicio = a.inicio ? new Date(a.inicio) : null;
         if (!inicio || Number.isNaN(inicio.getTime())) return false;
-        const inicioLocal = inicio.toLocaleDateString('en-CA');
+        const inicioLocal = formatDateISO(inicio);
         if (inicioLocal !== dataFiltro) return false;
       }
       if (!termo) return true;
@@ -769,7 +793,7 @@ function renderAgendamentos(items) {
     const lines = [
       `Cliente: ${clienteNome}`,
       `Barbeiro: ${a.barbeiro?.nome_profissional || a.barbeiro_id}`,
-      `Início: ${new Date(a.inicio).toLocaleString('pt-BR')}`,
+      `Início: ${formatDateTimeBR(a.inicio)}`,
       `Valor: ${formatCurrency(a.valor_total_centavos)}`
     ];
     if (a.pagamento_tipo) lines.push(`Pagamento: ${a.pagamento_tipo}`);
@@ -838,8 +862,8 @@ function verDetalhes(agendamento) {
   grid.appendChild(createInfoRow('Status:', agendamento.status));
   grid.appendChild(createInfoRow('Cliente:', clienteNome));
   grid.appendChild(createInfoRow('Barbeiro:', agendamento.barbeiro?.nome_profissional || agendamento.barbeiro_id));
-  grid.appendChild(createInfoRow('Início:', new Date(agendamento.inicio).toLocaleString('pt-BR')));
-  grid.appendChild(createInfoRow('Fim:', new Date(agendamento.fim).toLocaleString('pt-BR')));
+  grid.appendChild(createInfoRow('Início:', formatDateTimeBR(agendamento.inicio)));
+  grid.appendChild(createInfoRow('Fim:', formatDateTimeBR(agendamento.fim)));
   grid.appendChild(createInfoRow('Preço original:', formatCurrency(agendamento.valor_original_centavos)));
   grid.appendChild(createInfoRow('Desconto:', formatCurrency(agendamento.desconto_aplicado_centavos)));
   grid.appendChild(createInfoRow('Final:', formatCurrency(agendamento.valor_total_centavos)));
@@ -868,7 +892,7 @@ function verDetalhes(agendamento) {
     vagasBox.appendChild(vagasUl);
   }
   (agendamento.vagas || []).forEach(v => {
-    vagasUl.appendChild(el('li', null, `${new Date(v.inicio).toLocaleString('pt-BR')} - ${v.status}`));
+    vagasUl.appendChild(el('li', null, `${formatDateTimeBR(v.inicio)} - ${v.status}`));
   });
   if (!agendamento.vagas || agendamento.vagas.length === 0) {
     vagasUl.appendChild(el('li', null, 'Sem vagas'));
@@ -975,8 +999,8 @@ function renderVagas(vagas) {
     actions.push(blockBtn, deleteBtn);
 
     const lines = [
-      `Início: ${new Date(v.inicio).toLocaleString('pt-BR')}`,
-      `Fim: ${new Date(v.fim).toLocaleString('pt-BR')}`
+      `Início: ${formatDateTimeBR(v.inicio)}`,
+      `Fim: ${formatDateTimeBR(v.fim)}`
     ];
 
     const card = adminCards.createVagaCard
