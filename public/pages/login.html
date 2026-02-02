@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - AlphaCuts</title>
 
-    <script>
-        (function () {
-            var path = window.location.pathname;
-            if (path.endsWith('/')) return;
-            if (path.split('/').pop().indexOf('.') !== -1) return;
-            window.location.replace(path + '/' + window.location.search + window.location.hash);
-        })();
+  <script>
+        if (window.location.pathname.startsWith('/server08')) {
+            const base = document.createElement('base');
+            base.href = '/server08/';
+            document.head.appendChild(base);
+        }
+    </script>
     </script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
