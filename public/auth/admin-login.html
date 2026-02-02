@@ -24,72 +24,12 @@
 </head>
 
 <body class="dark-theme">
-  <div id="app">
-    <header class="main-header">
-      <div class="container header-container">
-        <div class="logo">
-          <span class="material-icons">diversity_3</span>
-          <h1>BarberMarket</h1>
-        </div>
-        <nav id="nav-menu">
-          <a href="/" class="nav-link">Explorar</a>
-          <a href="/login" class="nav-button">Login Cliente</a>
-        </nav>
-      </div>
-    </header>
-
-    <main id="content" class="auth-page">
-      <section class="auth-hero auth-hero-simple">
-        <div class="container auth-shell auth-shell-single">
-          <div class="auth-panel">
-            <div class="auth-card">
-              <div class="auth-header">
-                <h3>Setor Administrativo</h3>
-                <p>Acesso restrito para gestão da barbearia.</p>
-              </div>
-
-              <form id="admin-login-form" class="auth-form">
-                <div class="form-group">
-                  <label for="email">E-mail</label>
-                  <input type="email" id="email" placeholder="Email" required />
-                </div>
-
-                <div class="form-group">
-                  <label for="password">Senha</label>
-                  <input type="password" id="password" placeholder="Sua senha" required />
-                </div>
-
-                <button type="submit" id="btn-admin-login" class="primary-button auth-submit">Entrar</button>
-              </form>
-
-              <div id="error-container" class="auth-error-box hidden">
-                <span id="error-msg">Credenciais inválidas</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="main-footer">
-      <div class="container footer-content">
-        <div class="footer-info">
-          <h3>BarberMarket</h3>
-          <p>Brasil</p>
-        </div>
-        <div class="footer-social">
-          <a href="#"><span class="material-icons">facebook</span></a>
-          <a href="#"><span class="material-icons">camera_alt</span></a>
-        </div>
-        <div class="footer-bottom">
-          <p>&copy; 2026 BarberMarket. Tradição e Tecnologia.</p>
-        </div>
-      </div>
-    </footer>
-  </div>
-
+  <div id="app"></div>
   <div id="notification-container"></div>
 
+  <script src="shared/ui.js"></script>
+  <script src="shared/layout.js"></script>
+  <script src="auth/admin-login.ui.js"></script>
   <script src="shared/request.js"></script>
   <script src="shared/notifications.js"></script>
   <script src="auth/admin-login.js"></script>

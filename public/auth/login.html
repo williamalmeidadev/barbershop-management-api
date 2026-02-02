@@ -20,79 +20,12 @@
 </head>
 
 <body class="dark-theme">
-    <div id="app">
-        <header class="main-header">
-            <div class="container header-container">
-                <a href="/" class="logo">
-                    <span class="material-icons">diversity_3</span>
-                    <h1>BarberMarket</h1>
-                </a>
-                <nav id="nav-menu">
-                    <a href="/" class="nav-link">Voltar ao Início</a>
-                </nav>
-            </div>
-        </header>
-
-        <main id="content" class="auth-page">
-            <section class="auth-hero auth-hero-simple">
-                <div class="container auth-shell auth-shell-single">
-                    <div class="auth-panel">
-                        <div class="auth-card">
-                            <div class="auth-header">
-                                <h3>Bem-vindo</h3>
-                                <p>Acesse sua conta para continuar</p>
-                            </div>
-
-                            <form id="login-form" class="auth-form">
-                                <div class="form-group">
-                                    <label for="email">E-mail</label>
-                                    <input type="email" id="email" placeholder="Email" required />
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="password">Senha</label>
-                                    <input type="password" id="password" placeholder="Sua senha secreta" required />
-                                </div>
-
-                                <button type="submit" id="btn-login" class="primary-button auth-submit">
-                                    Acessar Conta
-                                </button>
-                            </form>
-
-                            <div id="error-container" class="auth-error-box hidden">
-                                <span id="error-msg">Credenciais inválidas</span>
-                            </div>
-
-                            <div class="auth-footer">
-                                <span>Ainda não tem conta?</span>
-                                <a href="/register" class="auth-link">Criar conta grátis</a>
-                            </div>
-                            <a href="/admin-login" class="auth-admin-link">Acesso Administrativo</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="main-footer">
-            <div class="container footer-content">
-                <div class="footer-info">
-                    <h3>BarberMarket</h3>
-                    <p>Brasil</p>
-                </div>
-                <div class="footer-social">
-                    <a href="#"><span class="material-icons">facebook</span></a>
-                    <a href="#"><span class="material-icons">camera_alt</span></a>
-                </div>
-                <div class="footer-bottom">
-                    <p>&copy; 2026 BarberMarket. Todos os direitos reservados.</p>
-                </div>
-            </div>
-        </footer>
-    </div>
-
+    <div id="app"></div>
     <div id="notification-container"></div>
 
+    <script src="shared/ui.js"></script>
+    <script src="shared/layout.js"></script>
+    <script src="auth/login.ui.js"></script>
     <script src="shared/request.js"></script>
     <script src="shared/notifications.js"></script>
     <script src="shared/services.js"></script>
