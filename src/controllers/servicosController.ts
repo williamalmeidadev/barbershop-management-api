@@ -73,9 +73,9 @@ export const servicosController = {
 
       if (servicoAntigo?.foto_url) {
         try {
-          const nomeArquivoAntigo = servicoAntigo.foto_url.split('/images/')[1]
+          const nomeArquivoAntigo = servicoAntigo.foto_url.split('/assets/images/')[1]
           if (nomeArquivoAntigo) {
-            const caminhoArquivoAntigo = path.resolve(__dirname, '..', '..', 'public', 'images', nomeArquivoAntigo)
+            const caminhoArquivoAntigo = path.resolve(__dirname, '..', '..', 'public', 'assets', 'images', nomeArquivoAntigo)
             if (fs.existsSync(caminhoArquivoAntigo)) {
               await fs.promises.unlink(caminhoArquivoAntigo)
             }
@@ -92,7 +92,7 @@ export const servicosController = {
         (Array.isArray(forwardedPrefix) && forwardedPrefix[0]) ||
         ''
       const normalizedBase = basePath && basePath.includes('/server08') ? '/server08' : ''
-      const fotoUrl = `${normalizedBase}/images/${arquivo.filename}`
+      const fotoUrl = `${normalizedBase}/assets/images/${arquivo.filename}`
 
       const servicoAtualizado = await servicoService.atualizar(id, { foto_url: fotoUrl })
       return res.json(servicoAtualizado)
@@ -114,9 +114,9 @@ export const servicosController = {
       const servicoAntigo = await servicoService.buscarPorId(id)
       if (servicoAntigo?.foto_url) {
         try {
-          const nomeArquivoAntigo = servicoAntigo.foto_url.split('/images/')[1]
+          const nomeArquivoAntigo = servicoAntigo.foto_url.split('/assets/images/')[1]
           if (nomeArquivoAntigo) {
-            const caminhoArquivoAntigo = path.resolve(__dirname, '..', '..', 'public', 'images', nomeArquivoAntigo)
+            const caminhoArquivoAntigo = path.resolve(__dirname, '..', '..', 'public', 'assets', 'images', nomeArquivoAntigo)
             if (fs.existsSync(caminhoArquivoAntigo)) {
               await fs.promises.unlink(caminhoArquivoAntigo)
             }

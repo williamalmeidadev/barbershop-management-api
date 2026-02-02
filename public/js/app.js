@@ -145,9 +145,14 @@ if (!clientTokenCookie && !localToken) {
 function normalizeImageUrl(url) {
     if (!url) return '';
     if (url.startsWith(`${BASE_PATH}/`)) return url;
-    if (url.startsWith('/images/')) return `${BASE_PATH}${url}`;
+    if (url.startsWith('/images/')) return `${BASE_PATH}${url.replace('/images/', '/assets/images/')}`;
+    if (url.startsWith('/assets/images/')) return `${BASE_PATH}${url}`;
     if (url.includes('/images/')) {
         const idx = url.indexOf('/images/');
+        return `${BASE_PATH}${url.slice(idx).replace('/images/', '/assets/images/')}`;
+    }
+    if (url.includes('/assets/images/')) {
+        const idx = url.indexOf('/assets/images/');
         return `${BASE_PATH}${url.slice(idx)}`;
     }
     return url;
