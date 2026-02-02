@@ -387,6 +387,38 @@
       container.appendChild(grid);
       section.appendChild(container);
       return section;
+    },
+    createFormGroup: ({ label, input, className = 'form-group' } = {}) => {
+      const group = document.createElement('div');
+      group.className = className;
+      const lbl = document.createElement('label');
+      lbl.textContent = label || '';
+      group.appendChild(lbl);
+      if (input) group.appendChild(input);
+      return group;
+    },
+    createInput: ({ type = 'text', value, placeholder, min, max, step, className } = {}) => {
+      const input = document.createElement('input');
+      input.type = type;
+      if (value !== undefined) input.value = value;
+      if (placeholder) input.placeholder = placeholder;
+      if (min !== undefined) input.min = String(min);
+      if (max !== undefined) input.max = String(max);
+      if (step !== undefined) input.step = String(step);
+      if (className) input.className = className;
+      return input;
+    },
+    createSelect: ({ options = [], value, className } = {}) => {
+      const select = document.createElement('select');
+      if (className) select.className = className;
+      options.forEach((opt) => {
+        const option = document.createElement('option');
+        option.value = String(opt.value);
+        option.textContent = opt.label;
+        if (value !== undefined && String(value) === String(opt.value)) option.selected = true;
+        select.appendChild(option);
+      });
+      return select;
     }
   };
 })();

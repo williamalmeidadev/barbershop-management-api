@@ -9,45 +9,12 @@
   root.replaceChildren();
 
   const adminLayout = createEl('div', { className: 'admin-layout' });
-
-  const sidebar = createEl('aside', { className: 'sidebar' });
-  const sidebarHeader = createEl('div', { className: 'sidebar-header' });
-  sidebarHeader.appendChild(createEl('span', { className: 'material-icons', text: 'diversity_3' }));
-  sidebarHeader.appendChild(createEl('h1', { text: 'Admin' }));
-
-  const nav = createEl('nav', { className: 'sidebar-nav' });
-  const navItems = [
-    { tab: 'config', icon: 'tune', label: 'Configurações', active: true },
-    { tab: 'clientes', icon: 'people', label: 'Clientes' },
-    { tab: 'agendamentos', icon: 'calendar_month', label: 'Agendamentos' },
-    { tab: 'vagas', icon: 'event_available', label: 'Vagas' },
-    { tab: 'servicos', icon: 'content_cut', label: 'Serviços' },
-    { tab: 'barbeiros', icon: 'face', label: 'Barbeiros' }
-  ];
-  navItems.forEach((item) => {
-    const btn = createEl('button', {
-      className: `nav-item${item.active ? ' active' : ''}`,
-      attrs: { 'data-tab': item.tab }
-    });
-    btn.appendChild(createEl('span', { className: 'material-icons', text: item.icon }));
-    btn.appendChild(document.createTextNode(` ${item.label}`));
-    nav.appendChild(btn);
-  });
-
-  const sidebarFooter = createEl('div', { className: 'sidebar-footer' });
-  const logoutBtn = createEl('button', {
-    className: 'btn ghost-danger',
-    attrs: { id: 'logout-btn' }
-  });
-  logoutBtn.appendChild(createEl('span', { className: 'material-icons', text: 'logout' }));
-  logoutBtn.appendChild(document.createTextNode(' Sair'));
-  sidebarFooter.appendChild(logoutBtn);
-
-  appendChildren(sidebar, [sidebarHeader, nav, sidebarFooter]);
-
+  const sidebar = layout.createAdminSidebar
+    ? layout.createAdminSidebar({ onLogoutId: 'logout-btn' })
+    : createEl('aside', { className: 'sidebar' });
+  const topbar = layout.createAdminTopbar ? layout.createAdminTopbar() : createEl('header', { className: 'topbar' });
+  if (!layout.createAdminTopbar) topbar.appendChild(createEl('div'));
   const main = createEl('main', { className: 'content' });
-  const topbar = createEl('header', { className: 'topbar' });
-  topbar.appendChild(createEl('div'));
   main.appendChild(topbar);
 
   const buildPanel = (id, headerId, listId, extra = []) => {

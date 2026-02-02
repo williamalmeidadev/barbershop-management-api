@@ -134,38 +134,9 @@ const createInfoRow = ui.createInfoRow || ((label, value) => {
   row.appendChild(v);
   return row;
 });
-const createInput = ui.createInput || ((opts = {}) => {
-  const input = document.createElement('input');
-  if (opts.type) input.type = opts.type;
-  if (opts.value !== undefined) input.value = opts.value;
-  if (opts.placeholder) input.placeholder = opts.placeholder;
-  if (opts.min !== undefined) input.min = String(opts.min);
-  if (opts.max !== undefined) input.max = String(opts.max);
-  if (opts.step !== undefined) input.step = String(opts.step);
-  if (opts.className) input.className = opts.className;
-  return input;
-});
-const createSelect = ui.createSelect || (({ options = [], value, className } = {}) => {
-  const select = document.createElement('select');
-  if (className) select.className = className;
-  options.forEach((opt) => {
-    const option = document.createElement('option');
-    option.value = String(opt.value);
-    option.textContent = opt.label;
-    if (value !== undefined && String(value) === String(opt.value)) option.selected = true;
-    select.appendChild(option);
-  });
-  return select;
-});
-const createFormGroup = ui.createFormGroup || ((labelText, fieldEl, className = 'form-group') => {
-  const group = document.createElement('div');
-  group.className = className;
-  const label = document.createElement('label');
-  label.textContent = labelText;
-  group.appendChild(label);
-  if (fieldEl) group.appendChild(fieldEl);
-  return group;
-});
+const createInput = adminModals.createInput || ui.createInput;
+const createSelect = adminModals.createSelect || ui.createSelect;
+const createFormGroup = adminModals.createFormGroup || ui.createFormGroup;
 const createPhotoGroup = ui.createPhotoGroup;
 const renderStatus = ui.renderStatus || ((container, message, className = 'status') => {
   if (!container) return;
