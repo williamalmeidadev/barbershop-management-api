@@ -74,10 +74,10 @@ export const barbeirosController = {
       if (barbeiroAntigo && barbeiroAntigo.foto_url) {
         try {
           // Extract file name from URL
-          const nomeArquivoAntigo = barbeiroAntigo.foto_url.split('/images/')[1]
+          const nomeArquivoAntigo = barbeiroAntigo.foto_url.split('/assets/images/')[1]
           
           if (nomeArquivoAntigo) {
-            const caminhoArquivoAntigo = path.resolve(__dirname, '..', '..', 'public', 'images', nomeArquivoAntigo)
+            const caminhoArquivoAntigo = path.resolve(__dirname, '..', '..', 'public', 'assets', 'images', nomeArquivoAntigo)
             if (fs.existsSync(caminhoArquivoAntigo)) {
               await fs.promises.unlink(caminhoArquivoAntigo)
             }
@@ -95,7 +95,7 @@ export const barbeirosController = {
         (Array.isArray(forwardedPrefix) && forwardedPrefix[0]) ||
         ''
       const normalizedBase = basePath && basePath.includes('/server08') ? '/server08' : ''
-      const fotoUrl = `${normalizedBase}/images/${arquivo.filename}`
+      const fotoUrl = `${normalizedBase}/assets/images/${arquivo.filename}`
 
       const barbeiroAtualizado = await barbeirosService.atualizar(id, {
         foto_url: fotoUrl
@@ -121,9 +121,9 @@ export const barbeirosController = {
 
       if (barbeiroAntigo?.foto_url) {
         try {
-          const nomeArquivoAntigo = barbeiroAntigo.foto_url.split('/images/')[1]
+          const nomeArquivoAntigo = barbeiroAntigo.foto_url.split('/assets/images/')[1]
           if (nomeArquivoAntigo) {
-            const caminhoArquivoAntigo = path.resolve(__dirname, '..', '..', 'public', 'images', nomeArquivoAntigo)
+            const caminhoArquivoAntigo = path.resolve(__dirname, '..', '..', 'public', 'assets', 'images', nomeArquivoAntigo)
             if (fs.existsSync(caminhoArquivoAntigo)) {
               await fs.promises.unlink(caminhoArquivoAntigo)
             }

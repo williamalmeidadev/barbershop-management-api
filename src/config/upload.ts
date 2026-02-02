@@ -4,7 +4,7 @@ import fs from 'fs'
 import crypto from 'crypto'
 
 // Garantee that the upload directory exists
-const uploadDir = path.resolve(__dirname, '..', '..', 'public', 'images')
+const uploadDir = path.resolve(__dirname, '..', '..', 'public', 'assets', 'images')
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true })
 }

@@ -28,9 +28,13 @@ form.addEventListener('submit', async (e) => {
 
     } catch (err) {
         console.error(err);
-        errorMsg.textContent = err.message || 'Erro ao realizar cadastro.';
+        const msg = err.message || 'Erro ao realizar cadastro.';
+        errorMsg.textContent = msg;
         errorContainer.classList.remove('hidden');
-        
+        if (window.NOTIFY?.notify) {
+            window.NOTIFY.notify(msg, 'error', { containerId: 'notification-container' });
+        }
+
         btnRegister.disabled = false;
         btnRegister.innerText = originalText;
     }
