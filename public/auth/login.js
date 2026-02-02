@@ -26,8 +26,12 @@ form.addEventListener('submit', async (event) => {
 
     } catch (err) {
         console.error(err);
-        errorMsg.textContent = err.message || 'E-mail ou senha inválidos';
+        const msg = err.message || 'E-mail ou senha inválidos';
+        errorMsg.textContent = msg;
         errorContainer.classList.remove('hidden');
+        if (window.NOTIFY?.notify) {
+            window.NOTIFY.notify(msg, 'error', { containerId: 'notification-container' });
+        }
         
         btnLogin.disabled = false;
         btnLogin.innerText = originalText;

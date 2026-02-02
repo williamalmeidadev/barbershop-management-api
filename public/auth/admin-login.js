@@ -36,6 +36,10 @@ form.addEventListener('submit', async (event) => {
     document.cookie = `admin_token=${encodeURIComponent(data.token)}; path=/; SameSite=Lax`;
     window.location.href = `${basePath}/admin`;
   } catch (err) {
-    error.textContent = err.message || 'E-mail ou senha inválidos';
+    const msg = err.message || 'E-mail ou senha inválidos';
+    error.textContent = msg;
+    if (window.NOTIFY?.notify) {
+      window.NOTIFY.notify(msg, 'error', { containerId: 'notification-container' });
+    }
   }
 });

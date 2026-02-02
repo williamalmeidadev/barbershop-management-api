@@ -681,6 +681,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showNotification(message, type = 'success') {
+        if (window.NOTIFY?.notify) {
+            window.NOTIFY.notify(message, type, { containerId: 'notification-container' });
+            return;
+        }
         const container = document.getElementById('notification-container');
         if (ui.toast) {
             ui.toast(container, message, { type, classBase: 'notification', duration: 3000 });
