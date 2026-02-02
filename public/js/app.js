@@ -10,100 +10,7 @@ const el = ui.el || ((tag, className, text) => {
     if (text !== undefined) node.textContent = text;
     return node;
 });
-const createCard = ui.createCard || ((className = 'card') => {
-    const card = document.createElement('div');
-    card.className = className;
-    return card;
-});
-const createButton = ui.createButton || ((label, className = 'btn') => {
-    const btn = document.createElement('button');
-    btn.className = className;
-    btn.textContent = label;
-    return btn;
-});
-const createActionsRow = ui.createActionsRow || ((actions = [], className = 'card-actions') => {
-    const row = document.createElement('div');
-    row.className = className;
-    actions.forEach((btn) => btn && row.appendChild(btn));
-    return row;
-});
-const createCardWithLines = ui.createCardWithLines || (({ title, lines = [], actions = [], className = 'card', titleTag = 'strong' }) => {
-    const card = createCard(className);
-    if (title) {
-        const titleEl = document.createElement(titleTag);
-        titleEl.textContent = title;
-        card.appendChild(titleEl);
-    }
-    lines.forEach((text) => {
-        const line = document.createElement('small');
-        line.textContent = text;
-        card.appendChild(line);
-    });
-    if (actions.length) card.appendChild(createActionsRow(actions));
-    return card;
-});
-const createInfoRow = ui.createInfoRow || ((label, value) => {
-    const row = document.createElement('div');
-    row.className = 'info-row';
-    const l = document.createElement('strong');
-    l.textContent = label;
-    const v = document.createElement('span');
-    v.textContent = value;
-    row.appendChild(l);
-    row.appendChild(v);
-    return row;
-});
-const createIcon = ui.createIcon || ((name, className = 'material-icons') => {
-    const icon = document.createElement('span');
-    icon.className = className;
-    icon.textContent = name;
-    return icon;
-});
-const createBadge = ui.createBadge || ((text, className = 'badge') => {
-    const badge = document.createElement('span');
-    badge.className = className;
-    badge.textContent = text;
-    return badge;
-});
-const createCardWithHeader = ui.createCardWithHeader || ((opts = {}) => {
-    const card = createCard(opts.className || 'card');
-    const header = document.createElement('div');
-    header.className = opts.headerClass || 'card-header';
-    const titleWrap = document.createElement('div');
-    titleWrap.className = opts.titleClass || 'card-title';
-    if (opts.icon) titleWrap.appendChild(createIcon(opts.icon));
-    if (opts.title) {
-        const t = document.createElement('span');
-        t.textContent = opts.title;
-        titleWrap.appendChild(t);
-    }
-    header.appendChild(titleWrap);
-    card.appendChild(header);
-    return { card, header, titleWrap };
-});
-const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', className = 'media', imgClass } = {}) => {
-    const wrap = document.createElement('div');
-    wrap.className = className;
-    if (url) {
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = alt;
-        if (imgClass) img.className = imgClass;
-        img.onerror = () => {
-            const fallback = document.createElement('span');
-            fallback.className = 'material-icons';
-            fallback.textContent = icon;
-            wrap.replaceChildren(fallback);
-        };
-        wrap.appendChild(img);
-        return wrap;
-    }
-    const fallback = document.createElement('span');
-    fallback.className = 'material-icons';
-    fallback.textContent = icon;
-    wrap.appendChild(fallback);
-    return wrap;
-});
+const createMedia = ui.createMedia;
 const cards = window.CARDS || {};
 const createServiceCardComponent = cards.createServiceCard;
 const createProfessionalCardComponent = cards.createProfessionalCard;
@@ -324,114 +231,28 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const renderer = createServiceCardComponent
-            ? (service) => createServiceCardComponent({
-                  name: service.nome,
-                  description: service.descricao,
-                  duration: service.duracao_minutos,
-                  price: service.preco_centavos,
-                  mediaUrl: normalizeImageUrl(service.foto_url)
-              })
-            : buildServiceCard;
-
-        renderCardList(servicesGrid, state.allServices, renderer, {
+        renderCardList(servicesGrid, state.allServices, (service) => createServiceCardComponent({
+            name: service.nome,
+            description: service.descricao,
+            duration: service.duracao_minutos,
+            price: service.preco_centavos,
+            mediaUrl: normalizeImageUrl(service.foto_url)
+        }), {
             emptyMessage: 'Nenhum serviço disponível.'
         });
     }
 
-    function buildServiceCard(service) {
-        const card = createCard('card service-card');
-
-        const mediaSrc = normalizeImageUrl(service.foto_url);
-        const mediaWrap = createMedia({
-            url: mediaSrc,
-            alt: service.nome,
-            icon: 'content_cut',
-            className: 'service-media-app'
-        });
-
-        const title = document.createElement('h3');
-        title.className = 'centered-title';
-        title.textContent = service.nome;
-
-        const desc = document.createElement('p');
-        desc.className = 'centered-muted';
-        desc.textContent = service.descricao || 'Procedimento realizado com os melhores produtos do mercado.';
-
-        const footer = document.createElement('div');
-        footer.className = 'service-meta';
-
-        const duration = document.createElement('div');
-        duration.className = 'service-duration';
-        duration.appendChild(createIcon('schedule'));
-        duration.appendChild(document.createTextNode(` ${service.duracao_minutos} min`));
-
-        const price = document.createElement('div');
-        price.className = 'service-price';
-        price.textContent = formatCurrency(service.preco_centavos);
-
-        footer.appendChild(duration);
-        footer.appendChild(price);
-
-        card.appendChild(mediaWrap);
-        card.appendChild(title);
-        card.appendChild(desc);
-        card.appendChild(footer);
-
-        return card;
-    }
-
     function renderProfessionals() {
         if (!professionalsGrid) return;
-        const renderer = createProfessionalCardComponent
-            ? (pro) =>
-                  createProfessionalCardComponent({
-                      name: pro.nome_profissional || pro.nome,
-                      bio: pro.bio || pro.especialidade,
-                      mediaUrl: normalizeImageUrl(pro.foto_url),
-                      onClick: () => showBarberProfile(pro.id)
-                  })
-            : buildProfessionalCard;
-
-        renderCardList(professionalsGrid, state.professionals, renderer, {
+        renderCardList(professionalsGrid, state.professionals, (pro) =>
+            createProfessionalCardComponent({
+                name: pro.nome_profissional || pro.nome,
+                bio: pro.bio || pro.especialidade,
+                mediaUrl: normalizeImageUrl(pro.foto_url),
+                onClick: () => showBarberProfile(pro.id)
+            }), {
             emptyMessage: 'Nenhum barbeiro disponível no momento.'
         });
-    }
-
-    function buildProfessionalCard(pro) {
-        const card = createCard('card');
-        card.dataset.id = String(pro.id);
-
-        const avatarSrc = normalizeImageUrl(pro.foto_url);
-        const avatar = createMedia({
-            url: avatarSrc,
-            alt: pro.nome_profissional || pro.nome || 'Barbeiro',
-            icon: 'person',
-            className: 'avatar-container',
-            imgClass: 'barber-avatar-img'
-        });
-
-        const name = document.createElement('h3');
-        name.className = 'centered-title';
-        name.textContent = pro.nome_profissional || pro.nome;
-
-        const bio = document.createElement('p');
-        bio.className = 'centered-muted';
-        bio.textContent = pro.bio || pro.especialidade || 'Barbeiro Profissional';
-
-        const ctaWrap = document.createElement('div');
-        ctaWrap.className = 'centered-cta';
-        const cta = document.createElement('span');
-        cta.textContent = 'Ver Serviços e Horários';
-        ctaWrap.appendChild(cta);
-
-        card.appendChild(avatar);
-        card.appendChild(name);
-        card.appendChild(bio);
-        card.appendChild(ctaWrap);
-
-        card.onclick = () => showBarberProfile(pro.id);
-        return card;
     }
 
     async function showBarberProfile(id) {
