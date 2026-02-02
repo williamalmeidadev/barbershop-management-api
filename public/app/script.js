@@ -115,6 +115,18 @@ const renderStatus = ui.renderStatus || ((container, message, className = 'statu
 const renderLoading = ui.renderLoading || ((container, message = 'Carregando...') => {
     renderStatus(container, message, 'loading');
 });
+const renderCardList = ui.renderCardList || ((container, items, renderItem, { emptyMessage = 'Sem dados.' } = {}) => {
+    if (!container) return;
+    container.replaceChildren();
+    if (!items || items.length === 0) {
+        renderStatus(container, emptyMessage);
+        return;
+    }
+    items.forEach((item) => {
+        const node = renderItem(item);
+        if (node) container.appendChild(node);
+    });
+});
 
 function getCookieValue(name) {
     return document.cookie
@@ -299,9 +311,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        servicesGrid.replaceChildren();
-        state.allServices.forEach(service => {
-            servicesGrid.appendChild(buildServiceCard(service));
+        renderCardList(servicesGrid, state.allServices, buildServiceCard, {
+            emptyMessage: 'Nenhum serviço disponível.'
         });
     }
 
@@ -349,15 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderProfessionals() {
         if (!professionalsGrid) return;
-        if (!state.professionals.length) {
-            renderStatus(professionalsGrid, 'Nenhum barbeiro disponível no momento.');
-            return;
-        }
-
-        professionalsGrid.replaceChildren();
-        state.professionals.forEach(pro => {
-            const card = buildProfessionalCard(pro);
-            professionalsGrid.appendChild(card);
+        renderCardList(professionalsGrid, state.professionals, buildProfessionalCard, {
+            emptyMessage: 'Nenhum barbeiro disponível no momento.'
         });
     }
 
@@ -510,14 +514,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const appointments = await services.fetchUserAppointments();
-            if (appointments.length === 0) {
-                renderStatus(appointmentsList, 'Você ainda não possui agendamentos.');
-                return;
-            }
-
-            appointmentsList.replaceChildren();
-            appointments.forEach((appt) => {
-                appointmentsList.appendChild(buildAppointmentCard(appt));
+            renderCardList(appointmentsList, appointments, buildAppointmentCard, {
+                emptyMessage: 'Você ainda não possui agendamentos.'
             });
         } catch (error) {
             renderStatus(appointmentsList, 'Erro ao carregar agendamentos.');

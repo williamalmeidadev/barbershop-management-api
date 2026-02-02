@@ -301,6 +301,19 @@
     renderStatus(container, message, 'loading');
   };
 
+  const renderCardList = (container, items, renderItem, { emptyMessage = 'Sem dados.' } = {}) => {
+    if (!container) return;
+    clear(container);
+    if (!items || items.length === 0) {
+      renderStatus(container, emptyMessage);
+      return;
+    }
+    items.forEach((item) => {
+      const node = renderItem(item);
+      if (node) container.appendChild(node);
+    });
+  };
+
   window.UI = {
     el,
     clear,
@@ -323,6 +336,7 @@
     createModalController,
     toast,
     renderStatus,
-    renderLoading
+    renderLoading,
+    renderCardList
   };
 })();

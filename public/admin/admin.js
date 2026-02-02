@@ -19,15 +19,15 @@ const navItems = document.querySelectorAll('.nav-item');
 const panels = document.querySelectorAll('.tab-panel');
 
 const configContainer = document.getElementById('config-card-container');
-const btnConfigCreate = document.getElementById('btn-config-create');
+let btnConfigCreate = null;
 
-const loadClientesBtn = document.getElementById('load-clientes');
+let loadClientesBtn = null;
 const buscarClientesBtn = document.getElementById('buscar-clientes');
 const clientesAtivo = document.getElementById('clientes-ativo');
 const clientesBusca = document.getElementById('clientes-busca');
 const clientesList = document.getElementById('clientes-list');
 
-const loadAgendamentosBtn = document.getElementById('load-agendamentos');
+let loadAgendamentosBtn = null;
 const buscarAgendamentosBtn = document.getElementById('buscar-agendamentos');
 const agendamentosStatus = document.getElementById('agendamentos-status');
 const agendamentosBusca = document.getElementById('agendamentos-busca');
@@ -37,17 +37,17 @@ const agendamentosList = document.getElementById('agendamentos-list');
 
 const formVagas = document.getElementById('form-vagas');
 const vagasList = document.getElementById('vagas-list');
-const btnAbrirGerar = document.getElementById('btn-abrir-gerar-vagas');
-const btnAbrirBloqueio = document.getElementById('btn-abrir-bloqueio');
-const btnAbrirReserva = document.getElementById('btn-abrir-reserva');
+let btnAbrirGerar = null;
+let btnAbrirBloqueio = null;
+let btnAbrirReserva = null;
 
-const loadServicosBtn = document.getElementById('load-servicos');
+let loadServicosBtn = null;
 const servicosList = document.getElementById('servicos-list');
-const btnNovoServico = document.getElementById('btn-novo-servico');
+let btnNovoServico = null;
 
-const loadBarbeirosBtn = document.getElementById('load-barbeiros');
+let loadBarbeirosBtn = null;
 const barbeirosList = document.getElementById('barbeiros-list');
-const btnNovoBarbeiro = document.getElementById('btn-novo-barbeiro');
+let btnNovoBarbeiro = null;
 
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modal-title');
@@ -175,6 +175,140 @@ const renderStatus = ui.renderStatus || ((container, message, className = 'statu
   node.textContent = message;
   container.appendChild(node);
 });
+const renderCardList = ui.renderCardList || ((container, items, renderItem, { emptyMessage = 'Sem dados.' } = {}) => {
+  if (!container) return;
+  clear(container);
+  if (!items || items.length === 0) {
+    renderStatus(container, emptyMessage);
+    return;
+  }
+  items.forEach((item) => {
+    const node = renderItem(item);
+    if (node) container.appendChild(node);
+  });
+});
+
+const layout = window.LAYOUT || {};
+const createPanelHeader = layout.createPanelHeader;
+const renderPanelHeader = layout.renderPanelHeader;
+const topbar = document.querySelector('.topbar');
+if (layout.renderAdminPanelHeader && topbar) {
+  layout.renderAdminPanelHeader(topbar, {
+    title: 'Dashboard',
+    subtitle: 'Visão geral do sistema'
+  });
+}
+
+function createActionButton({ id, label, className = 'btn', icon } = {}) {
+  const btn = createButton(label, className);
+  if (id) btn.id = id;
+  if (icon) btn.prepend(createIcon(icon));
+  return btn;
+}
+
+function initPanelHeaders() {
+  if (!createPanelHeader || !renderPanelHeader) return;
+
+  renderPanelHeader(document.getElementById('panel-header-config'), {
+    title: 'Regras de Desconto',
+    actions: [
+      createActionButton({
+        id: 'btn-config-create',
+        label: 'Nova Regra',
+        className: 'btn primary',
+        icon: 'add'
+      })
+    ]
+  });
+
+  renderPanelHeader(document.getElementById('panel-header-clientes'), {
+    title: 'Clientes',
+    actions: [
+      createActionButton({
+        id: 'load-clientes',
+        label: 'Atualizar',
+        className: 'btn ghost'
+      })
+    ]
+  });
+
+  renderPanelHeader(document.getElementById('panel-header-agendamentos'), {
+    title: 'Agendamentos',
+    actions: [
+      createActionButton({
+        id: 'load-agendamentos',
+        label: 'Atualizar',
+        className: 'btn ghost'
+      })
+    ]
+  });
+
+  renderPanelHeader(document.getElementById('panel-header-vagas'), {
+    title: 'Gerenciar Agenda',
+    actions: [
+      createActionButton({
+        id: 'btn-abrir-gerar-vagas',
+        label: 'Gerar Vagas',
+        className: 'btn primary'
+      }),
+      createActionButton({
+        id: 'btn-abrir-bloqueio',
+        label: 'Bloquear',
+        className: 'btn ghost'
+      }),
+      createActionButton({
+        id: 'btn-abrir-reserva',
+        label: 'Reservar',
+        className: 'btn ghost'
+      })
+    ]
+  });
+
+  renderPanelHeader(document.getElementById('panel-header-servicos'), {
+    title: 'Catálogo de Serviços',
+    actions: [
+      createActionButton({
+        id: 'load-servicos',
+        label: 'Atualizar',
+        className: 'btn ghost'
+      }),
+      createActionButton({
+        id: 'btn-novo-servico',
+        label: 'Novo Serviço',
+        className: 'btn primary'
+      })
+    ]
+  });
+
+  renderPanelHeader(document.getElementById('panel-header-barbeiros'), {
+    title: 'Equipe',
+    actions: [
+      createActionButton({
+        id: 'load-barbeiros',
+        label: 'Atualizar',
+        className: 'btn ghost'
+      }),
+      createActionButton({
+        id: 'btn-novo-barbeiro',
+        label: 'Novo Barbeiro',
+        className: 'btn primary'
+      })
+    ]
+  });
+
+  btnConfigCreate = document.getElementById('btn-config-create');
+  loadClientesBtn = document.getElementById('load-clientes');
+  loadAgendamentosBtn = document.getElementById('load-agendamentos');
+  btnAbrirGerar = document.getElementById('btn-abrir-gerar-vagas');
+  btnAbrirBloqueio = document.getElementById('btn-abrir-bloqueio');
+  btnAbrirReserva = document.getElementById('btn-abrir-reserva');
+  loadServicosBtn = document.getElementById('load-servicos');
+  btnNovoServico = document.getElementById('btn-novo-servico');
+  loadBarbeirosBtn = document.getElementById('load-barbeiros');
+  btnNovoBarbeiro = document.getElementById('btn-novo-barbeiro');
+}
+
+initPanelHeaders();
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -466,9 +600,9 @@ function openConfigModal(data) {
   }));
 }
 
-btnConfigCreate.addEventListener('click', () => openConfigModal(null));
+btnConfigCreate?.addEventListener('click', () => openConfigModal(null));
 
-loadClientesBtn.addEventListener('click', () => withButtonLock(loadClientesBtn, async () => {
+loadClientesBtn?.addEventListener('click', () => withButtonLock(loadClientesBtn, async () => {
   const ativo = clientesAtivo.value;
   const query = ativo !== '' ? `?ativo=${ativo}` : '';
   try {
@@ -489,13 +623,7 @@ buscarClientesBtn?.addEventListener('click', (e) => {
 });
 
 function renderClientes(clientes) {
-  clear(clientesList);
-  if (!clientes.length) {
-    renderStatus(clientesList, 'Sem clientes.');
-    return;
-  }
-
-  clientes.forEach(c => {
+  renderCardList(clientesList, clientes, (c) => {
     const actions = [];
     const editBtn = createButton('Editar', 'btn ghost');
     const toggleBtn = createButton(c.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${c.ativo === 1 ? 'danger' : ''}`);
@@ -514,9 +642,8 @@ function renderClientes(clientes) {
 
     editBtn.addEventListener('click', () => editarCliente(c));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleCliente(c.id, c.ativo)));
-
-    clientesList.appendChild(card);
-  });
+    return card;
+  }, { emptyMessage: 'Sem clientes.' });
 }
 
 function editarCliente(cliente) {
@@ -586,7 +713,7 @@ async function toggleCliente(id, ativoAtual) {
   }
 }
 
-loadAgendamentosBtn.addEventListener('click', () => withButtonLock(loadAgendamentosBtn, async () => {
+loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendamentosBtn, async () => {
   try {
     const data = await request('/agendamentos');
     const status = agendamentosStatus.value;
@@ -621,13 +748,7 @@ buscarAgendamentosBtn?.addEventListener('click', (e) => {
 });
 
 function renderAgendamentos(items) {
-  clear(agendamentosList);
-  if (!items.length) {
-    renderStatus(agendamentosList, 'Sem agendamentos.');
-    return;
-  }
-
-  items.forEach(a => {
+  renderCardList(agendamentosList, items, (a) => {
     const clienteNome =
       a.cliente?.nome ||
       a.cliente_nome ||
@@ -684,8 +805,8 @@ function renderAgendamentos(items) {
       }
     }
 
-    agendamentosList.appendChild(card);
-  });
+    return card;
+  }, { emptyMessage: 'Sem agendamentos.' });
 }
 
 function verDetalhes(agendamento) {
@@ -823,13 +944,7 @@ formVagas.addEventListener('submit', (e) => {
 });
 
 function renderVagas(vagas) {
-  clear(vagasList);
-  if (!vagas.length) {
-    renderStatus(vagasList, 'Sem vagas.');
-    return;
-  }
-
-  vagas.forEach(v => {
+  renderCardList(vagasList, vagas, (v) => {
     const actions = [];
     const blockBtn = createButton('Bloquear', 'btn ghost');
     const deleteBtn = createButton('Apagar', 'btn danger');
@@ -846,12 +961,11 @@ function renderVagas(vagas) {
 
     blockBtn.addEventListener('click', () => abrirBloqueioVaga(v.barbeiro_id || 0, v.inicio));
     deleteBtn.addEventListener('click', () => withButtonLock(deleteBtn, () => apagarVaga(v.id)));
-
-    vagasList.appendChild(card);
-  });
+    return card;
+  }, { emptyMessage: 'Sem vagas.' });
 }
 
-btnAbrirGerar.addEventListener('click', () => {
+btnAbrirGerar?.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
@@ -900,7 +1014,7 @@ btnAbrirGerar.addEventListener('click', () => {
   }));
 });
 
-btnAbrirBloqueio.addEventListener('click', () => {
+btnAbrirBloqueio?.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
@@ -948,7 +1062,7 @@ btnAbrirBloqueio.addEventListener('click', () => {
   }));
 });
 
-btnAbrirReserva.addEventListener('click', () => {
+btnAbrirReserva?.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
@@ -1050,7 +1164,7 @@ function abrirBloqueioVaga(barbeiroId, inicio) {
   }));
 }
 
-loadServicosBtn.addEventListener('click', () => withButtonLock(loadServicosBtn, async () => {
+loadServicosBtn?.addEventListener('click', () => withButtonLock(loadServicosBtn, async () => {
   try {
     const data = await request('/servicos');
     renderServicos(data);
@@ -1059,7 +1173,7 @@ loadServicosBtn.addEventListener('click', () => withButtonLock(loadServicosBtn, 
   }
 }));
 
-btnNovoServico.addEventListener('click', () => {
+btnNovoServico?.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
@@ -1109,13 +1223,7 @@ btnNovoServico.addEventListener('click', () => {
 });
 
 function renderServicos(items) {
-  clear(servicosList);
-  if (!items.length) {
-    renderStatus(servicosList, 'Sem serviços.');
-    return;
-  }
-
-  items.forEach(s => {
+  renderCardList(servicosList, items, (s) => {
     const media = createMedia({
       url: s.foto_url,
       alt: s.nome,
@@ -1143,9 +1251,8 @@ function renderServicos(items) {
 
     editBtn.addEventListener('click', () => editarServico(s));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleServico(s.id, s.ativo)));
-
-    servicosList.appendChild(card);
-  });
+    return card;
+  }, { emptyMessage: 'Sem serviços.' });
 }
 
 function editarServico(servico) {
@@ -1309,7 +1416,7 @@ async function toggleServico(id, ativoAtual) {
   }
 }
 
-loadBarbeirosBtn.addEventListener('click', () => withButtonLock(loadBarbeirosBtn, async () => {
+loadBarbeirosBtn?.addEventListener('click', () => withButtonLock(loadBarbeirosBtn, async () => {
   try {
     const data = await request('/barbeiros');
     cachedBarbeiros = data || [];
@@ -1321,7 +1428,7 @@ loadBarbeirosBtn.addEventListener('click', () => withButtonLock(loadBarbeirosBtn
   }
 }));
 
-btnNovoBarbeiro.addEventListener('click', () => {
+btnNovoBarbeiro?.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
@@ -1357,13 +1464,7 @@ btnNovoBarbeiro.addEventListener('click', () => {
 });
 
 function renderBarbeiros(items) {
-  clear(barbeirosList);
-  if (!items.length) {
-    renderStatus(barbeirosList, 'Sem barbeiros.');
-    return;
-  }
-
-  items.forEach(b => {
+  renderCardList(barbeirosList, items, (b) => {
     const card = createCard('card');
     const header = el('div', 'card-header vertical');
     const avatar = createMedia({
@@ -1386,9 +1487,8 @@ function renderBarbeiros(items) {
 
     editBtn.addEventListener('click', () => editarBarbeiro(b));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleBarbeiro(b.id, b.ativo)));
-
-    barbeirosList.appendChild(card);
-  });
+    return card;
+  }, { emptyMessage: 'Sem barbeiros.' });
 }
 
 function editarBarbeiro(barbeiro) {
@@ -1511,7 +1611,7 @@ async function toggleBarbeiro(id, ativoAtual) {
 
 // Auto-load lists on initial load
 loadConfig();
-loadClientesBtn.click();
-loadServicosBtn.click();
-loadBarbeirosBtn.click();
+loadClientesBtn?.click();
+loadServicosBtn?.click();
+loadBarbeirosBtn?.click();
 loadBarbeirosCache();

@@ -111,11 +111,39 @@
     appendChildren(mount, [header, main, footer]);
   };
 
+  const createPanelHeader = ({ title, actions = [] } = {}) => {
+    const header = createEl('div', { className: 'panel-header' });
+    if (title) header.appendChild(createEl('h3', { text: title }));
+    if (actions.length) {
+      const group = createEl('div', { className: 'actions-group' });
+      actions.forEach((action) => action && group.appendChild(action));
+      header.appendChild(group);
+    }
+    return header;
+  };
+
+  const renderPanelHeader = (container, options = {}) => {
+    if (!container) return;
+    const header = createPanelHeader(options);
+    container.replaceChildren(...header.childNodes);
+  };
+
   window.LAYOUT = {
     createEl,
     appendChildren,
     createHeader,
     createFooter,
-    renderAuthPage
+    renderAuthPage,
+    createPanelHeader,
+    renderPanelHeader,
+    renderAdminPanelHeader: (container, { title, subtitle, actions } = {}) => {
+      if (!container) return;
+      container.replaceChildren();
+      const textWrap = createEl('div');
+      if (title) textWrap.appendChild(createEl('h2', { text: title }));
+      if (subtitle) textWrap.appendChild(createEl('p', { text: subtitle }));
+      container.appendChild(textWrap);
+      if (actions) container.appendChild(actions);
+    }
   };
 })();

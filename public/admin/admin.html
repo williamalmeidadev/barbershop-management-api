@@ -18,6 +18,7 @@
   <script src="shared/basepath.js"></script>
   <script src="shared/ui.js"></script>
   <script src="shared/request.js"></script>
+  <script src="shared/layout.js"></script>
 </head>
 <body class="dark-theme">
   <div class="admin-layout">
@@ -67,22 +68,14 @@
 
       <section class="tab-panel" id="tab-config">
         <div class="panel">
-          <div class="panel-header">
-            <h3>Regras de Desconto</h3>
-            <button id="btn-config-create" class="btn primary">
-                <span class="material-icons">add</span> Nova Regra
-            </button>
-          </div>
+          <div class="panel-header" id="panel-header-config"></div>
           <div id="config-card-container" class="config-grid"></div>
         </div>
       </section>
 
       <section class="tab-panel hidden" id="tab-clientes">
         <div class="panel">
-          <div class="panel-header">
-            <h3>Clientes</h3>
-            <button id="load-clientes" class="btn ghost">Atualizar</button>
-          </div>
+          <div class="panel-header" id="panel-header-clientes"></div>
           <div class="form-grid filters">
             <div class="form-group">
               <label>Status</label>
@@ -107,10 +100,7 @@
 
       <section class="tab-panel hidden" id="tab-agendamentos">
         <div class="panel">
-          <div class="panel-header">
-            <h3>Agendamentos</h3>
-            <button id="load-agendamentos" class="btn ghost">Atualizar</button>
-          </div>
+          <div class="panel-header" id="panel-header-agendamentos"></div>
           <div class="form-grid filters">
             <div class="form-group">
               <label>Status</label>
@@ -148,14 +138,7 @@
 
       <section class="tab-panel hidden" id="tab-vagas">
         <div class="panel">
-          <div class="panel-header">
-            <h3>Gerenciar Agenda</h3>
-            <div class="actions-group">
-                <button id="btn-abrir-gerar-vagas" class="btn primary">Gerar Vagas</button>
-                <button id="btn-abrir-bloqueio" class="btn ghost">Bloquear</button>
-                <button id="btn-abrir-reserva" class="btn ghost">Reservar</button>
-            </div>
-          </div>
+          <div class="panel-header" id="panel-header-vagas"></div>
           
           <form id="form-vagas" class="form-grid filters bg-soft">
             <div class="form-group">
@@ -177,26 +160,14 @@
 
       <section class="tab-panel hidden" id="tab-servicos">
         <div class="panel">
-          <div class="panel-header">
-            <h3>Catálogo de Serviços</h3>
-            <div class="actions-group">
-                <button id="load-servicos" class="btn ghost">Atualizar</button>
-                <button id="btn-novo-servico" class="btn primary">Novo Serviço</button>
-            </div>
-          </div>
+          <div class="panel-header" id="panel-header-servicos"></div>
           <div id="servicos-list" class="cards-grid"></div>
         </div>
       </section>
 
       <section class="tab-panel hidden" id="tab-barbeiros">
         <div class="panel">
-          <div class="panel-header">
-            <h3>Equipe</h3>
-            <div class="actions-group">
-                <button id="load-barbeiros" class="btn ghost">Atualizar</button>
-                <button id="btn-novo-barbeiro" class="btn primary">Novo Barbeiro</button>
-            </div>
-          </div>
+          <div class="panel-header" id="panel-header-barbeiros"></div>
           <div id="barbeiros-list" class="cards-grid"></div>
         </div>
       </section>
