@@ -34,7 +34,7 @@
   const features = createEl('section', { className: 'section' });
   const featuresContainer = createEl('div', { className: 'container' });
   const featuresHeader = createEl('div', { className: 'text-center' });
-  featuresHeader.appendChild(createEl('h2', { className: 'section-title', text: 'Por que usar o BarberMarket?' }));
+  featuresHeader.appendChild(createEl('h2', { className: 'section-title', text: 'Por que usar o AlphaCuts?' }));
   const grid = createEl('div', { className: 'features-grid' });
   const items = [
     {
@@ -68,9 +68,9 @@
   appendChildren(main, [hero, features]);
 
   const footer = createFooter({
-    brand: 'BarberMarket',
+    brand: 'AlphaCuts',
     location: 'Brasil',
-    note: '© 2026 BarberMarket. Tradição e Tecnologia.'
+    note: '© 2026 AlphaCuts. Tradição e Tecnologia.'
   });
 
   appendChildren(appRoot, [header, main, footer]);

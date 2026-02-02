@@ -29,6 +29,6 @@
     title: 'Criar Conta',
     subtitle: 'Junte-se ao marketplace de barbearias.',
     bodyNodes: [form, errorBox, footer],
-    footerNote: '© 2026 BarberMarket. Petrolina/PE.'
+    footerNote: '© 2026 AlphaCuts. Petrolina/PE.'
   });
 })();

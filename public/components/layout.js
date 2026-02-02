@@ -26,7 +26,7 @@
       attrs: { href: `${basePath}/` || '/' }
     });
     const logoIcon = createEl('span', { className: 'material-icons', text: 'diversity_3' });
-    const logoTitle = createEl('h1', { text: 'BarberMarket' });
+    const logoTitle = createEl('h1', { text: 'AlphaCuts' });
     appendChildren(logo, [logoIcon, logoTitle]);
 
     const nav = createEl('nav', { attrs: { id: 'nav-menu' } });
@@ -45,9 +45,9 @@
   };
 
   const createFooter = ({
-    brand = 'BarberMarket',
+    brand = 'AlphaCuts',
     location = 'Brasil',
-    note = '© 2026 BarberMarket. Todos os direitos reservados.'
+    note = '© 2026 AlphaCuts. Todos os direitos reservados.'
   } = {}) => {
     const footer = createEl('footer', { className: 'main-footer' });
     const container = createEl('div', { className: 'container footer-content' });
@@ -78,7 +78,7 @@
       attrs: { href: `${basePath}/app` }
     });
     const logoIcon = createEl('span', { className: 'material-icons', text: 'diversity_3' });
-    const logoTitle = createEl('h1', { text: 'BarberMarket' });
+    const logoTitle = createEl('h1', { text: 'AlphaCuts' });
     appendChildren(logo, [logoIcon, logoTitle]);
 
     const menuToggle = createEl('button', {
