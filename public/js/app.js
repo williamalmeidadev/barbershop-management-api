@@ -37,8 +37,7 @@ const formatTimeBR = (value) => {
 };
 
 const clientTokenCookie = getCookieValue ? getCookieValue('client_token') : null;
-const localToken = localStorage.getItem('token');
-if (!clientTokenCookie && !localToken) {
+if (!clientTokenCookie) {
     window.location.replace(`${BASE_PATH}/login`);
 }
 
@@ -55,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
         customerName: '',
         customerPhone: '',
         currentStep: 1,
-        token: localStorage.getItem('token') || null,
-        isLoggedIn: !!localStorage.getItem('token')
+        token: clientTokenCookie ? decodeURIComponent(clientTokenCookie) : null,
+        isLoggedIn: !!clientTokenCookie
     };
 
     // --- DOM Elements ---
@@ -562,12 +561,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const authBtn = e.target.closest('#auth-action');
             if (!authBtn) return;
 
-            const token = localStorage.getItem('token');
+            const token = getCookieValue ? getCookieValue('client_token') : null;
             if (token) {
                 e.preventDefault();
                 console.log('Logout clicked. Clearing session...');
-                localStorage.removeItem('token');
-                localStorage.removeItem('role');
                 console.log('Session cleared. Redirecting to login...');
                 document.cookie = 'client_token=; Max-Age=0; path=/; SameSite=Lax';
                 window.location.href = `${BASE_PATH}/login`;

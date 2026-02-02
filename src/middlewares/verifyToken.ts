@@ -19,12 +19,23 @@ declare global {
 
 export function verifyToken(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
+  let token: string | undefined;
 
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Token não fornecido.' });
+  if (authHeader) {
+    [, token] = authHeader.split(' ');
+  } else if (req.headers.cookie) {
+    const cookies = req.headers.cookie.split(';').map((c) => c.trim());
+    const adminFound = cookies.find((c) => c.startsWith('admin_token='));
+    const clientFound = cookies.find((c) => c.startsWith('client_token='));
+    const found = adminFound || clientFound;
+    if (found) {
+      token = decodeURIComponent(found.split('=')[1] || '');
+    }
   }
 
-  const [, token] = authHeader.split(' ');
+  if (!token) {
+    return res.status(401).json({ error: 'Token não fornecido.' });
+  }
 
   try {
     const secret = process.env.JWT_SECRET;

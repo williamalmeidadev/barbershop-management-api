@@ -9,8 +9,7 @@ function getCookie(name) {
 }
 
 const adminTokenCookie = getCookie('admin_token');
-const storedRole = localStorage.getItem('role');
-if (!adminTokenCookie || storedRole !== 'admin') {
+if (!adminTokenCookie) {
   window.location.replace(`${apiBase}/admin-login`);
 }
 const logoutBtn = document.getElementById('logout-btn');
@@ -302,18 +301,6 @@ function initFilters() {
 
 initFilters();
 
-function getToken() {
-  return localStorage.getItem('token') || '';
-}
-
-function setToken(token) {
-  if (token) {
-    localStorage.setItem('token', token);
-  } else {
-    localStorage.removeItem('token');
-  }
-}
-
 function api(path) {
   return `${apiBase}${path}`;
 }
@@ -340,13 +327,10 @@ function toIsoWithOffset(dateStr, timeStr) {
 
 async function request(path, options = {}) {
   if (window.API?.json) return window.API.json(path, options);
-  const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {})
   };
-
-  if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(api(path), { ...options, headers });
   const contentType = res.headers.get('content-type') || '';
@@ -359,9 +343,7 @@ async function request(path, options = {}) {
 
 async function requestFormData(path, formData) {
   if (window.API?.form) return window.API.form(path, formData, { method: 'PATCH' });
-  const token = getToken();
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const res = await fetch(api(path), { method: 'PATCH', headers, body: formData });
+  const res = await fetch(api(path), { method: 'PATCH', body: formData });
   const contentType = res.headers.get('content-type') || '';
   const data = contentType.includes('application/json') ? await res.json() : await res.text();
   if (!res.ok) {
@@ -433,8 +415,6 @@ navItems.forEach(item => {
 });
 
 logoutBtn.addEventListener('click', () => {
-  setToken('');
-  localStorage.removeItem('role');
   document.cookie = 'admin_token=; Max-Age=0; path=/; SameSite=Lax';
   showToast('Logout realizado.');
   setTimeout(() => {

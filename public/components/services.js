@@ -43,12 +43,10 @@ const services = {
             if (window.API?.json) {
                 return await window.API.json('/agendamentos', { method: 'POST', body: JSON.stringify(data) });
             }
-            const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/agendamentos`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(data)
             });
@@ -64,11 +62,8 @@ const services = {
     async fetchUserAppointments() {
         try {
             if (window.API?.json) return await window.API.json('/agendamentos/me');
-            const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/agendamentos/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: {}
             });
             if (!response.ok) throw new Error('Não foi possível carregar seus agendamentos');
             return await response.json();
@@ -84,12 +79,9 @@ const services = {
                 await window.API.json(`/agendamentos/${id}/cancelar`, { method: 'POST' });
                 return true;
             }
-            const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/agendamentos/${id}/cancelar`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: {}
             });
             if (!response.ok) {
                 const result = await response.json();
@@ -123,8 +115,6 @@ const services = {
                   return resData;
               })();
 
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.role);
         return data;
     },
 
