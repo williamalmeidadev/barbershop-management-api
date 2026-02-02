@@ -1135,7 +1135,28 @@ nav {
 }
 
 .appointment-price {
-    font-weight: 700;
+    display: grid;
+    gap: 0.35rem;
+    color: var(--text);
+}
+
+.appointment-price .info-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.appointment-price .info-row strong {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.appointment-price .info-row span {
+    color: var(--text);
+}
+
+.appointment-price .appointment-total {
     color: var(--primary);
 }
 .appointment-status {
