@@ -7,6 +7,8 @@ import { initDatabase } from '../../../src/database/init';
 describe('ServicosRepository Integration', function () {
     this.timeout(5000);
 
+    let barbeiroId: number;
+
     before((done) => {
         initDatabase();
         db.get('SELECT 1', (err) => {
@@ -17,9 +19,20 @@ describe('ServicosRepository Integration', function () {
 
     beforeEach(async () => {
         await new Promise<void>((resolve, reject) => {
-            db.run('DELETE FROM servicos', (err) => {
-                if (err) reject(err);
-                else resolve();
+            const tables = ['servicos', 'barbeiros'];
+            let completed = 0;
+            tables.forEach(table => {
+                db.run(`DELETE FROM ${table}`, (err) => {
+                    if (err) return reject(err);
+                    completed++;
+                    if (completed === tables.length) resolve();
+                });
+            });
+        });
+
+        barbeiroId = await new Promise<number>((resolve, reject) => {
+            db.run(`INSERT INTO barbeiros (nome_profissional, ativo) VALUES ('Barb Test', 1)`, function (err) {
+                if (err) reject(err); else resolve(this.lastID);
             });
         });
     });
@@ -28,6 +41,7 @@ describe('ServicosRepository Integration', function () {
         it('deve criar, buscar, atualizar e desativar um serviço', async () => {
             // Criar
             const criado = await servicoRepository.create({
+                barbeiro_id: barbeiroId,
                 nome: 'Corte',
                 descricao: 'Corte simples',
                 duracao_minutos: 30,
@@ -36,6 +50,7 @@ describe('ServicosRepository Integration', function () {
             });
             expect(criado).to.have.property('id');
             expect(criado.nome).to.equal('Corte');
+            expect(criado.barbeiro_id).to.equal(barbeiroId);
 
             // Buscar por ID
             const encontrado = await servicoRepository.findById(criado.id);
@@ -59,9 +74,9 @@ describe('ServicosRepository Integration', function () {
     describe('Listagem', () => {
         it('deve filtrar corretamente por status', async () => {
             // Setup
-            await servicoRepository.create({ nome: 'Ativo 1', duracao_minutos: 10, preco_centavos: 100, ativo: 1 });
-            await servicoRepository.create({ nome: 'Ativo 2', duracao_minutos: 10, preco_centavos: 100, ativo: 1 });
-            await servicoRepository.create({ nome: 'Inativo 1', duracao_minutos: 10, preco_centavos: 100, ativo: 0 });
+            await servicoRepository.create({ barbeiro_id: barbeiroId, nome: 'Ativo 1', duracao_minutos: 10, preco_centavos: 100, ativo: 1 });
+            await servicoRepository.create({ barbeiro_id: barbeiroId, nome: 'Ativo 2', duracao_minutos: 10, preco_centavos: 100, ativo: 1 });
+            await servicoRepository.create({ barbeiro_id: barbeiroId, nome: 'Inativo 1', duracao_minutos: 10, preco_centavos: 100, ativo: 0 });
 
             // list(1) - Apenas ativos
             const ativos = await servicoRepository.list(1);
@@ -81,9 +96,9 @@ describe('ServicosRepository Integration', function () {
 
     describe('Busca em Lote', () => {
         it('deve buscar serviços ativos por lista de IDs', async () => {
-            const s1 = await servicoRepository.create({ nome: 'S1', duracao_minutos: 10, preco_centavos: 100, ativo: 1 });
-            const s2 = await servicoRepository.create({ nome: 'S2', duracao_minutos: 10, preco_centavos: 100, ativo: 1 });
-            const s3 = await servicoRepository.create({ nome: 'S3', duracao_minutos: 10, preco_centavos: 100, ativo: 0 }); // Inativo
+            const s1 = await servicoRepository.create({ barbeiro_id: barbeiroId, nome: 'S1', duracao_minutos: 10, preco_centavos: 100, ativo: 1 });
+            const s2 = await servicoRepository.create({ barbeiro_id: barbeiroId, nome: 'S2', duracao_minutos: 10, preco_centavos: 100, ativo: 1 });
+            const s3 = await servicoRepository.create({ barbeiro_id: barbeiroId, nome: 'S3', duracao_minutos: 10, preco_centavos: 100, ativo: 0 }); // Inativo
 
             const encontrados = await servicoRepository.findByIds([s1.id, s2.id, s3.id]);
 

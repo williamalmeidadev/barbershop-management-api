@@ -19,7 +19,7 @@ describe('ServicosService', () => {
     describe('buscarPorIds', () => {
         it('deve retornar os serviços encontrados pelos IDs', async () => {
             const mockServices: Servico[] = [
-                { id: 1, nome: 'Corte', descricao: '', duracao_minutos: 30, preco_centavos: 5000, ativo: 1 }
+                { id: 1, barbeiro_id: 1, nome: 'Corte', descricao: '', duracao_minutos: 30, preco_centavos: 5000, ativo: 1 }
             ];
             const findByIdsStub = sandbox.stub(servicoRepository, 'findByIds').resolves(mockServices);
 
@@ -61,7 +61,7 @@ describe('ServicosService', () => {
 
     describe('buscarPorId', () => {
         it('deve retornar o serviço se encontrado', async () => {
-            const mockService: Servico = { id: 1, nome: 'Corte', descricao: '', duracao_minutos: 30, preco_centavos: 5000, ativo: 1 };
+            const mockService: Servico = { id: 1, barbeiro_id: 1, nome: 'Corte', descricao: '', duracao_minutos: 30, preco_centavos: 5000, ativo: 1 };
             sandbox.stub(servicoRepository, 'findById').resolves(mockService);
 
             const result = await servicoService.buscarPorId(1);
@@ -94,6 +94,7 @@ describe('ServicosService', () => {
 
     describe('criar', () => {
         const validPayload = {
+            barbeiro_id: 1,
             nome: 'Corte',
             duracao_minutos: 30,
             preco_centavos: 5000
@@ -111,7 +112,7 @@ describe('ServicosService', () => {
 
         it('deve gerar um erro se faltarem campos obrigatórios.', async () => {
             // @ts-ignore
-            const invalidPayload = { nome: 'Corte' };
+            const invalidPayload = { barbeiro_id: 1, nome: 'Corte' };
             try {
                 // @ts-ignore
                 await servicoService.criar(invalidPayload);
@@ -151,7 +152,7 @@ describe('ServicosService', () => {
 
     describe('atualizar', () => {
         it('deve atualizar o serviço com sucesso', async () => {
-            const mockService: Servico = { id: 1, nome: 'Corte Novo', descricao: '', duracao_minutos: 30, preco_centavos: 5000, ativo: 1 };
+            const mockService: Servico = { id: 1, barbeiro_id: 1, nome: 'Corte Novo', descricao: '', duracao_minutos: 30, preco_centavos: 5000, ativo: 1 };
             const updateStub = sandbox.stub(servicoRepository, 'update').resolves(mockService);
 
             const result = await servicoService.atualizar(1, { nome: 'Corte Novo' });
@@ -209,7 +210,7 @@ describe('ServicosService', () => {
 
     describe('desativar', () => {
         it('deve desativar o serviço com sucesso', async () => {
-            const mockService: Servico = { id: 1, nome: 'Corte', descricao: '', duracao_minutos: 30, preco_centavos: 5000, ativo: 0 };
+            const mockService: Servico = { id: 1, barbeiro_id: 1, nome: 'Corte', descricao: '', duracao_minutos: 30, preco_centavos: 5000, ativo: 0 };
             const deactivateStub = sandbox.stub(servicoRepository, 'deactivate').resolves(mockService);
 
             const result = await servicoService.desativar(1);

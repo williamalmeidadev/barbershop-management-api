@@ -8,7 +8,7 @@ import { servicoService } from '../../../src/services/servicosService';
 import { vagasService } from '../../../src/services/vagasService';
 import { configuracoesRepository } from '../../../src/repositories/configuracoesRepository';
 import * as transactionModule from '../../../src/repositories/transaction';
-import { StatusAgendamento, CriarAgendamentoPayload } from '../../../src/interfaces/agendamento';
+import { StatusAgendamento, CriarAgendamentoPayload, PagamentoTipo } from '../../../src/interfaces/agendamento';
 
 describe('AgendamentosService', () => {
     let sandbox: sinon.SinonSandbox;
@@ -27,7 +27,7 @@ describe('AgendamentosService', () => {
             cliente_id: 1,
             barbeiro_id: 2,
             servicos: [1, 2],
-            inicio_desejado: '2026-01-29T10:00:00Z'
+            inicio_desejado: '2030-01-29T10:00:00Z'
         };
 
         const mockServicos = [
@@ -36,8 +36,8 @@ describe('AgendamentosService', () => {
         ];
 
         const mockVagas = [
-            { id: 101, inicio: '2026-01-29T10:00:00Z', fim: '2026-01-29T10:30:00Z', status: 'LIVRE' },
-            { id: 102, inicio: '2026-01-29T10:30:00Z', fim: '2026-01-29T10:50:00Z', status: 'LIVRE' }
+            { id: 101, inicio: '2030-01-29T10:00:00Z', fim: '2030-01-29T10:30:00Z', status: 'LIVRE' },
+            { id: 102, inicio: '2030-01-29T10:30:00Z', fim: '2030-01-29T10:50:00Z', status: 'LIVRE' }
         ];
 
         it('deve criar um agendamento com sucesso com desconto', async () => {
@@ -52,7 +52,7 @@ describe('AgendamentosService', () => {
                 desconto_disponivel_centavos: 1000 // Tem 10 reais de desconto
             } as any);
 
-            const reservarVagasStub = sandbox.stub(vagasService, 'reservarVagasParaAgendamento').resolves(mockVagas as any);
+            const selecionarVagasStub = sandbox.stub(vagasService, 'selecionarVagasParaAgendamento').resolves(mockVagas as any);
 
             const criarStub = sandbox.stub(agendamentosRepository, 'criarAgendamento').resolves(123);
             sandbox.stub(agendamentosRepository, 'adicionarServicosAoAgendamento').resolves();
@@ -84,11 +84,10 @@ describe('AgendamentosService', () => {
                 fim: mockVagas[mockVagas.length - 1].fim
             }));
 
-            sinon.assert.calledWith(reservarVagasStub,
+            sinon.assert.calledWith(selecionarVagasStub,
                 validPayload.barbeiro_id,
                 validPayload.inicio_desejado,
-                50, // 30 + 20 duration
-                { manageTransaction: false }
+                50 // 30 + 20 duration
             );
 
             sinon.assert.calledWith(atualizarClienteStub, 1, 5, 0);
@@ -127,7 +126,7 @@ describe('AgendamentosService', () => {
         it('deve gerar um erro se não houver vagas disponíveis.', async () => {
             sandbox.stub(servicoService, 'buscarPorIds').resolves(mockServicos as any);
             sandbox.stub(clientesRepository, 'buscarResumo').resolves({} as any);
-            sandbox.stub(vagasService, 'reservarVagasParaAgendamento').resolves([]); // Empty vagas
+            sandbox.stub(vagasService, 'selecionarVagasParaAgendamento').resolves([]); // Empty vagas
 
             try {
                 await bookingService.criarAgendamento(validPayload);
@@ -142,6 +141,7 @@ describe('AgendamentosService', () => {
         it('deve cancelar com sucesso', async () => {
             const mockAgendamento = {
                 id: 1,
+                cliente_id: 1,
                 status: StatusAgendamento.AGENDADO
             };
 
@@ -149,7 +149,7 @@ describe('AgendamentosService', () => {
             const cancelarStub = sandbox.stub(agendamentosRepository, 'cancelarAgendamento').resolves();
             sandbox.stub(agendamentosRepository, 'buscarAgendamentoCompleto').resolves({ ...mockAgendamento, status: StatusAgendamento.CANCELADO } as any);
 
-            const result = await bookingService.cancelarAgendamento(1);
+            const result = await bookingService.cancelarAgendamento(1, { id: 1, role: 'client' });
 
             sinon.assert.calledWith(cancelarStub, 1);
             expect(result.status).to.equal(StatusAgendamento.CANCELADO);
@@ -158,11 +158,12 @@ describe('AgendamentosService', () => {
         it('deve gerar um erro se a agenda já estiver cancelada.', async () => {
             sandbox.stub(agendamentosRepository, 'buscarAgendamentoPorId').resolves({
                 id: 1,
+                cliente_id: 1,
                 status: StatusAgendamento.CANCELADO
             } as any);
 
             try {
-                await bookingService.cancelarAgendamento(1);
+                await bookingService.cancelarAgendamento(1, { id: 1, role: 'client' });
                 expect.fail('Should have thrown error');
             } catch (err: any) {
                 expect(err.message).to.contain('Agendamento já cancelado');
@@ -172,11 +173,12 @@ describe('AgendamentosService', () => {
         it('deve gerar um erro se a agendação já estiver concluída.', async () => {
             sandbox.stub(agendamentosRepository, 'buscarAgendamentoPorId').resolves({
                 id: 1,
+                cliente_id: 1,
                 status: StatusAgendamento.CONCLUIDO
             } as any);
 
             try {
-                await bookingService.cancelarAgendamento(1);
+                await bookingService.cancelarAgendamento(1, { id: 1, role: 'client' });
                 expect.fail('Should have thrown error');
             } catch (err: any) {
                 expect(err.message).to.contain('Agendamento já concluído');
@@ -220,7 +222,7 @@ describe('AgendamentosService', () => {
             const atualizarClienteStub = sandbox.stub(clientesRepository, 'atualizarContagemEDesconto').resolves();
             sandbox.stub(agendamentosRepository, 'buscarAgendamentoCompleto').resolves({ ...mockAgendamento, status: StatusAgendamento.CONCLUIDO } as any);
 
-            await bookingService.concluirAgendamento(1);
+            await bookingService.concluirAgendamento(1, PagamentoTipo.DINHEIRO);
 
             sinon.assert.calledWith(concluirStub, 1, sinon.match.string);
 

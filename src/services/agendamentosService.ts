@@ -95,6 +95,14 @@ export const bookingService = {
         throw new Error('Agendamento já concluído.')
       }
       await agendamentosRepository.cancelarAgendamento(id, agendamento.status === StatusAgendamento.AGENDADO)
+
+      if (agendamento.desconto_aplicado_centavos > 0) {
+        const cliente = await clientesRepository.buscarResumo(agendamento.cliente_id)
+        if (cliente) {
+          await clientesRepository.atualizarContagemEDesconto(agendamento.cliente_id, cliente.concluidos_count, agendamento.desconto_aplicado_centavos)
+        }
+      }
+
       const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
       if (!atualizado) {
         throw new Error('Agendamento não encontrado.')
@@ -138,6 +146,14 @@ export const bookingService = {
         throw new Error('Apenas agendamentos solicitados podem ser recusados.')
       }
       await agendamentosRepository.atualizarStatus(id, StatusAgendamento.RECUSADO)
+
+      if (agendamento.desconto_aplicado_centavos > 0) {
+        const cliente = await clientesRepository.buscarResumo(agendamento.cliente_id)
+        if (cliente) {
+          await clientesRepository.atualizarContagemEDesconto(agendamento.cliente_id, cliente.concluidos_count, agendamento.desconto_aplicado_centavos)
+        }
+      }
+
       const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
       if (!atualizado) throw new Error('Agendamento não encontrado.')
       return atualizado

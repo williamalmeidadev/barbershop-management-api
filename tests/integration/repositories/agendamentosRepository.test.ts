@@ -59,7 +59,7 @@ describe('AgendamentosRepository Integration', function () {
         servicoIds = [];
         for (let i = 1; i <= 2; i++) {
             const id = await new Promise<number>((resolve, reject) => {
-                db.run(`INSERT INTO servicos (nome, duracao_minutos, preco_centavos) VALUES ('S${i}', 30, 1000)`, function (err) {
+                db.run(`INSERT INTO servicos (nome, duracao_minutos, preco_centavos, barbeiro_id) VALUES ('S${i}', 30, 1000, ?)`, [barbeiroId], function (err) {
                     if (err) reject(err); else resolve(this.lastID);
                 });
             });
@@ -136,7 +136,7 @@ describe('AgendamentosRepository Integration', function () {
                 });
             });
 
-            await agendamentosRepository.cancelarAgendamento(agId);
+            await agendamentosRepository.cancelarAgendamento(agId, true);
 
             const atualizado = await agendamentosRepository.buscarAgendamentoPorId(agId);
             expect(atualizado!.status).to.equal(StatusAgendamento.CANCELADO);
