@@ -102,6 +102,14 @@ const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', classNa
   wrap.appendChild(createIcon(icon));
   return wrap;
 });
+const renderStatus = ui.renderStatus || ((container, message, className = 'status') => {
+  if (!container) return;
+  container.replaceChildren();
+  const node = document.createElement('div');
+  node.className = className;
+  node.textContent = message;
+  container.appendChild(node);
+});
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -411,8 +419,7 @@ loadClientesBtn.addEventListener('click', () => withButtonLock(loadClientesBtn, 
       : data;
     renderClientes(filtrados);
   } catch (err) {
-    clear(clientesList);
-    clientesList.appendChild(el('div', 'status', err.message));
+    renderStatus(clientesList, err.message);
   }
 }));
 
@@ -424,7 +431,7 @@ buscarClientesBtn?.addEventListener('click', (e) => {
 function renderClientes(clientes) {
   clear(clientesList);
   if (!clientes.length) {
-    clientesList.appendChild(el('div', 'status', 'Sem clientes.'));
+    renderStatus(clientesList, 'Sem clientes.');
     return;
   }
 
@@ -556,8 +563,7 @@ loadAgendamentosBtn.addEventListener('click', () => withButtonLock(loadAgendamen
     });
     renderAgendamentos(filtrados);
   } catch (err) {
-    clear(agendamentosList);
-    agendamentosList.appendChild(el('div', 'status', err.message));
+    renderStatus(agendamentosList, err.message);
   }
 }));
 
@@ -569,7 +575,7 @@ buscarAgendamentosBtn?.addEventListener('click', (e) => {
 function renderAgendamentos(items) {
   clear(agendamentosList);
   if (!items.length) {
-    agendamentosList.appendChild(el('div', 'status', 'Sem agendamentos.'));
+    renderStatus(agendamentosList, 'Sem agendamentos.');
     return;
   }
 
@@ -760,20 +766,19 @@ formVagas.addEventListener('submit', (e) => {
   return withButtonLock(submitBtn, async () => {
     const barbeiroId = qs('vagas-barbeiro').value;
     const data = qs('vagas-data').value;
-    try {
-      const vagas = await request(`/vagas/todos?barbeiroId=${barbeiroId}&data=${data}`);
-      renderVagas(vagas);
-    } catch (err) {
-      clear(vagasList);
-      vagasList.appendChild(el('div', 'status', err.message));
-    }
-  });
+  try {
+    const vagas = await request(`/vagas/todos?barbeiroId=${barbeiroId}&data=${data}`);
+    renderVagas(vagas);
+  } catch (err) {
+    renderStatus(vagasList, err.message);
+  }
+});
 });
 
 function renderVagas(vagas) {
   clear(vagasList);
   if (!vagas.length) {
-    vagasList.appendChild(el('div', 'status', 'Sem vagas.'));
+    renderStatus(vagasList, 'Sem vagas.');
     return;
   }
 
@@ -1071,8 +1076,7 @@ loadServicosBtn.addEventListener('click', () => withButtonLock(loadServicosBtn, 
     const data = await request('/servicos');
     renderServicos(data);
   } catch (err) {
-    clear(servicosList);
-    servicosList.appendChild(el('div', 'status', err.message));
+    renderStatus(servicosList, err.message);
   }
 }));
 
@@ -1145,7 +1149,7 @@ btnNovoServico.addEventListener('click', () => {
 function renderServicos(items) {
   clear(servicosList);
   if (!items.length) {
-    servicosList.appendChild(el('div', 'status', 'Sem serviços.'));
+    renderStatus(servicosList, 'Sem serviços.');
     return;
   }
 
@@ -1415,7 +1419,7 @@ btnNovoBarbeiro.addEventListener('click', () => {
 function renderBarbeiros(items) {
   clear(barbeirosList);
   if (!items.length) {
-    barbeirosList.appendChild(el('div', 'status', 'Sem barbeiros.'));
+    renderStatus(barbeirosList, 'Sem barbeiros.');
     return;
   }
 

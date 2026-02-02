@@ -9,13 +9,14 @@ const createCard = ui.createCard || ((className = 'card') => {
     card.className = className;
     return card;
 });
-const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', className = 'media' } = {}) => {
+const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', className = 'media', imgClass } = {}) => {
     const wrap = document.createElement('div');
     wrap.className = className;
     if (url) {
         const img = document.createElement('img');
         img.src = url;
         img.alt = alt;
+        if (imgClass) img.className = imgClass;
         img.onerror = () => {
             const fallback = document.createElement('span');
             fallback.className = 'material-icons';
@@ -273,35 +274,46 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        professionalsGrid.innerHTML = state.professionals.map(pro => {
-            const fallbackIcon = `<span class='material-icons' style='font-size: 2.5rem; color: var(--primary);'>person</span>`;
+        professionalsGrid.replaceChildren();
+        state.professionals.forEach(pro => {
+            const card = createCard('card');
+            card.dataset.id = String(pro.id);
 
             const avatarSrc = normalizeImageUrl(pro.foto_url);
-            const avatarContent = avatarSrc
-                ? `<img src="${avatarSrc}" 
-                       alt="${pro.nome_profissional}" 
-                       class="barber-avatar-img" 
-                       onerror="this.parentElement.innerHTML = &quot;${fallbackIcon}&quot;">`
-                : `<span class="material-icons" style="font-size: 2.5rem; color: var(--primary);">person</span>`;
+            const avatar = createMedia({
+                url: avatarSrc,
+                alt: pro.nome_profissional || pro.nome || 'Barbeiro',
+                icon: 'person',
+                className: 'avatar-container',
+                imgClass: 'barber-avatar-img'
+            });
 
-            return `
-            <div class="card" data-id="${pro.id}">
-                <div class="avatar-container">
-                    ${avatarContent}
-                </div>
-                <h3 style="text-align: center;">${pro.nome_profissional || pro.nome}</h3>
-                <p style="text-align: center; color: var(--text-muted);">${pro.bio || pro.especialidade || 'Barbeiro Profissional'}</p>
-                <div style="margin-top: 1.5rem; text-align: center;">
-                    <span style="color: var(--primary); font-weight: 700; font-size: 0.9rem;">Ver Serviços e Horários</span>
-                </div>
-            </div>
-        `}).join('');
+            const name = document.createElement('h3');
+            name.style.textAlign = 'center';
+            name.textContent = pro.nome_profissional || pro.nome;
 
-        professionalsGrid.querySelectorAll('.card').forEach(card => {
-            card.onclick = () => {
-                const id = parseInt(card.dataset.id);
-                showBarberProfile(id);
-            };
+            const bio = document.createElement('p');
+            bio.style.textAlign = 'center';
+            bio.style.color = 'var(--text-muted)';
+            bio.textContent = pro.bio || pro.especialidade || 'Barbeiro Profissional';
+
+            const ctaWrap = document.createElement('div');
+            ctaWrap.style.marginTop = '1.5rem';
+            ctaWrap.style.textAlign = 'center';
+            const cta = document.createElement('span');
+            cta.style.color = 'var(--primary)';
+            cta.style.fontWeight = '700';
+            cta.style.fontSize = '0.9rem';
+            cta.textContent = 'Ver Serviços e Horários';
+            ctaWrap.appendChild(cta);
+
+            card.appendChild(avatar);
+            card.appendChild(name);
+            card.appendChild(bio);
+            card.appendChild(ctaWrap);
+
+            card.onclick = () => showBarberProfile(pro.id);
+            professionalsGrid.appendChild(card);
         });
     }
 
@@ -330,23 +342,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldAvatar = document.querySelector('.profile-avatar, .profile-avatar-wrapper');
         if (oldAvatar) oldAvatar.remove();
 
-        const fallbackIconBig = `<span class='material-icons' style='font-size: 4rem; color: var(--text-muted);'>person</span>`;
-
-        const avatarSrc = normalizeImageUrl(pro.foto_url);
-        const avatarUrl = avatarSrc
-            ? `<img src="${avatarSrc}" 
-                   alt="${pro.nome_profissional}" 
-                   class="barber-avatar-img"
-                   onerror="this.parentElement.innerHTML = &quot;${fallbackIconBig}&quot;">`
-            : `<span class="material-icons" style="font-size: 4rem; color: var(--text-muted);">person</span>`;
-
         const wrapperDiv = document.createElement('div');
         wrapperDiv.className = 'profile-avatar-wrapper';
-        wrapperDiv.innerHTML = `
-            <div class="profile-avatar" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--surface);">
-                ${avatarUrl}
-            </div>
-        `;
+        const avatarSrc = normalizeImageUrl(pro.foto_url);
+        const avatar = createMedia({
+            url: avatarSrc,
+            alt: pro.nome_profissional || pro.nome || 'Barbeiro',
+            icon: 'person',
+            className: 'profile-avatar',
+            imgClass: 'barber-avatar-img'
+        });
+        avatar.style.width = '100%';
+        avatar.style.height = '100%';
+        avatar.style.display = 'flex';
+        avatar.style.alignItems = 'center';
+        avatar.style.justifyContent = 'center';
+        avatar.style.backgroundColor = 'var(--surface)';
+        wrapperDiv.appendChild(avatar);
 
         profileHeader.insertBefore(wrapperDiv, profileHeader.firstChild);
 

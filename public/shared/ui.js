@@ -18,13 +18,14 @@
     return icon;
   };
 
-  const createMedia = ({ url, alt = '', icon = 'image', className = 'media' } = {}) => {
+  const createMedia = ({ url, alt = '', icon = 'image', className = 'media', imgClass } = {}) => {
     const wrap = document.createElement('div');
     wrap.className = className;
     if (url) {
       const img = document.createElement('img');
       img.src = url;
       img.alt = alt;
+      if (imgClass) img.className = imgClass;
       img.onerror = () => {
         wrap.replaceChildren(createIcon(icon));
       };
@@ -93,6 +94,19 @@
     node.replaceChildren();
   };
 
+  const renderStatus = (container, message, className = 'status') => {
+    if (!container) return;
+    clear(container);
+    const node = document.createElement('div');
+    node.className = className;
+    node.textContent = message;
+    container.appendChild(node);
+  };
+
+  const renderLoading = (container, message = 'Carregando...') => {
+    renderStatus(container, message, 'loading');
+  };
+
   window.UI = {
     el,
     clear,
@@ -102,6 +116,8 @@
     createMedia,
     createCard,
     createModalController,
-    toast
+    toast,
+    renderStatus,
+    renderLoading
   };
 })();
