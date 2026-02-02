@@ -199,7 +199,7 @@ initPanelHeaders();
 function initFilters() {
   if (!filters.createFilterForm) return;
 
-  const clientesFilters = filters.createFilterForm({
+const clientesFilters = filters.createFilterForm({
     fields: [
       {
         label: 'Status',
@@ -228,7 +228,8 @@ function initFilters() {
     ],
     onSubmit: (e) => {
       e.preventDefault();
-      loadClientesBtn?.click();
+      const btn = e.submitter || buscarClientesBtn || loadClientesBtn;
+      withButtonLock(btn, fetchClientes);
     }
   });
 
@@ -280,7 +281,8 @@ function initFilters() {
     ],
     onSubmit: (e) => {
       e.preventDefault();
-      loadAgendamentosBtn?.click();
+      const btn = e.submitter || buscarAgendamentosBtn || loadAgendamentosBtn;
+      withButtonLock(btn, fetchAgendamentos);
     }
   });
 
@@ -597,7 +599,7 @@ function openConfigModal(data) {
 
 btnConfigCreate?.addEventListener('click', () => openConfigModal(null));
 
-loadClientesBtn?.addEventListener('click', () => withButtonLock(loadClientesBtn, async () => {
+async function fetchClientes() {
   const ativo = clientesAtivo.value;
   const query = ativo !== '' ? `?ativo=${ativo}` : '';
   try {
@@ -610,7 +612,9 @@ loadClientesBtn?.addEventListener('click', () => withButtonLock(loadClientesBtn,
   } catch (err) {
     renderStatus(clientesList, err.message);
   }
-}));
+}
+
+loadClientesBtn?.addEventListener('click', () => withButtonLock(loadClientesBtn, fetchClientes));
 
 // submit handler is attached on filter form
 
@@ -716,7 +720,7 @@ async function toggleCliente(id, ativoAtual) {
   }
 }
 
-loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendamentosBtn, async () => {
+async function fetchAgendamentos() {
   try {
     const data = await request('/agendamentos');
     const status = agendamentosStatus.value;
@@ -743,7 +747,9 @@ loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendame
   } catch (err) {
     renderStatus(agendamentosList, err.message);
   }
-}));
+}
+
+loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendamentosBtn, fetchAgendamentos));
 
 // submit handler is attached on filter form
 
