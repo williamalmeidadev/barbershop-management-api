@@ -411,28 +411,21 @@ function openConfigModal(data) {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const groupQtd = el('div', 'form-group');
-  groupQtd.appendChild(el('label', null, 'Quantidade de concluídos'));
-  const inputQtd = el('input');
-  inputQtd.type = 'number';
-  inputQtd.min = '1';
-  if (data?.desconto_qtd_concluidos) inputQtd.value = data.desconto_qtd_concluidos;
-  groupQtd.appendChild(inputQtd);
-
-  const groupValor = el('div', 'form-group');
-  groupValor.appendChild(el('label', null, 'Desconto (R$)'));
-  const inputValor = el('input');
-  inputValor.type = 'number';
-  inputValor.min = '1';
-  inputValor.step = '0.01';
-  if (data?.desconto_valor_centavos) inputValor.value = (data.desconto_valor_centavos / 100).toFixed(2);
-  groupValor.appendChild(inputValor);
+  const inputQtd = createInput({ type: 'number', min: 1, value: data?.desconto_qtd_concluidos });
+  const inputValor = createInput({
+    type: 'number',
+    min: 1,
+    step: '0.01',
+    value: data?.desconto_valor_centavos ? (data.desconto_valor_centavos / 100).toFixed(2) : ''
+  });
+  const groupQtd = createFormGroup('Quantidade de concluídos', inputQtd);
+  const groupValor = createFormGroup('Desconto (R$)', inputValor);
 
   grid.appendChild(groupQtd);
   grid.appendChild(groupValor);
 
   const actions = el('div', 'modal-actions center');
-  const saveBtn = el('button', 'btn primary', 'Salvar');
+  const saveBtn = createButton('Salvar', 'btn primary');
   actions.appendChild(saveBtn);
 
   container.appendChild(grid);
@@ -516,42 +509,28 @@ function editarCliente(cliente) {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const nameGroup = el('div', 'form-group');
-  nameGroup.appendChild(el('label', null, 'Nome'));
-  const nameInput = el('input');
-  nameInput.value = cliente.nome || '';
-  nameGroup.appendChild(nameInput);
+  const nameInput = createInput({ value: cliente.nome || '' });
+  const emailInput = createInput({ value: cliente.email || '' });
+  const telInput = createInput({ value: cliente.telefone || '' });
+  const ativoSelect = createSelect({
+    value: cliente.ativo === 1 ? '1' : '0',
+    options: [
+      { value: '1', label: 'Ativo' },
+      { value: '0', label: 'Inativo' }
+    ]
+  });
 
-  const emailGroup = el('div', 'form-group');
-  emailGroup.appendChild(el('label', null, 'Email'));
-  const emailInput = el('input');
-  emailInput.value = cliente.email || '';
-  emailGroup.appendChild(emailInput);
-
-  const telGroup = el('div', 'form-group');
-  telGroup.appendChild(el('label', null, 'Telefone'));
-  const telInput = el('input');
-  telInput.value = cliente.telefone || '';
-  telGroup.appendChild(telInput);
-
-  const ativoGroup = el('div', 'form-group');
-  ativoGroup.appendChild(el('label', null, 'Ativo'));
-  const ativoSelect = el('select');
-  const optAtivo = el('option', null, 'Ativo');
-  optAtivo.value = '1';
-  const optInativo = el('option', null, 'Inativo');
-  optInativo.value = '0';
-  if (cliente.ativo === 1) optAtivo.selected = true; else optInativo.selected = true;
-  ativoSelect.appendChild(optAtivo);
-  ativoSelect.appendChild(optInativo);
-  ativoGroup.appendChild(ativoSelect);
+  const nameGroup = createFormGroup('Nome', nameInput);
+  const emailGroup = createFormGroup('Email', emailInput);
+  const telGroup = createFormGroup('Telefone', telInput);
+  const ativoGroup = createFormGroup('Ativo', ativoSelect);
 
   grid.appendChild(nameGroup);
   grid.appendChild(emailGroup);
   grid.appendChild(telGroup);
   grid.appendChild(ativoGroup);
 
-  const saveBtn = el('button', 'btn primary', 'Salvar');
+  const saveBtn = createButton('Salvar', 'btn primary');
 
   container.appendChild(grid);
   container.appendChild(saveBtn);
@@ -862,39 +841,18 @@ btnAbrirGerar.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Barbeiro'));
-  const s1 = el('select', 'barbeiro-select');
+  const s1 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s1);
-  g1.appendChild(s1);
+  const d2 = createInput({ type: 'date' });
+  const t3 = createInput({ type: 'time', step: 60 });
+  const t4 = createInput({ type: 'time', step: 60 });
+  const d5 = createInput({ type: 'number', min: 5, value: 30 });
 
-  const g2 = el('div', 'form-group');
-  g2.appendChild(el('label', null, 'Data'));
-  const d2 = el('input');
-  d2.type = 'date';
-  g2.appendChild(d2);
-
-  const g3 = el('div', 'form-group');
-  g3.appendChild(el('label', null, 'Início expediente'));
-  const t3 = el('input');
-  t3.type = 'time';
-  t3.step = '60';
-  g3.appendChild(t3);
-
-  const g4 = el('div', 'form-group');
-  g4.appendChild(el('label', null, 'Fim expediente'));
-  const t4 = el('input');
-  t4.type = 'time';
-  t4.step = '60';
-  g4.appendChild(t4);
-
-  const g5 = el('div', 'form-group');
-  g5.appendChild(el('label', null, 'Duração (min)'));
-  const d5 = el('input');
-  d5.type = 'number';
-  d5.min = '5';
-  d5.value = '30';
-  g5.appendChild(d5);
+  const g1 = createFormGroup('Barbeiro', s1);
+  const g2 = createFormGroup('Data', d2);
+  const g3 = createFormGroup('Início expediente', t3);
+  const g4 = createFormGroup('Fim expediente', t4);
+  const g5 = createFormGroup('Duração (min)', d5);
 
   grid.appendChild(g1);
   grid.appendChild(g2);
@@ -902,7 +860,7 @@ btnAbrirGerar.addEventListener('click', () => {
   grid.appendChild(g4);
   grid.appendChild(g5);
 
-  const confirmBtn = el('button', 'btn', 'Gerar');
+  const confirmBtn = createButton('Gerar', 'btn');
 
   container.appendChild(grid);
   container.appendChild(confirmBtn);
@@ -932,36 +890,18 @@ btnAbrirBloqueio.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Barbeiro'));
-  const s1 = el('select', 'barbeiro-select');
+  const s1 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s1);
-  g1.appendChild(s1);
+  const d2 = createInput({ type: 'date' });
+  const t3 = createInput({ type: 'time', step: 60 });
+  const t4 = createInput({ type: 'time', step: 60 });
+  const t5 = createInput();
 
-  const g2 = el('div', 'form-group');
-  g2.appendChild(el('label', null, 'Data'));
-  const d2 = el('input');
-  d2.type = 'date';
-  g2.appendChild(d2);
-
-  const g3 = el('div', 'form-group');
-  g3.appendChild(el('label', null, 'Início'));
-  const t3 = el('input');
-  t3.type = 'time';
-  t3.step = '60';
-  g3.appendChild(t3);
-
-  const g4 = el('div', 'form-group');
-  g4.appendChild(el('label', null, 'Fim'));
-  const t4 = el('input');
-  t4.type = 'time';
-  t4.step = '60';
-  g4.appendChild(t4);
-
-  const g5 = el('div', 'form-group');
-  g5.appendChild(el('label', null, 'Motivo'));
-  const t5 = el('input');
-  g5.appendChild(t5);
+  const g1 = createFormGroup('Barbeiro', s1);
+  const g2 = createFormGroup('Data', d2);
+  const g3 = createFormGroup('Início', t3);
+  const g4 = createFormGroup('Fim', t4);
+  const g5 = createFormGroup('Motivo', t5);
 
   grid.appendChild(g1);
   grid.appendChild(g2);
@@ -969,7 +909,7 @@ btnAbrirBloqueio.addEventListener('click', () => {
   grid.appendChild(g4);
   grid.appendChild(g5);
 
-  const confirmBtn = el('button', 'btn', 'Bloquear');
+  const confirmBtn = createButton('Bloquear', 'btn');
 
   container.appendChild(grid);
   container.appendChild(confirmBtn);
@@ -998,39 +938,23 @@ btnAbrirReserva.addEventListener('click', () => {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Barbeiro'));
-  const s1 = el('select', 'barbeiro-select');
+  const s1 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s1);
-  g1.appendChild(s1);
+  const d2 = createInput({ type: 'date' });
+  const t3 = createInput({ type: 'time', step: 60 });
+  const d4 = createInput({ type: 'number', min: 5, value: 30 });
 
-  const g2 = el('div', 'form-group');
-  g2.appendChild(el('label', null, 'Data'));
-  const d2 = el('input');
-  d2.type = 'date';
-  g2.appendChild(d2);
-
-  const g3 = el('div', 'form-group');
-  g3.appendChild(el('label', null, 'Hora'));
-  const t3 = el('input');
-  t3.type = 'time';
-  t3.step = '60';
-  g3.appendChild(t3);
-
-  const g4 = el('div', 'form-group');
-  g4.appendChild(el('label', null, 'Duração (min)'));
-  const d4 = el('input');
-  d4.type = 'number';
-  d4.min = '5';
-  d4.value = '30';
-  g4.appendChild(d4);
+  const g1 = createFormGroup('Barbeiro', s1);
+  const g2 = createFormGroup('Data', d2);
+  const g3 = createFormGroup('Hora', t3);
+  const g4 = createFormGroup('Duração (min)', d4);
 
   grid.appendChild(g1);
   grid.appendChild(g2);
   grid.appendChild(g3);
   grid.appendChild(g4);
 
-  const confirmBtn = el('button', 'btn', 'Reservar');
+  const confirmBtn = createButton('Reservar', 'btn');
 
   container.appendChild(grid);
   container.appendChild(confirmBtn);
@@ -1071,39 +995,23 @@ function abrirBloqueioVaga(barbeiroId, inicio) {
   const container = el('div');
   const grid = el('div', 'form-grid');
 
-  const g1 = el('div', 'form-group');
-  g1.appendChild(el('label', null, 'Barbeiro'));
-  const s1 = el('select', 'barbeiro-select');
+  const s1 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s1, barbeiroId);
-  g1.appendChild(s1);
+  const d2 = createInput({ type: 'date', value: data });
+  const t3 = createInput({ type: 'time', value: hora });
+  const t4 = createInput({ type: 'time', value: hora });
 
-  const g2 = el('div', 'form-group');
-  g2.appendChild(el('label', null, 'Data'));
-  const d2 = el('input');
-  d2.type = 'date';
-  d2.value = data;
-  g2.appendChild(d2);
-
-  const g3 = el('div', 'form-group');
-  g3.appendChild(el('label', null, 'Início'));
-  const t3 = el('input');
-  t3.type = 'time';
-  t3.value = hora;
-  g3.appendChild(t3);
-
-  const g4 = el('div', 'form-group');
-  g4.appendChild(el('label', null, 'Fim'));
-  const t4 = el('input');
-  t4.type = 'time';
-  t4.value = hora;
-  g4.appendChild(t4);
+  const g1 = createFormGroup('Barbeiro', s1);
+  const g2 = createFormGroup('Data', d2);
+  const g3 = createFormGroup('Início', t3);
+  const g4 = createFormGroup('Fim', t4);
 
   grid.appendChild(g1);
   grid.appendChild(g2);
   grid.appendChild(g3);
   grid.appendChild(g4);
 
-  const confirmBtn = el('button', 'btn', 'Bloquear');
+  const confirmBtn = createButton('Bloquear', 'btn');
 
   container.appendChild(grid);
   container.appendChild(confirmBtn);
@@ -1258,11 +1166,9 @@ function editarServico(servico) {
   fotoGroup.appendChild(preview);
   fotoGroup.appendChild(fotoRow);
 
-  const g0 = el('div', 'form-group');
-  g0.appendChild(el('label', null, 'Barbeiro'));
   const s0 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s0, servico.barbeiro_id);
-  g0.appendChild(s0);
+  const g0 = createFormGroup('Barbeiro', s0);
 
   const i1 = createInput({ value: servico.nome || '' });
   const i2 = createInput({ value: servico.descricao || '' });

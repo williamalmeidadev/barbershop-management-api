@@ -116,6 +116,73 @@
     return group;
   };
 
+  const createPhotoGroup = ({
+    label = 'Foto',
+    icon = 'person',
+    imageUrl,
+    alt,
+    onFileSelected,
+    onRemove,
+    removeLabel = 'Remover foto',
+    changeLabel = 'Trocar foto',
+    accept = 'image/*'
+  } = {}) => {
+    const group = document.createElement('div');
+    group.className = 'form-group photo-group';
+    group.appendChild(el('label', null, label));
+
+    const preview = document.createElement('div');
+    preview.className = 'avatar preview-avatar';
+    const updatePreview = (url) => {
+      preview.replaceChildren();
+      if (url) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = alt || label;
+        img.onerror = () => {
+          preview.replaceChildren(createIcon(icon));
+        };
+        preview.appendChild(img);
+      } else {
+        preview.appendChild(createIcon(icon));
+      }
+    };
+    updatePreview(imageUrl);
+
+    const actions = document.createElement('div');
+    actions.className = 'photo-actions';
+    const fileInput = document.createElement('input');
+    fileInput.className = 'hidden-file';
+    fileInput.type = 'file';
+    fileInput.accept = accept;
+
+    const changeBtn = createButton(changeLabel, 'btn ghost');
+    const removeBtn = createButton(removeLabel, 'btn danger');
+
+    actions.appendChild(changeBtn);
+    actions.appendChild(removeBtn);
+    actions.appendChild(fileInput);
+
+    changeBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      if (typeof onFileSelected === 'function') {
+        onFileSelected({ file, updatePreview, input: fileInput, removeBtn });
+      }
+    });
+    removeBtn.addEventListener('click', () => {
+      if (typeof onRemove === 'function') {
+        onRemove({ updatePreview, input: fileInput, removeBtn });
+      }
+    });
+
+    group.appendChild(preview);
+    group.appendChild(actions);
+
+    return { group, preview, fileInput, changeBtn, removeBtn, updatePreview };
+  };
+
   const createModalController = ({ modal, titleEl, bodyEl, closeEl }) => {
     if (!modal || !bodyEl) {
       return {
@@ -195,6 +262,7 @@
     createInput,
     createSelect,
     createFormGroup,
+    createPhotoGroup,
     createModalController,
     toast,
     renderStatus,
