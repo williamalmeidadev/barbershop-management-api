@@ -192,6 +192,7 @@ const layout = window.LAYOUT || {};
 const createPanelHeader = layout.createPanelHeader;
 const renderPanelHeader = layout.renderPanelHeader;
 const adminCards = window.ADMIN_CARDS || {};
+const adminModals = window.ADMIN_MODALS || {};
 const filters = window.FILTERS || {};
 const topbar = document.querySelector('.topbar');
 if (layout.renderAdminPanelHeader && topbar) {
@@ -688,8 +689,11 @@ function renderConfigCard(data, error) {
 }
 
 function openConfigModal(data) {
-  const container = el('div');
-  const grid = el('div', 'form-grid');
+  const modalForm = adminModals.createModalForm
+    ? adminModals.createModalForm({ actionLabel: 'Salvar', actionClass: 'btn primary', actionAlign: 'center' })
+    : null;
+  const container = modalForm?.container || el('div');
+  const grid = modalForm?.grid || el('div', 'form-grid');
 
   const inputQtd = createInput({ type: 'number', min: 1, value: data?.desconto_qtd_concluidos });
   const inputValor = createInput({
@@ -704,12 +708,13 @@ function openConfigModal(data) {
   grid.appendChild(groupQtd);
   grid.appendChild(groupValor);
 
-  const actions = el('div', 'modal-actions center');
-  const saveBtn = createButton('Salvar', 'btn primary');
-  actions.appendChild(saveBtn);
-
-  container.appendChild(grid);
-  container.appendChild(actions);
+  const saveBtn = modalForm?.primaryBtn || createButton('Salvar', 'btn primary');
+  if (!modalForm) {
+    const actions = el('div', 'modal-actions center');
+    actions.appendChild(saveBtn);
+    container.appendChild(grid);
+    container.appendChild(actions);
+  }
 
   openModal(data ? 'Editar regra' : 'Criar regra', container);
 
@@ -1009,8 +1014,11 @@ function verDetalhes(agendamento) {
 }
 
 function abrirConcluirAgendamento(id) {
-  const container = el('div');
-  const grid = el('div', 'form-grid');
+  const modalForm = adminModals.createModalForm
+    ? adminModals.createModalForm({ actionLabel: 'Concluir', actionClass: 'btn primary', actionAlign: 'center' })
+    : null;
+  const container = modalForm?.container || el('div');
+  const grid = modalForm?.grid || el('div', 'form-grid');
 
   const select = createSelect({
     options: [
@@ -1022,9 +1030,11 @@ function abrirConcluirAgendamento(id) {
   const g1 = createFormGroup('Forma de pagamento', select);
   grid.appendChild(g1);
 
-  const confirmBtn = createButton('Concluir', 'btn');
-  container.appendChild(grid);
-  container.appendChild(confirmBtn);
+  const confirmBtn = modalForm?.primaryBtn || createButton('Concluir', 'btn');
+  if (!modalForm) {
+    container.appendChild(grid);
+    container.appendChild(confirmBtn);
+  }
 
   openModal('Concluir agendamento', container);
 
@@ -1119,8 +1129,11 @@ function renderVagas(vagas) {
 }
 
 btnAbrirGerar?.addEventListener('click', () => {
-  const container = el('div');
-  const grid = el('div', 'form-grid');
+  const modalForm = adminModals.createModalForm
+    ? adminModals.createModalForm({ actionLabel: 'Gerar', actionClass: 'btn primary', actionAlign: 'center' })
+    : null;
+  const container = modalForm?.container || el('div');
+  const grid = modalForm?.grid || el('div', 'form-grid');
 
   const s1 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s1);
@@ -1141,10 +1154,11 @@ btnAbrirGerar?.addEventListener('click', () => {
   grid.appendChild(g4);
   grid.appendChild(g5);
 
-  const confirmBtn = createButton('Gerar', 'btn');
-
-  container.appendChild(grid);
-  container.appendChild(confirmBtn);
+  const confirmBtn = modalForm?.primaryBtn || createButton('Gerar', 'btn');
+  if (!modalForm) {
+    container.appendChild(grid);
+    container.appendChild(confirmBtn);
+  }
 
   openModal('Gerar vagas', container);
 
@@ -1168,8 +1182,11 @@ btnAbrirGerar?.addEventListener('click', () => {
 });
 
 btnAbrirBloqueio?.addEventListener('click', () => {
-  const container = el('div');
-  const grid = el('div', 'form-grid');
+  const modalForm = adminModals.createModalForm
+    ? adminModals.createModalForm({ actionLabel: 'Bloquear', actionClass: 'btn primary', actionAlign: 'center' })
+    : null;
+  const container = modalForm?.container || el('div');
+  const grid = modalForm?.grid || el('div', 'form-grid');
 
   const s1 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s1);
@@ -1190,10 +1207,11 @@ btnAbrirBloqueio?.addEventListener('click', () => {
   grid.appendChild(g4);
   grid.appendChild(g5);
 
-  const confirmBtn = createButton('Bloquear', 'btn');
-
-  container.appendChild(grid);
-  container.appendChild(confirmBtn);
+  const confirmBtn = modalForm?.primaryBtn || createButton('Bloquear', 'btn');
+  if (!modalForm) {
+    container.appendChild(grid);
+    container.appendChild(confirmBtn);
+  }
 
   openModal('Bloquear horário', container);
 
@@ -1216,8 +1234,11 @@ btnAbrirBloqueio?.addEventListener('click', () => {
 });
 
 btnAbrirReserva?.addEventListener('click', () => {
-  const container = el('div');
-  const grid = el('div', 'form-grid');
+  const modalForm = adminModals.createModalForm
+    ? adminModals.createModalForm({ actionLabel: 'Reservar', actionClass: 'btn primary', actionAlign: 'center' })
+    : null;
+  const container = modalForm?.container || el('div');
+  const grid = modalForm?.grid || el('div', 'form-grid');
 
   const s1 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s1);
@@ -1235,10 +1256,11 @@ btnAbrirReserva?.addEventListener('click', () => {
   grid.appendChild(g3);
   grid.appendChild(g4);
 
-  const confirmBtn = createButton('Reservar', 'btn');
-
-  container.appendChild(grid);
-  container.appendChild(confirmBtn);
+  const confirmBtn = modalForm?.primaryBtn || createButton('Reservar', 'btn');
+  if (!modalForm) {
+    container.appendChild(grid);
+    container.appendChild(confirmBtn);
+  }
 
   openModal('Reservar vagas', container);
 
@@ -1273,8 +1295,11 @@ function abrirBloqueioVaga(barbeiroId, inicio) {
   const data = dt.toISOString().slice(0, 10);
   const hora = dt.toISOString().slice(11, 16);
 
-  const container = el('div');
-  const grid = el('div', 'form-grid');
+  const modalForm = adminModals.createModalForm
+    ? adminModals.createModalForm({ actionLabel: 'Bloquear', actionClass: 'btn primary', actionAlign: 'center' })
+    : null;
+  const container = modalForm?.container || el('div');
+  const grid = modalForm?.grid || el('div', 'form-grid');
 
   const s1 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s1, barbeiroId);
@@ -1292,10 +1317,11 @@ function abrirBloqueioVaga(barbeiroId, inicio) {
   grid.appendChild(g3);
   grid.appendChild(g4);
 
-  const confirmBtn = createButton('Bloquear', 'btn');
-
-  container.appendChild(grid);
-  container.appendChild(confirmBtn);
+  const confirmBtn = modalForm?.primaryBtn || createButton('Bloquear', 'btn');
+  if (!modalForm) {
+    container.appendChild(grid);
+    container.appendChild(confirmBtn);
+  }
 
   openModal('Bloquear vaga', container);
 
@@ -1327,8 +1353,11 @@ loadServicosBtn?.addEventListener('click', () => withButtonLock(loadServicosBtn,
 }));
 
 btnNovoServico?.addEventListener('click', () => {
-  const container = el('div');
-  const grid = el('div', 'form-grid');
+  const modalForm = adminModals.createModalForm
+    ? adminModals.createModalForm({ actionLabel: 'Registrar', actionClass: 'btn primary', actionAlign: 'center' })
+    : null;
+  const container = modalForm?.container || el('div');
+  const grid = modalForm?.grid || el('div', 'form-grid');
 
   const s0 = createSelect({ className: 'barbeiro-select' });
   populateBarbeiroSelect(s0);
@@ -1349,10 +1378,11 @@ btnNovoServico?.addEventListener('click', () => {
   grid.appendChild(g3);
   grid.appendChild(g4);
 
-  const saveBtn = createButton('Registrar', 'btn');
-
-  container.appendChild(grid);
-  container.appendChild(saveBtn);
+  const saveBtn = modalForm?.primaryBtn || createButton('Registrar', 'btn');
+  if (!modalForm) {
+    container.appendChild(grid);
+    container.appendChild(saveBtn);
+  }
 
   openModal('Registrar serviço', container);
 
@@ -1597,8 +1627,11 @@ loadBarbeirosBtn?.addEventListener('click', () => withButtonLock(loadBarbeirosBt
 }));
 
 btnNovoBarbeiro?.addEventListener('click', () => {
-  const container = el('div');
-  const grid = el('div', 'form-grid');
+  const modalForm = adminModals.createModalForm
+    ? adminModals.createModalForm({ actionLabel: 'Registrar', actionClass: 'btn primary', actionAlign: 'center' })
+    : null;
+  const container = modalForm?.container || el('div');
+  const grid = modalForm?.grid || el('div', 'form-grid');
 
   const i1 = createInput();
   const i2 = createInput();
@@ -1608,10 +1641,11 @@ btnNovoBarbeiro?.addEventListener('click', () => {
   grid.appendChild(g1);
   grid.appendChild(g2);
 
-  const saveBtn = createButton('Registrar', 'btn');
-
-  container.appendChild(grid);
-  container.appendChild(saveBtn);
+  const saveBtn = modalForm?.primaryBtn || createButton('Registrar', 'btn');
+  if (!modalForm) {
+    container.appendChild(grid);
+    container.appendChild(saveBtn);
+  }
 
   openModal('Registrar barbeiro', container);
 
