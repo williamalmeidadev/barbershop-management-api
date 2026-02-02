@@ -56,8 +56,8 @@
       card.insertBefore(media, card.firstChild);
     }
     const [editBtn, toggleBtn] = actions;
-    if (onEdit && editBtn) editBtn.addEventListener('click', onEdit);
-    if (onToggle && toggleBtn) toggleBtn.addEventListener('click', onToggle);
+    if (onEdit && editBtn) editBtn.addEventListener('click', () => onEdit(editBtn));
+    if (onToggle && toggleBtn) toggleBtn.addEventListener('click', () => onToggle(toggleBtn));
     return card;
   };
 
@@ -77,8 +77,8 @@
       ],
       actions
     });
-    if (onEdit && editBtn) editBtn.addEventListener('click', onEdit);
-    if (onToggle && toggleBtn) toggleBtn.addEventListener('click', onToggle);
+    if (onEdit && editBtn) editBtn.addEventListener('click', () => onEdit(editBtn));
+    if (onToggle && toggleBtn) toggleBtn.addEventListener('click', () => onToggle(toggleBtn));
     return card;
   };
 
@@ -112,15 +112,36 @@
     if (onToggle) actions.push(createButton(ativo === 1 ? 'Desativar' : 'Ativar', `btn ${ativo === 1 ? 'danger' : ''}`));
     card.appendChild(createActionsRow(actions));
     const [editBtn, toggleBtn] = actions;
-    if (onEdit && editBtn) editBtn.addEventListener('click', onEdit);
-    if (onToggle && toggleBtn) toggleBtn.addEventListener('click', onToggle);
+    if (onEdit && editBtn) editBtn.addEventListener('click', () => onEdit(editBtn));
+    if (onToggle && toggleBtn) toggleBtn.addEventListener('click', () => onToggle(toggleBtn));
     return card;
+  };
+
+  const createAgendamentoCard = ({ id, status, lines = [], actions = [] } = {}) => {
+    const title = id ? `#${id} - ${status || ''}` : status || '';
+    const card = createCardWithLines({
+      title,
+      lines,
+      actions
+    });
+    return card;
+  };
+
+  const createVagaCard = ({ id, status, lines = [], actions = [] } = {}) => {
+    const title = id ? `#${id} - ${status || ''}` : status || '';
+    return createCardWithLines({
+      title,
+      lines,
+      actions
+    });
   };
 
   window.ADMIN_CARDS = {
     createConfigCard,
     createServiceCard,
     createClienteCard,
-    createBarbeiroCard
+    createBarbeiroCard,
+    createAgendamentoCard,
+    createVagaCard
   };
 })();

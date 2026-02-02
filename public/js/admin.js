@@ -22,17 +22,17 @@ const configContainer = document.getElementById('config-card-container');
 let btnConfigCreate = null;
 
 let loadClientesBtn = null;
-const buscarClientesBtn = document.getElementById('buscar-clientes');
-const clientesAtivo = document.getElementById('clientes-ativo');
-const clientesBusca = document.getElementById('clientes-busca');
+let buscarClientesBtn = null;
+let clientesAtivo = null;
+let clientesBusca = null;
 const clientesList = document.getElementById('clientes-list');
 
 let loadAgendamentosBtn = null;
-const buscarAgendamentosBtn = document.getElementById('buscar-agendamentos');
-const agendamentosStatus = document.getElementById('agendamentos-status');
-const agendamentosBusca = document.getElementById('agendamentos-busca');
-const agendamentosBarbeiro = document.getElementById('agendamentos-barbeiro');
-const agendamentosData = document.getElementById('agendamentos-data');
+let buscarAgendamentosBtn = null;
+let agendamentosStatus = null;
+let agendamentosBusca = null;
+let agendamentosBarbeiro = null;
+let agendamentosData = null;
 const agendamentosList = document.getElementById('agendamentos-list');
 
 const formVagas = document.getElementById('form-vagas');
@@ -192,6 +192,7 @@ const layout = window.LAYOUT || {};
 const createPanelHeader = layout.createPanelHeader;
 const renderPanelHeader = layout.renderPanelHeader;
 const adminCards = window.ADMIN_CARDS || {};
+const filters = window.FILTERS || {};
 const topbar = document.querySelector('.topbar');
 if (layout.renderAdminPanelHeader && topbar) {
   layout.renderAdminPanelHeader(topbar, {
@@ -310,6 +311,111 @@ function initPanelHeaders() {
 }
 
 initPanelHeaders();
+
+function initFilters() {
+  if (!filters.createFilterForm) return;
+
+  const clientesFilters = filters.createFilterForm({
+    fields: [
+      {
+        label: 'Status',
+        type: 'select',
+        id: 'clientes-ativo',
+        options: [
+          { value: '', label: 'Todos' },
+          { value: '1', label: 'Ativos' },
+          { value: '0', label: 'Inativos' }
+        ]
+      },
+      {
+        label: 'Buscar',
+        type: 'text',
+        id: 'clientes-busca',
+        placeholder: 'Nome ou e-mail'
+      },
+      {
+        labelEmpty: true,
+        type: 'button',
+        id: 'buscar-clientes',
+        placeholder: '',
+        groupClass: 'align-end',
+        className: 'btn'
+      }
+    ],
+    onSubmit: (e) => {
+      e.preventDefault();
+      loadClientesBtn?.click();
+    }
+  });
+
+  const clientesFiltersWrap = document.getElementById('clientes-filters');
+  if (clientesFiltersWrap) {
+    clientesFiltersWrap.replaceChildren(clientesFilters.form);
+  }
+
+  const agendamentosFilters = filters.createFilterForm({
+    fields: [
+      {
+        label: 'Status',
+        type: 'select',
+        id: 'agendamentos-status',
+        options: [
+          { value: '', label: 'Todos' },
+          { value: 'SOLICITADO', label: 'Solicitado' },
+          { value: 'AGENDADO', label: 'Agendado' },
+          { value: 'CONCLUIDO', label: 'Concluído' },
+          { value: 'CANCELADO', label: 'Cancelado' },
+          { value: 'RECUSADO', label: 'Recusado' }
+        ]
+      },
+      {
+        label: 'Cliente',
+        type: 'text',
+        id: 'agendamentos-busca',
+        placeholder: 'Nome do cliente'
+      },
+      {
+        label: 'Barbeiro',
+        type: 'select',
+        id: 'agendamentos-barbeiro',
+        className: 'barbeiro-select',
+        options: [{ value: '', label: 'Todos' }]
+      },
+      {
+        label: 'Data',
+        type: 'date',
+        id: 'agendamentos-data'
+      },
+      {
+        labelEmpty: true,
+        type: 'button',
+        id: 'buscar-agendamentos',
+        groupClass: 'align-end',
+        className: 'btn'
+      }
+    ],
+    onSubmit: (e) => {
+      e.preventDefault();
+      loadAgendamentosBtn?.click();
+    }
+  });
+
+  const agendamentosFiltersWrap = document.getElementById('agendamentos-filters');
+  if (agendamentosFiltersWrap) {
+    agendamentosFiltersWrap.replaceChildren(agendamentosFilters.form);
+  }
+
+  buscarClientesBtn = document.getElementById('buscar-clientes');
+  clientesAtivo = document.getElementById('clientes-ativo');
+  clientesBusca = document.getElementById('clientes-busca');
+  buscarAgendamentosBtn = document.getElementById('buscar-agendamentos');
+  agendamentosStatus = document.getElementById('agendamentos-status');
+  agendamentosBusca = document.getElementById('agendamentos-busca');
+  agendamentosBarbeiro = document.getElementById('agendamentos-barbeiro');
+  agendamentosData = document.getElementById('agendamentos-data');
+}
+
+initFilters();
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -643,10 +749,7 @@ loadClientesBtn?.addEventListener('click', () => withButtonLock(loadClientesBtn,
   }
 }));
 
-buscarClientesBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  loadClientesBtn.click();
-});
+// submit handler is attached on filter form
 
 function renderClientes(clientes) {
   renderCardList(clientesList, clientes, (c) => {
@@ -658,7 +761,7 @@ function renderClientes(clientes) {
         concluidos: c.concluidos_count || 0,
         desconto: formatCurrency(c.desconto_disponivel_centavos || 0),
         onEdit: () => editarCliente(c),
-        onToggle: () => toggleCliente(c.id, c.ativo)
+        onToggle: (btn) => withButtonLock(btn, () => toggleCliente(c.id, c.ativo))
       });
     }
     const actions = [];
@@ -779,10 +882,7 @@ loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendame
   }
 }));
 
-buscarAgendamentosBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  loadAgendamentosBtn.click();
-});
+// submit handler is attached on filter form
 
 function renderAgendamentos(items) {
   renderCardList(agendamentosList, items, (a) => {
@@ -805,11 +905,18 @@ function renderAgendamentos(items) {
     ];
     if (a.pagamento_tipo) lines.push(`Pagamento: ${a.pagamento_tipo}`);
 
-    const card = createCardWithLines({
-      title: `#${a.id} - ${a.status}`,
-      lines,
-      actions
-    });
+    const card = adminCards.createAgendamentoCard
+      ? adminCards.createAgendamentoCard({
+          id: a.id,
+          status: a.status,
+          lines,
+          actions
+        })
+      : createCardWithLines({
+          title: `#${a.id} - ${a.status}`,
+          lines,
+          actions
+        });
 
     detailsBtn.addEventListener('click', () => verDetalhes(a));
     if (a.status === 'SOLICITADO') {
@@ -987,14 +1094,23 @@ function renderVagas(vagas) {
     const deleteBtn = createButton('Apagar', 'btn danger');
     actions.push(blockBtn, deleteBtn);
 
-    const card = createCardWithLines({
-      title: `#${v.id} - ${v.status}`,
-      lines: [
-        `Início: ${new Date(v.inicio).toLocaleString('pt-BR')}`,
-        `Fim: ${new Date(v.fim).toLocaleString('pt-BR')}`
-      ],
-      actions
-    });
+    const lines = [
+      `Início: ${new Date(v.inicio).toLocaleString('pt-BR')}`,
+      `Fim: ${new Date(v.fim).toLocaleString('pt-BR')}`
+    ];
+
+    const card = adminCards.createVagaCard
+      ? adminCards.createVagaCard({
+          id: v.id,
+          status: v.status,
+          lines,
+          actions
+        })
+      : createCardWithLines({
+          title: `#${v.id} - ${v.status}`,
+          lines,
+          actions
+        });
 
     blockBtn.addEventListener('click', () => abrirBloqueioVaga(v.barbeiro_id || 0, v.inicio));
     deleteBtn.addEventListener('click', () => withButtonLock(deleteBtn, () => apagarVaga(v.id)));
@@ -1261,6 +1377,21 @@ btnNovoServico?.addEventListener('click', () => {
 
 function renderServicos(items) {
   renderCardList(servicosList, items, (s) => {
+    if (adminCards.createServiceCard) {
+      return adminCards.createServiceCard({
+        id: s.id,
+        name: s.nome,
+        description: s.descricao,
+        duration: s.duracao_minutos,
+        priceText: formatCurrency(s.preco_centavos),
+        barbeiroNome: getBarbeiroNomeById(s.barbeiro_id),
+        mediaUrl: s.foto_url,
+        ativo: s.ativo,
+        onEdit: () => editarServico(s),
+        onToggle: (btn) => withButtonLock(btn, () => toggleServico(s.id, s.ativo))
+      });
+    }
+
     const media = createMedia({
       url: s.foto_url,
       alt: s.nome,
@@ -1502,6 +1633,17 @@ btnNovoBarbeiro?.addEventListener('click', () => {
 
 function renderBarbeiros(items) {
   renderCardList(barbeirosList, items, (b) => {
+    if (adminCards.createBarbeiroCard) {
+      return adminCards.createBarbeiroCard({
+        nome: b.nome_profissional,
+        bio: b.bio,
+        ativo: b.ativo,
+        mediaUrl: b.foto_url,
+        onEdit: () => editarBarbeiro(b),
+        onToggle: (btn) => withButtonLock(btn, () => toggleBarbeiro(b.id, b.ativo))
+      });
+    }
+
     const card = createCard('card');
     const header = el('div', 'card-header vertical');
     const avatar = createMedia({
