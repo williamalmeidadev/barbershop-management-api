@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProfileServices() {
         profileServicesList.replaceChildren();
         if (!state.services || state.services.length === 0) {
-            profileServicesList.innerHTML = '<div class="placeholder-text">Nenhum serviço disponível para este barbeiro.</div>';
+            renderStatus(profileServicesList, 'Nenhum serviço disponível para este barbeiro.', 'placeholder-text');
             return;
         }
 
@@ -561,39 +561,39 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadProfileTimeSlots() {
         if (!state.selectedProfessional || !state.selectedDate) return;
 
-        profileTimeSlots.innerHTML = '<div class="placeholder-text">Buscando horários...</div>';
+        renderStatus(profileTimeSlots, 'Buscando horários...', 'placeholder-text');
         try {
             const slots = await services.fetchAvailableSlots(state.selectedProfessional.id, state.selectedDate);
             renderProfileTimeSlots(slots);
         } catch (error) {
-            profileTimeSlots.innerHTML = '<div class="placeholder-text">Erro ao carregar horários.</div>';
+            renderStatus(profileTimeSlots, 'Erro ao carregar horários.', 'placeholder-text');
         }
     }
 
     function renderProfileTimeSlots(slots) {
         if (slots.length === 0) {
-            profileTimeSlots.innerHTML = state.selectedDate ?
-                '<p class="placeholder-text">Sem horários para esta data.</p>' :
-                '<p class="placeholder-text">Selecione uma data para ver os horários</p>';
+            renderStatus(
+                profileTimeSlots,
+                state.selectedDate ? 'Sem horários para esta data.' : 'Selecione uma data para ver os horários',
+                'placeholder-text'
+            );
             return;
         }
 
-        profileTimeSlots.innerHTML = slots.map(slot => {
+        profileTimeSlots.replaceChildren();
+        slots.forEach((slot) => {
             const inicioIso = slot.inicio;
             const label = new Date(inicioIso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            return `
-            <div class="time-slot-compact ${state.selectedTime === inicioIso ? 'selected' : ''}" data-time="${inicioIso}">
-                ${label}
-            </div>
-        `;
-        }).join('');
-
-        profileTimeSlots.querySelectorAll('.time-slot-compact').forEach(slot => {
-            slot.onclick = () => {
-                state.selectedTime = slot.dataset.time;
+            const item = document.createElement('div');
+            item.className = `time-slot-compact ${state.selectedTime === inicioIso ? 'selected' : ''}`;
+            item.dataset.time = inicioIso;
+            item.textContent = label;
+            item.onclick = () => {
+                state.selectedTime = item.dataset.time;
                 renderProfileTimeSlots(slots);
                 checkBookingReady();
             };
+            profileTimeSlots.appendChild(item);
         });
     }
 
@@ -613,28 +613,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderSummary() {
-        bookingSummary.innerHTML = `
-            <div class="summary-item" style="margin-bottom: 1.5rem; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
-                <div style="font-family: 'Playfair Display', serif; font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                    Resumo do Pedido
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                    <strong>Profissional:</strong> <span>${state.selectedProfessional.nome_profissional || state.selectedProfessional.nome}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                    <strong>Serviço:</strong> <span>${state.selectedService.nome}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                    <strong>Agendado para:</strong> <span>${new Date(state.selectedTime).toLocaleDateString('pt-BR')} às ${new Date(state.selectedTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 1.5rem; border-top: 2px solid var(--primary); padding-top: 1rem; color: var(--primary); font-size: 1.3rem; font-weight: 700;">
-                    <strong>Total:</strong> <span>${formatCurrency(state.selectedService.preco_centavos)}</span>
-                </div>
-            </div>
-            <div style="padding: 0 1rem; color: var(--text-muted); font-size: 0.9rem;">
-                Pagamento e confirmação serão feitos no local.
-            </div>
-        `;
+        bookingSummary.replaceChildren();
+        const summary = document.createElement('div');
+        summary.className = 'summary-item';
+        summary.style.marginBottom = '1.5rem';
+        summary.style.padding = '1.5rem';
+        summary.style.background = 'rgba(255,255,255,0.05)';
+        summary.style.borderRadius = '8px';
+
+        const title = document.createElement('div');
+        title.style.fontFamily = "'Playfair Display', serif";
+        title.style.fontSize = '1.2rem';
+        title.style.borderBottom = '1px solid var(--border)';
+        title.style.paddingBottom = '0.5rem';
+        title.style.marginBottom = '1rem';
+        title.textContent = 'Resumo do Pedido';
+
+        const row = (label, value) => {
+            const line = document.createElement('div');
+            line.style.display = 'flex';
+            line.style.justifyContent = 'space-between';
+            line.style.marginBottom = '0.8rem';
+            const l = document.createElement('strong');
+            l.textContent = label;
+            const v = document.createElement('span');
+            v.textContent = value;
+            line.appendChild(l);
+            line.appendChild(v);
+            return line;
+        };
+
+        summary.appendChild(title);
+        summary.appendChild(row('Profissional:', state.selectedProfessional.nome_profissional || state.selectedProfessional.nome));
+        summary.appendChild(row('Serviço:', state.selectedService.nome));
+        summary.appendChild(
+            row(
+                'Agendado para:',
+                `${new Date(state.selectedTime).toLocaleDateString('pt-BR')} às ${new Date(state.selectedTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+            )
+        );
+
+        const totalRow = document.createElement('div');
+        totalRow.style.display = 'flex';
+        totalRow.style.justifyContent = 'space-between';
+        totalRow.style.marginTop = '1.5rem';
+        totalRow.style.borderTop = '2px solid var(--primary)';
+        totalRow.style.paddingTop = '1rem';
+        totalRow.style.color = 'var(--primary)';
+        totalRow.style.fontSize = '1.3rem';
+        totalRow.style.fontWeight = '700';
+        const totalLabel = document.createElement('strong');
+        totalLabel.textContent = 'Total:';
+        const totalValue = document.createElement('span');
+        totalValue.textContent = formatCurrency(state.selectedService.preco_centavos);
+        totalRow.appendChild(totalLabel);
+        totalRow.appendChild(totalValue);
+        summary.appendChild(totalRow);
+
+        const note = document.createElement('div');
+        note.style.padding = '0 1rem';
+        note.style.color = 'var(--text-muted)';
+        note.style.fontSize = '0.9rem';
+        note.textContent = 'Pagamento e confirmação serão feitos no local.';
+
+        bookingSummary.appendChild(summary);
+        bookingSummary.appendChild(note);
     }
 
     function showNotification(message, type = 'success') {
