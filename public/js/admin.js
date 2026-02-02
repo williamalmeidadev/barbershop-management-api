@@ -191,6 +191,7 @@ const renderCardList = ui.renderCardList || ((container, items, renderItem, { em
 const layout = window.LAYOUT || {};
 const createPanelHeader = layout.createPanelHeader;
 const renderPanelHeader = layout.renderPanelHeader;
+const adminCards = window.ADMIN_CARDS || {};
 const topbar = document.querySelector('.topbar');
 if (layout.renderAdminPanelHeader && topbar) {
   layout.renderAdminPanelHeader(topbar, {
@@ -504,43 +505,68 @@ function renderConfigCard(data, error) {
   clear(configContainer);
 
   if (error) {
-    const card = el('div', 'config-card');
-    const icon = el('span', 'material-icons', 'error');
-    const wrap = el('div');
-    wrap.appendChild(el('h4', null, 'Erro'));
-    wrap.appendChild(el('p', 'output', error));
-    card.appendChild(icon);
-    card.appendChild(wrap);
+    const card = adminCards.createConfigCard
+      ? adminCards.createConfigCard({ title: 'Erro', message: error, icon: 'error' })
+      : (() => {
+          const c = el('div', 'config-card');
+          const icon = el('span', 'material-icons', 'error');
+          const wrap = el('div');
+          wrap.appendChild(el('h4', null, 'Erro'));
+          wrap.appendChild(el('p', 'output', error));
+          c.appendChild(icon);
+          c.appendChild(wrap);
+          return c;
+        })();
     configContainer.appendChild(card);
     return;
   }
 
   const hasRule = data && data.desconto_qtd_concluidos && data.desconto_valor_centavos;
   if (!hasRule) {
-    const card = el('div', 'config-card');
-    const icon = el('span', 'material-icons', 'info');
-    const wrap = el('div');
-    wrap.appendChild(el('h4', null, 'Sem regra ativa'));
-    wrap.appendChild(el('p', 'output', 'Crie uma regra de desconto para começar.'));
-    card.appendChild(icon);
-    card.appendChild(wrap);
+    const card = adminCards.createConfigCard
+      ? adminCards.createConfigCard({
+          title: 'Sem regra ativa',
+          message: 'Crie uma regra de desconto para começar.',
+          icon: 'info'
+        })
+      : (() => {
+          const c = el('div', 'config-card');
+          const icon = el('span', 'material-icons', 'info');
+          const wrap = el('div');
+          wrap.appendChild(el('h4', null, 'Sem regra ativa'));
+          wrap.appendChild(el('p', 'output', 'Crie uma regra de desconto para começar.'));
+          c.appendChild(icon);
+          c.appendChild(wrap);
+          return c;
+        })();
     configContainer.appendChild(card);
     return;
   }
 
-  const card = el('div', 'config-card');
-  const icon = el('span', 'material-icons', 'verified');
-  const wrap = el('div');
-  wrap.appendChild(el('h4', null, 'Regra Atual'));
-  wrap.appendChild(el('p', 'output', `${data.desconto_qtd_concluidos} concluídos → ${formatCurrency(data.desconto_valor_centavos)} de desconto`));
-  const actions = el('div', 'config-actions');
   const editBtn = el('button', 'btn ghost', 'Editar');
   const removeBtn = el('button', 'btn danger', 'Remover');
-  actions.appendChild(editBtn);
-  actions.appendChild(removeBtn);
-  wrap.appendChild(actions);
-  card.appendChild(icon);
-  card.appendChild(wrap);
+  const message = `${data.desconto_qtd_concluidos} concluídos → ${formatCurrency(data.desconto_valor_centavos)} de desconto`;
+  const card = adminCards.createConfigCard
+    ? adminCards.createConfigCard({
+        title: 'Regra Atual',
+        message,
+        icon: 'verified',
+        actions: [editBtn, removeBtn]
+      })
+    : (() => {
+        const c = el('div', 'config-card');
+        const icon = el('span', 'material-icons', 'verified');
+        const wrap = el('div');
+        wrap.appendChild(el('h4', null, 'Regra Atual'));
+        wrap.appendChild(el('p', 'output', message));
+        const actions = el('div', 'config-actions');
+        actions.appendChild(editBtn);
+        actions.appendChild(removeBtn);
+        wrap.appendChild(actions);
+        c.appendChild(icon);
+        c.appendChild(wrap);
+        return c;
+      })();
   configContainer.appendChild(card);
 
   editBtn.addEventListener('click', () => openConfigModal(data));
@@ -624,6 +650,17 @@ buscarClientesBtn?.addEventListener('click', (e) => {
 
 function renderClientes(clientes) {
   renderCardList(clientesList, clientes, (c) => {
+    if (adminCards.createClienteCard) {
+      return adminCards.createClienteCard({
+        nome: c.nome,
+        email: c.email,
+        ativo: c.ativo,
+        concluidos: c.concluidos_count || 0,
+        desconto: formatCurrency(c.desconto_disponivel_centavos || 0),
+        onEdit: () => editarCliente(c),
+        onToggle: () => toggleCliente(c.id, c.ativo)
+      });
+    }
     const actions = [];
     const editBtn = createButton('Editar', 'btn ghost');
     const toggleBtn = createButton(c.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${c.ativo === 1 ? 'danger' : ''}`);

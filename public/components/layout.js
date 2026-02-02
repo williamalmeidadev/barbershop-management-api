@@ -70,6 +70,51 @@
     return footer;
   };
 
+  const createAppHeader = ({ basePath = '', showAppointments = true } = {}) => {
+    const header = createEl('header', { className: 'main-header' });
+    const container = createEl('div', { className: 'container header-container' });
+    const logo = createEl('a', {
+      className: 'logo',
+      attrs: { href: `${basePath}/app` }
+    });
+    const logoIcon = createEl('span', { className: 'material-icons', text: 'diversity_3' });
+    const logoTitle = createEl('h1', { text: 'BarberMarket' });
+    appendChildren(logo, [logoIcon, logoTitle]);
+
+    const menuToggle = createEl('button', {
+      className: 'menu-toggle',
+      attrs: { id: 'menu-toggle', 'aria-label': 'Abrir menu' }
+    });
+    menuToggle.appendChild(createEl('span', { className: 'material-icons', text: 'menu' }));
+
+    const nav = createEl('nav', { attrs: { id: 'nav-menu' } });
+    const navHome = createEl('a', {
+      className: 'nav-link active',
+      text: 'Explorar',
+      attrs: { href: '#home', id: 'nav-home' }
+    });
+    const navAppointments = createEl('a', {
+      className: `nav-link${showAppointments ? '' : ' hidden'}`,
+      text: 'Meus Agendamentos',
+      attrs: { href: '#appointments', id: 'nav-appointments' }
+    });
+    const navAbout = createEl('a', {
+      className: 'nav-link',
+      text: 'Sobre',
+      attrs: { href: '#about', id: 'nav-about' }
+    });
+    const authAction = createEl('a', {
+      className: 'nav-button',
+      text: 'Login',
+      attrs: { href: `${basePath}/login`, id: 'auth-action' }
+    });
+    appendChildren(nav, [navHome, navAppointments, navAbout, authAction]);
+
+    appendChildren(container, [logo, menuToggle, nav]);
+    header.appendChild(container);
+    return header;
+  };
+
   const renderAuthPage = ({
     mountId = 'app',
     navLinks = [],
@@ -133,6 +178,7 @@
     appendChildren,
     createHeader,
     createFooter,
+    createAppHeader,
     renderAuthPage,
     createPanelHeader,
     renderPanelHeader,
