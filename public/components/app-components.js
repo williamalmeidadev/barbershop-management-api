@@ -134,6 +134,87 @@
     createAppointmentCard,
     createBookingSummary,
     createTimeSlot,
-    createServiceMeta
+    createServiceMeta,
+    createHeroSection: ({ title, description, ctaLabel, ctaHref } = {}) => {
+      const hero = document.createElement('section');
+      hero.className = 'hero-section';
+      hero.id = 'hero';
+      const container = document.createElement('div');
+      container.className = 'container hero-content';
+      const h2 = document.createElement('h2');
+      h2.textContent = title || 'Encontre seu Barbeiro Ideal';
+      const p = document.createElement('p');
+      p.textContent = description || 'Agende cortes e serviços de barbearia com os nossos melhores profissionais.';
+      const cta = document.createElement('a');
+      cta.className = 'cta-button';
+      cta.textContent = ctaLabel || 'Ver Barbeiros';
+      cta.href = ctaHref || '#professionals';
+      container.appendChild(h2);
+      container.appendChild(p);
+      container.appendChild(cta);
+      hero.appendChild(container);
+      return hero;
+    },
+    createSectionHeader: ({ id, title, className = 'section', titleClass = 'section-title', hidden = false } = {}) => {
+      const section = document.createElement('section');
+      section.className = className + (hidden ? ' hidden' : '');
+      if (id) section.id = id;
+      const container = document.createElement('div');
+      container.className = 'container text-center';
+      const h2 = document.createElement('h2');
+      h2.className = titleClass;
+      h2.textContent = title || '';
+      container.appendChild(h2);
+      section.appendChild(container);
+      return { section, container };
+    },
+    createAboutSection: () => {
+      const section = document.createElement('section');
+      section.className = 'section bg-light hidden';
+      section.id = 'about';
+      const container = document.createElement('div');
+      container.className = 'container';
+      const wrapper = document.createElement('div');
+      wrapper.className = 'about-wrapper';
+      const text = document.createElement('div');
+      text.className = 'about-text';
+      const h2 = document.createElement('h2');
+      h2.className = 'section-title';
+      h2.textContent = 'Sobre a BarberMarket';
+      const lead = document.createElement('p');
+      lead.className = 'lead';
+      lead.textContent = 'Tradição e estilo se encontram aqui.';
+      const p1 = document.createElement('p');
+      p1.textContent = 'Fundada com o objetivo de conectar os melhores profissionais aos clientes mais exigentes, a BarberMarket moderniza a experiência da barbearia clássica.';
+      const p2 = document.createElement('p');
+      p2.textContent = 'Nossa plataforma garante agilidade no agendamento e qualidade no serviço, permitindo que você encontre o profissional ideal para o seu estilo.';
+      const list = document.createElement('ul');
+      list.className = 'about-features';
+      ['Agendamento Online', 'Melhores Profissionais', 'Avaliações Reais'].forEach((item) => {
+        const li = document.createElement('li');
+        const icon = document.createElement('span');
+        icon.className = 'material-icons';
+        icon.textContent = 'check_circle';
+        li.appendChild(icon);
+        li.appendChild(document.createTextNode(` ${item}`));
+        list.appendChild(li);
+      });
+      text.appendChild(h2);
+      text.appendChild(lead);
+      text.appendChild(p1);
+      text.appendChild(p2);
+      text.appendChild(list);
+      const imageWrap = document.createElement('div');
+      imageWrap.className = 'about-image';
+      const img = document.createElement('img');
+      img.src = 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+      img.alt = 'Interior da Barbearia';
+      imageWrap.appendChild(img);
+      wrapper.appendChild(text);
+      wrapper.appendChild(imageWrap);
+      container.appendChild(wrapper);
+      section.appendChild(container);
+      return section;
+    }
   };
 })();

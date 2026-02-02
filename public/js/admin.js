@@ -959,8 +959,11 @@ function renderAgendamentos(items) {
 }
 
 function verDetalhes(agendamento) {
-  const container = el('div');
-  const grid = el('div', 'details-grid');
+  const detailsLayout = adminModals.createDetailsLayout
+    ? adminModals.createDetailsLayout({ leftTitle: 'Serviços', rightTitle: 'Vagas' })
+    : null;
+  const container = detailsLayout?.container || el('div');
+  const grid = detailsLayout?.grid || el('div', 'details-grid');
 
   const clienteNome =
     agendamento.cliente?.nome ||
@@ -980,35 +983,38 @@ function verDetalhes(agendamento) {
     grid.appendChild(createInfoRow('Pagamento:', agendamento.pagamento_tipo));
   }
 
-  const columns = el('div', 'details-columns');
-
-  const servicosBox = el('div', 'details-box');
-  servicosBox.appendChild(el('strong', null, 'Serviços'));
-  const servicosList = el('ul');
+  const columns = detailsLayout?.columns || el('div', 'details-columns');
+  const servicosBox = detailsLayout?.leftBox || el('div', 'details-box');
+  const servicosList = detailsLayout?.leftList || el('ul');
+  if (!detailsLayout) {
+    servicosBox.appendChild(el('strong', null, 'Serviços'));
+    servicosBox.appendChild(servicosList);
+  }
   (agendamento.servicos || []).forEach(s => {
     servicosList.appendChild(el('li', null, `${s.nome} (${s.duracao_minutos} min)`));
   });
   if (!agendamento.servicos || agendamento.servicos.length === 0) {
     servicosList.appendChild(el('li', null, 'Sem serviços'));
   }
-  servicosBox.appendChild(servicosList);
 
-  const vagasBox = el('div', 'details-box');
-  vagasBox.appendChild(el('strong', null, 'Vagas'));
-  const vagasUl = el('ul');
+  const vagasBox = detailsLayout?.rightBox || el('div', 'details-box');
+  const vagasUl = detailsLayout?.rightList || el('ul');
+  if (!detailsLayout) {
+    vagasBox.appendChild(el('strong', null, 'Vagas'));
+    vagasBox.appendChild(vagasUl);
+  }
   (agendamento.vagas || []).forEach(v => {
     vagasUl.appendChild(el('li', null, `${new Date(v.inicio).toLocaleString('pt-BR')} - ${v.status}`));
   });
   if (!agendamento.vagas || agendamento.vagas.length === 0) {
     vagasUl.appendChild(el('li', null, 'Sem vagas'));
   }
-  vagasBox.appendChild(vagasUl);
-
-  columns.appendChild(servicosBox);
-  columns.appendChild(vagasBox);
-
-  container.appendChild(grid);
-  container.appendChild(columns);
+  if (!detailsLayout) {
+    columns.appendChild(servicosBox);
+    columns.appendChild(vagasBox);
+    container.appendChild(grid);
+    container.appendChild(columns);
+  }
 
   openModal(`Agendamento #${agendamento.id}`, container);
 }
@@ -1454,9 +1460,12 @@ function renderServicos(items) {
 }
 
 function editarServico(servico) {
-  const container = el('div');
-  container.classList.add('modal-form', 'service-modal');
-  const grid = el('div', 'form-grid service-form');
+  const modalGrid = adminModals.createModalGrid
+    ? adminModals.createModalGrid({ gridClass: 'form-grid service-form', containerClass: 'modal-form service-modal' })
+    : null;
+  const container = modalGrid?.container || el('div');
+  const grid = modalGrid?.grid || el('div', 'form-grid service-form');
+  if (!modalGrid) container.classList.add('modal-form', 'service-modal');
 
   const photo = createPhotoGroup?.({
     label: 'Imagem',
@@ -1705,9 +1714,12 @@ function renderBarbeiros(items) {
 }
 
 function editarBarbeiro(barbeiro) {
-  const container = el('div');
-  container.classList.add('modal-form', 'barbeiro-modal');
-  const grid = el('div', 'form-grid barber-form');
+  const modalGrid = adminModals.createModalGrid
+    ? adminModals.createModalGrid({ gridClass: 'form-grid barber-form', containerClass: 'modal-form barbeiro-modal' })
+    : null;
+  const container = modalGrid?.container || el('div');
+  const grid = modalGrid?.grid || el('div', 'form-grid barber-form');
+  if (!modalGrid) container.classList.add('modal-form', 'barbeiro-modal');
 
   const i1 = createInput({ value: barbeiro.nome_profissional || '' });
   const i2 = createInput({ value: barbeiro.bio || '' });
