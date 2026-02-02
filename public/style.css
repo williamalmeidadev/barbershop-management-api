@@ -198,6 +198,10 @@ nav {
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
     border: 1px solid var(--border);
     transition: all 0.3s;
 }
@@ -945,6 +949,8 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
     font-size: 0.9rem;
     color: var(--text-muted);
     border-top: 1px solid var(--border);
