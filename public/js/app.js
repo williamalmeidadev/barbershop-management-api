@@ -309,7 +309,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const barbeiroNome = appt.barbeiro?.nome_profissional || appt.barbeiro?.nome || `#${appt.barbeiro_id}`;
         const servico = appt.servicos?.[0];
         const servicoNome = servico?.nome || 'Serviço';
-        const servicoPreco = servico?.preco_centavos ?? appt.valor_total_centavos ?? 0;
+        const originalCentavos = appt.valor_original_centavos ?? servico?.preco_centavos ?? 0;
+        const descontoCentavos = appt.desconto_aplicado_centavos ?? 0;
+        const finalCentavos = appt.valor_total_centavos ?? Math.max(0, originalCentavos - descontoCentavos);
         const dataHora = new Date(appt.inicio);
         const dataFmt = dataHora.toLocaleDateString('pt-BR');
         const horaFmt = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -343,7 +345,10 @@ document.addEventListener('DOMContentLoaded', () => {
             status: appt.status,
             serviceName: servicoNome,
             dateText: `${dataFmt} às ${horaFmt}`,
-            priceText: formatCurrency(servicoPreco),
+            priceText: formatCurrency(finalCentavos),
+            originalPriceText: formatCurrency(originalCentavos),
+            discountText: formatCurrency(descontoCentavos),
+            finalPriceText: formatCurrency(finalCentavos),
             cancelLabel,
             canCancel,
             onCancel: (evt, btn) => {

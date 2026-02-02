@@ -53,6 +53,9 @@
     serviceName,
     dateText,
     priceText,
+    originalPriceText,
+    discountText,
+    finalPriceText,
     cancelLabel,
     canCancel,
     onCancel
@@ -74,7 +77,15 @@
 
     const price = document.createElement('div');
     price.className = 'appointment-price';
-    price.textContent = priceText || (formatCurrency ? formatCurrency(0) : 'R$ 0,00');
+    if (originalPriceText || discountText || finalPriceText) {
+      price.appendChild(createInfoRow('Original:', originalPriceText || (formatCurrency ? formatCurrency(0) : 'R$ 0,00')));
+      price.appendChild(createInfoRow('Desconto:', discountText || (formatCurrency ? formatCurrency(0) : 'R$ 0,00')));
+      const finalRow = createInfoRow('Final:', finalPriceText || priceText || (formatCurrency ? formatCurrency(0) : 'R$ 0,00'));
+      finalRow.classList.add('appointment-total');
+      price.appendChild(finalRow);
+    } else {
+      price.textContent = priceText || (formatCurrency ? formatCurrency(0) : 'R$ 0,00');
+    }
 
     const cancelBtn = createButton(cancelLabel || 'Cancelar', 'btn-cancel');
     cancelBtn.disabled = !canCancel;
