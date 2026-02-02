@@ -496,56 +496,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         state.services.forEach(service => {
             const mediaSrc = normalizeImageUrl(service.foto_url);
-            const card = createProfileServiceCardComponent
-                ? createProfileServiceCardComponent({
-                      service,
-                      selected: state.selectedService?.id === service.id,
-                      mediaUrl: mediaSrc,
-                      onSelect: () => {
-                          state.selectedService = service;
-                          renderProfileServices();
-                          checkBookingReady();
-                      }
-                  })
-                : (() => {
-                      const fallbackCard = createCard(`profile-service-card ${state.selectedService?.id === service.id ? 'selected' : ''}`);
-                      fallbackCard.dataset.id = String(service.id);
-
-                      const mediaWrap = createMedia({
-                          url: mediaSrc,
-                          alt: service.nome,
-                          icon: 'content_cut',
-                          className: 'profile-service-media'
-                      });
-
-                      const info = document.createElement('div');
-                      info.className = 'profile-service-info';
-                      const name = document.createElement('h4');
-                      name.textContent = service.nome;
-                      const desc = document.createElement('p');
-                      desc.textContent = service.descricao || 'Serviço de alta qualidade';
-                      info.appendChild(name);
-                      info.appendChild(desc);
-
-                      const price = document.createElement('div');
-                      price.className = 'profile-service-price';
-                      const priceValue = document.createElement('span');
-                      priceValue.textContent = formatCurrency(service.preco_centavos);
-                      const duration = document.createElement('p');
-                      duration.textContent = `${service.duracao_minutos || 30} min`;
-                      price.appendChild(priceValue);
-                      price.appendChild(duration);
-
-                      fallbackCard.appendChild(mediaWrap);
-                      fallbackCard.appendChild(info);
-                      fallbackCard.appendChild(price);
-                      fallbackCard.onclick = () => {
-                          state.selectedService = service;
-                          renderProfileServices();
-                          checkBookingReady();
-                      };
-                      return fallbackCard;
-                  })();
+            const card = createProfileServiceCardComponent({
+                service,
+                selected: state.selectedService?.id === service.id,
+                mediaUrl: mediaSrc,
+                onSelect: () => {
+                    state.selectedService = service;
+                    renderProfileServices();
+                    checkBookingReady();
+                }
+            });
 
             profileServicesList.appendChild(card);
         });
@@ -606,53 +566,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         let cancelButtonRef = null;
-        if (createAppointmentCardComponent) {
-            const card = createAppointmentCardComponent({
-                title: barbeiroNome,
-                status: appt.status,
-                serviceName: servicoNome,
-                dateText: `${dataFmt} às ${horaFmt}`,
-                priceText: formatCurrency(servicoPreco),
-                cancelLabel,
-                canCancel,
-                onCancel: (evt, btn) => {
-                    cancelButtonRef = btn || evt?.currentTarget || cancelButtonRef;
-                    onCancel(evt, btn);
-                }
-            });
-            card.dataset.id = String(appt.id);
-            return card;
-        }
-
-        const { card, header } = createCardWithHeader({
+        const card = createAppointmentCardComponent({
             title: barbeiroNome,
-            icon: 'content_cut',
-            className: 'appointment-card',
-            headerClass: 'appointment-header',
-            titleClass: 'appointment-title',
-            statusClass: 'appointment-status'
+            status: appt.status,
+            serviceName: servicoNome,
+            dateText: `${dataFmt} às ${horaFmt}`,
+            priceText: formatCurrency(servicoPreco),
+            cancelLabel,
+            canCancel,
+            onCancel: (evt, btn) => {
+                cancelButtonRef = btn || evt?.currentTarget || cancelButtonRef;
+                onCancel(evt, btn);
+            }
         });
         card.dataset.id = String(appt.id);
-        header.appendChild(createBadge(appt.status, 'appointment-status'));
-
-        const details = document.createElement('div');
-        details.className = 'appointment-details';
-        details.appendChild(createInfoRow('Serviço:', servicoNome));
-        details.appendChild(createInfoRow('Data:', `${dataFmt} às ${horaFmt}`));
-
-        const price = document.createElement('div');
-        price.className = 'appointment-price';
-        price.textContent = formatCurrency(servicoPreco);
-
-        const cancelBtn = createButton(cancelLabel, 'btn-cancel');
-        cancelBtn.disabled = !canCancel;
-        cancelButtonRef = cancelBtn;
-        cancelBtn.onclick = onCancel;
-
-        card.appendChild(details);
-        card.appendChild(price);
-        card.appendChild(cancelBtn);
-
         return card;
     }
 
@@ -682,28 +609,15 @@ document.addEventListener('DOMContentLoaded', () => {
         slots.forEach((slot) => {
             const inicioIso = slot.inicio;
             const label = new Date(inicioIso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            const item = createTimeSlotComponent
-                ? createTimeSlotComponent({
-                      label,
-                      selected: state.selectedTime === inicioIso,
-                      onClick: () => {
-                          state.selectedTime = inicioIso;
-                          renderProfileTimeSlots(slots);
-                          checkBookingReady();
-                      }
-                  })
-                : (() => {
-                      const elSlot = document.createElement('div');
-                      elSlot.className = `time-slot-compact ${state.selectedTime === inicioIso ? 'selected' : ''}`;
-                      elSlot.dataset.time = inicioIso;
-                      elSlot.textContent = label;
-                      elSlot.onclick = () => {
-                          state.selectedTime = elSlot.dataset.time;
-                          renderProfileTimeSlots(slots);
-                          checkBookingReady();
-                      };
-                      return elSlot;
-                  })();
+            const item = createTimeSlotComponent({
+                label,
+                selected: state.selectedTime === inicioIso,
+                onClick: () => {
+                    state.selectedTime = inicioIso;
+                    renderProfileTimeSlots(slots);
+                    checkBookingReady();
+                }
+            });
             item.dataset.time = inicioIso;
             profileTimeSlots.appendChild(item);
         });
@@ -727,39 +641,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSummary() {
         bookingSummary.replaceChildren();
         const dateText = `${new Date(state.selectedTime).toLocaleDateString('pt-BR')} às ${new Date(state.selectedTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
-        if (createBookingSummaryComponent) {
-            const { summary, note } = createBookingSummaryComponent({
-                professional: state.selectedProfessional.nome_profissional || state.selectedProfessional.nome,
-                service: state.selectedService.nome,
-                dateText,
-                totalText: formatCurrency(state.selectedService.preco_centavos),
-                note: 'Pagamento e confirmação serão feitos no local.'
-            });
-            bookingSummary.appendChild(summary);
-            bookingSummary.appendChild(note);
-            return;
-        }
-
-        const summary = document.createElement('div');
-        summary.className = 'summary-item';
-
-        const title = document.createElement('div');
-        title.className = 'summary-title';
-        title.textContent = 'Resumo do Pedido';
-
-        summary.appendChild(title);
-        summary.appendChild(createInfoRow('Profissional:', state.selectedProfessional.nome_profissional || state.selectedProfessional.nome));
-        summary.appendChild(createInfoRow('Serviço:', state.selectedService.nome));
-        summary.appendChild(createInfoRow('Agendado para:', dateText));
-
-        const totalRow = createInfoRow('Total:', formatCurrency(state.selectedService.preco_centavos));
-        totalRow.classList.add('summary-total');
-        summary.appendChild(totalRow);
-
-        const note = document.createElement('div');
-        note.className = 'summary-note';
-        note.textContent = 'Pagamento e confirmação serão feitos no local.';
-
+        const { summary, note } = createBookingSummaryComponent({
+            professional: state.selectedProfessional.nome_profissional || state.selectedProfessional.nome,
+            service: state.selectedService.nome,
+            dateText,
+            totalText: formatCurrency(state.selectedService.preco_centavos),
+            note: 'Pagamento e confirmação serão feitos no local.'
+        });
         bookingSummary.appendChild(summary);
         bookingSummary.appendChild(note);
     }
