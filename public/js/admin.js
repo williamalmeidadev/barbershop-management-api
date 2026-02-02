@@ -62,108 +62,28 @@ function qs(id) {
 }
 
 const ui = window.UI || {};
-const el = ui.el || ((tag, className, text) => {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
-});
-const clear = ui.clear || ((node) => node.replaceChildren());
-const createCard = ui.createCard || ((className = 'card') => {
-  const card = document.createElement('div');
-  card.className = className;
-  return card;
-});
-const createButton = ui.createButton || ((label, className = 'btn') => {
-  const btn = document.createElement('button');
-  btn.className = className;
-  btn.textContent = label;
-  return btn;
-});
-const createIcon = ui.createIcon || ((name, className = 'material-icons') => {
-  const icon = document.createElement('span');
-  icon.className = className;
-  icon.textContent = name;
-  return icon;
-});
-const createMedia = ui.createMedia || (({ url, alt = '', icon = 'image', className = 'media' } = {}) => {
-  const wrap = document.createElement('div');
-  wrap.className = className;
-  if (url) {
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = alt;
-    img.onerror = () => {
-      wrap.replaceChildren(createIcon(icon));
-    };
-    wrap.appendChild(img);
-    return wrap;
-  }
-  wrap.appendChild(createIcon(icon));
-  return wrap;
-});
-const createActionsRow = ui.createActionsRow || ((actions = [], className = 'card-actions') => {
-  const row = document.createElement('div');
-  row.className = className;
-  actions.forEach((btn) => btn && row.appendChild(btn));
-  return row;
-});
-const createCardWithLines = ui.createCardWithLines || (({ title, lines = [], actions = [], className = 'card', titleTag = 'strong' }) => {
-  const card = createCard(className);
-  if (title) {
-    const titleEl = document.createElement(titleTag);
-    titleEl.textContent = title;
-    card.appendChild(titleEl);
-  }
-  lines.forEach((text) => {
-    const line = document.createElement('small');
-    line.textContent = text;
-    card.appendChild(line);
-  });
-  if (actions.length) card.appendChild(createActionsRow(actions));
-  return card;
-});
-const createInfoRow = ui.createInfoRow || ((label, value) => {
-  const row = document.createElement('div');
-  row.className = 'info-row';
-  const l = document.createElement('strong');
-  l.textContent = label;
-  const v = document.createElement('span');
-  v.textContent = value;
-  row.appendChild(l);
-  row.appendChild(v);
-  return row;
-});
+const adminModals = window.ADMIN_MODALS || {};
+const el = ui.el;
+const clear = ui.clear;
+const createCard = ui.createCard;
+const createButton = ui.createButton;
+const createIcon = ui.createIcon;
+const createMedia = ui.createMedia;
+const createActionsRow = ui.createActionsRow;
+const createActionButton = ui.createActionButton;
+const createCardWithLines = ui.createCardWithLines;
+const createInfoRow = ui.createInfoRow;
 const createInput = adminModals.createInput || ui.createInput;
 const createSelect = adminModals.createSelect || ui.createSelect;
 const createFormGroup = adminModals.createFormGroup || ui.createFormGroup;
 const createPhotoGroup = ui.createPhotoGroup;
-const renderStatus = ui.renderStatus || ((container, message, className = 'status') => {
-  if (!container) return;
-  container.replaceChildren();
-  const node = document.createElement('div');
-  node.className = className;
-  node.textContent = message;
-  container.appendChild(node);
-});
-const renderCardList = ui.renderCardList || ((container, items, renderItem, { emptyMessage = 'Sem dados.' } = {}) => {
-  if (!container) return;
-  clear(container);
-  if (!items || items.length === 0) {
-    renderStatus(container, emptyMessage);
-    return;
-  }
-  items.forEach((item) => {
-    const node = renderItem(item);
-    if (node) container.appendChild(node);
-  });
-});
+const renderStatus = ui.renderStatus;
+const renderCardList = ui.renderCardList;
 
 const layout = window.LAYOUT || {};
 const createPanelHeader = layout.createPanelHeader;
 const renderPanelHeader = layout.renderPanelHeader;
 const adminCards = window.ADMIN_CARDS || {};
-const adminModals = window.ADMIN_MODALS || {};
 const filters = window.FILTERS || {};
 const topbar = document.querySelector('.topbar');
 if (layout.renderAdminPanelHeader && topbar) {
@@ -171,13 +91,6 @@ if (layout.renderAdminPanelHeader && topbar) {
     title: 'Dashboard',
     subtitle: 'Visão geral do sistema'
   });
-}
-
-function createActionButton({ id, label, className = 'btn', icon } = {}) {
-  const btn = createButton(label, className);
-  if (id) btn.id = id;
-  if (icon) btn.prepend(createIcon(icon));
-  return btn;
 }
 
 function initPanelHeaders() {
@@ -405,13 +318,7 @@ function api(path) {
   return `${apiBase}${path}`;
 }
 
-const formatCurrency = ui.formatCurrency || ((centavos) => {
-  if (centavos === undefined || centavos === null) return '-';
-  return (Number(centavos) / 100).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  });
-});
+const formatCurrency = ui.formatCurrency;
 
 function toIsoWithOffset(dateStr, timeStr) {
   const [year, month, day] = dateStr.split('-').map(Number);

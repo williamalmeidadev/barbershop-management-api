@@ -66,6 +66,13 @@
     return row;
   };
 
+  const createActionButton = ({ id, label, className = 'btn', icon } = {}) => {
+    const btn = createButton(label, className);
+    if (id) btn.id = id;
+    if (icon) btn.prepend(createIcon(icon));
+    return btn;
+  };
+
   const createCardWithLines = ({ title, lines = [], actions = [], className = 'card', titleTag = 'strong' }) => {
     const card = createCard(className);
     if (title) {
@@ -325,6 +332,7 @@
     createCard,
     createInfoList,
     createActionsRow,
+    createActionButton,
     createCardWithLines,
     createSectionHeader,
     createInfoRow,
