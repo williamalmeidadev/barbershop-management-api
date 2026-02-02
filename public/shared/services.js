@@ -4,6 +4,7 @@ const services = {
     async fetchServices(barbeiroId) {
         try {
             const query = barbeiroId ? `?barbeiro_id=${barbeiroId}` : '';
+            if (window.API?.json) return await window.API.json(`/servicos${query}`);
             const response = await fetch(`${API_BASE_URL}/servicos${query}`);
             if (!response.ok) throw new Error('Não foi possível carregar os serviços');
             return await response.json();
@@ -15,6 +16,7 @@ const services = {
 
     async fetchBarbeiros() {
         try {
+            if (window.API?.json) return await window.API.json('/barbeiros');
             const response = await fetch(`${API_BASE_URL}/barbeiros`);
             if (!response.ok) throw new Error('Não foi possível carregar os barbeiros');
             return await response.json();
@@ -26,6 +28,7 @@ const services = {
 
     async fetchAvailableSlots(barbeiroId, data) {
         try {
+            if (window.API?.json) return await window.API.json(`/vagas/disponiveis?barbeiroId=${barbeiroId}&data=${data}`);
             const response = await fetch(`${API_BASE_URL}/vagas/disponiveis?barbeiroId=${barbeiroId}&data=${data}`);
             if (!response.ok) throw new Error('Não foi possível carregar as vagas');
             return await response.json();
@@ -37,6 +40,9 @@ const services = {
 
     async createAppointment(data) {
         try {
+            if (window.API?.json) {
+                return await window.API.json('/agendamentos', { method: 'POST', body: JSON.stringify(data) });
+            }
             const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/agendamentos`, {
                 method: 'POST',
@@ -57,6 +63,7 @@ const services = {
 
     async fetchUserAppointments() {
         try {
+            if (window.API?.json) return await window.API.json('/agendamentos/me');
             const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/agendamentos/me`, {
                 headers: {
@@ -73,6 +80,10 @@ const services = {
 
     async deleteAppointment(id) {
         try {
+            if (window.API?.json) {
+                await window.API.json(`/agendamentos/${id}/cancelar`, { method: 'POST' });
+                return true;
+            }
             const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/agendamentos/${id}/cancelar`, {
                 method: 'POST',
@@ -94,19 +105,23 @@ const services = {
     },
 
     async login(email, password) {
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Credenciais inválidas');
-        }
+        const data = window.API?.json
+            ? await window.API.json('/auth/login', {
+                  method: 'POST',
+                  body: JSON.stringify({ email, password })
+              })
+            : await (async () => {
+                  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ email, password }),
+                  });
+                  const resData = await response.json();
+                  if (!response.ok) throw new Error(resData.message || 'Credenciais inválidas');
+                  return resData;
+              })();
 
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.role);
@@ -114,24 +129,33 @@ const services = {
     },
 
     async register(nome, email, password, telefone) {
-        const response = await fetch(`${API_BASE_URL}/clientes`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                nome,
-                email,
-                password,
-                telefone: telefone || null,
-            }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || data.error || 'Erro ao cadastrar');
-        }
+        const data = window.API?.json
+            ? await window.API.json('/clientes', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                      nome,
+                      email,
+                      password,
+                      telefone: telefone || null,
+                  })
+              })
+            : await (async () => {
+                  const response = await fetch(`${API_BASE_URL}/clientes`, {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                          nome,
+                          email,
+                          password,
+                          telefone: telefone || null,
+                      }),
+                  });
+                  const resData = await response.json();
+                  if (!response.ok) throw new Error(resData.message || resData.error || 'Erro ao cadastrar');
+                  return resData;
+              })();
 
         return data;
     }

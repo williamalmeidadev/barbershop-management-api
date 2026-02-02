@@ -208,6 +208,7 @@ function toIsoWithOffset(dateStr, timeStr) {
 }
 
 async function request(path, options = {}) {
+  if (window.API?.json) return window.API.json(path, options);
   const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -226,6 +227,7 @@ async function request(path, options = {}) {
 }
 
 async function requestFormData(path, formData) {
+  if (window.API?.form) return window.API.form(path, formData, { method: 'PATCH' });
   const token = getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(api(path), { method: 'PATCH', headers, body: formData });

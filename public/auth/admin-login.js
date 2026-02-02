@@ -11,19 +11,25 @@ form.addEventListener('submit', async (event) => {
   const password = document.getElementById('password').value;
 
   try {
-    const response = await fetch(`${basePath}/auth/login/admin`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || data.error || 'Credenciais inválidas');
-    }
+    const data = window.API?.json
+      ? await window.API.json('/auth/login/admin', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        })
+      : await (async () => {
+          const response = await fetch(`${basePath}/auth/login/admin`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+          });
+          const resData = await response.json();
+          if (!response.ok) {
+            throw new Error(resData.message || resData.error || 'Credenciais inválidas');
+          }
+          return resData;
+        })();
 
     localStorage.setItem('token', data.token);
     localStorage.setItem('role', data.role);
