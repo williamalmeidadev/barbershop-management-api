@@ -9,8 +9,7 @@ function getCookie(name) {
 }
 
 const adminTokenCookie = getCookie('admin_token');
-const storedRole = localStorage.getItem('role');
-if (!adminTokenCookie || storedRole !== 'admin') {
+if (!adminTokenCookie) {
   window.location.replace(`${apiBase}/admin-login`);
 }
 const logoutBtn = document.getElementById('logout-btn');
@@ -200,7 +199,7 @@ initPanelHeaders();
 function initFilters() {
   if (!filters.createFilterForm) return;
 
-  const clientesFilters = filters.createFilterForm({
+const clientesFilters = filters.createFilterForm({
     fields: [
       {
         label: 'Status',
@@ -229,7 +228,8 @@ function initFilters() {
     ],
     onSubmit: (e) => {
       e.preventDefault();
-      loadClientesBtn?.click();
+      const btn = e.submitter || buscarClientesBtn || loadClientesBtn;
+      withButtonLock(btn, fetchClientes);
     }
   });
 
@@ -281,7 +281,8 @@ function initFilters() {
     ],
     onSubmit: (e) => {
       e.preventDefault();
-      loadAgendamentosBtn?.click();
+      const btn = e.submitter || buscarAgendamentosBtn || loadAgendamentosBtn;
+      withButtonLock(btn, fetchAgendamentos);
     }
   });
 
@@ -302,23 +303,35 @@ function initFilters() {
 
 initFilters();
 
-function getToken() {
-  return localStorage.getItem('token') || '';
-}
-
-function setToken(token) {
-  if (token) {
-    localStorage.setItem('token', token);
-  } else {
-    localStorage.removeItem('token');
-  }
-}
-
 function api(path) {
   return `${apiBase}${path}`;
 }
 
 const formatCurrency = ui.formatCurrency;
+const APP_TIMEZONE = 'America/Sao_Paulo';
+const dateFormatterBR = new Intl.DateTimeFormat('pt-BR', { timeZone: APP_TIMEZONE });
+const timeFormatterBR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: APP_TIMEZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit'
+});
+const dateFormatterISO = new Intl.DateTimeFormat('en-CA', { timeZone: APP_TIMEZONE });
+function formatDateBR(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return dateFormatterBR.format(date);
+}
+function formatDateISO(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return dateFormatterISO.format(date);
+}
+function formatDateTimeBR(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return `${dateFormatterBR.format(date)} ${timeFormatterBR.format(date)}`;
+}
 
 function toIsoWithOffset(dateStr, timeStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
@@ -340,13 +353,10 @@ function toIsoWithOffset(dateStr, timeStr) {
 
 async function request(path, options = {}) {
   if (window.API?.json) return window.API.json(path, options);
-  const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {})
   };
-
-  if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(api(path), { ...options, headers });
   const contentType = res.headers.get('content-type') || '';
@@ -359,9 +369,7 @@ async function request(path, options = {}) {
 
 async function requestFormData(path, formData) {
   if (window.API?.form) return window.API.form(path, formData, { method: 'PATCH' });
-  const token = getToken();
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const res = await fetch(api(path), { method: 'PATCH', headers, body: formData });
+  const res = await fetch(api(path), { method: 'PATCH', body: formData });
   const contentType = res.headers.get('content-type') || '';
   const data = contentType.includes('application/json') ? await res.json() : await res.text();
   if (!res.ok) {
@@ -433,8 +441,6 @@ navItems.forEach(item => {
 });
 
 logoutBtn.addEventListener('click', () => {
-  setToken('');
-  localStorage.removeItem('role');
   document.cookie = 'admin_token=; Max-Age=0; path=/; SameSite=Lax';
   showToast('Logout realizado.');
   setTimeout(() => {
@@ -617,7 +623,7 @@ function openConfigModal(data) {
 
 btnConfigCreate?.addEventListener('click', () => openConfigModal(null));
 
-loadClientesBtn?.addEventListener('click', () => withButtonLock(loadClientesBtn, async () => {
+async function fetchClientes() {
   const ativo = clientesAtivo.value;
   const query = ativo !== '' ? `?ativo=${ativo}` : '';
   try {
@@ -630,7 +636,9 @@ loadClientesBtn?.addEventListener('click', () => withButtonLock(loadClientesBtn,
   } catch (err) {
     renderStatus(clientesList, err.message);
   }
-}));
+}
+
+loadClientesBtn?.addEventListener('click', () => withButtonLock(loadClientesBtn, fetchClientes));
 
 // submit handler is attached on filter form
 
@@ -736,7 +744,7 @@ async function toggleCliente(id, ativoAtual) {
   }
 }
 
-loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendamentosBtn, async () => {
+async function fetchAgendamentos() {
   try {
     const data = await request('/agendamentos');
     const status = agendamentosStatus.value;
@@ -752,7 +760,7 @@ loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendame
       if (dataFiltro) {
         const inicio = a.inicio ? new Date(a.inicio) : null;
         if (!inicio || Number.isNaN(inicio.getTime())) return false;
-        const inicioLocal = inicio.toLocaleDateString('en-CA');
+        const inicioLocal = formatDateISO(inicio);
         if (inicioLocal !== dataFiltro) return false;
       }
       if (!termo) return true;
@@ -763,7 +771,9 @@ loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendame
   } catch (err) {
     renderStatus(agendamentosList, err.message);
   }
-}));
+}
+
+loadAgendamentosBtn?.addEventListener('click', () => withButtonLock(loadAgendamentosBtn, fetchAgendamentos));
 
 // submit handler is attached on filter form
 
@@ -783,7 +793,7 @@ function renderAgendamentos(items) {
     const lines = [
       `Cliente: ${clienteNome}`,
       `Barbeiro: ${a.barbeiro?.nome_profissional || a.barbeiro_id}`,
-      `Início: ${new Date(a.inicio).toLocaleString('pt-BR')}`,
+      `Início: ${formatDateTimeBR(a.inicio)}`,
       `Valor: ${formatCurrency(a.valor_total_centavos)}`
     ];
     if (a.pagamento_tipo) lines.push(`Pagamento: ${a.pagamento_tipo}`);
@@ -852,8 +862,8 @@ function verDetalhes(agendamento) {
   grid.appendChild(createInfoRow('Status:', agendamento.status));
   grid.appendChild(createInfoRow('Cliente:', clienteNome));
   grid.appendChild(createInfoRow('Barbeiro:', agendamento.barbeiro?.nome_profissional || agendamento.barbeiro_id));
-  grid.appendChild(createInfoRow('Início:', new Date(agendamento.inicio).toLocaleString('pt-BR')));
-  grid.appendChild(createInfoRow('Fim:', new Date(agendamento.fim).toLocaleString('pt-BR')));
+  grid.appendChild(createInfoRow('Início:', formatDateTimeBR(agendamento.inicio)));
+  grid.appendChild(createInfoRow('Fim:', formatDateTimeBR(agendamento.fim)));
   grid.appendChild(createInfoRow('Preço original:', formatCurrency(agendamento.valor_original_centavos)));
   grid.appendChild(createInfoRow('Desconto:', formatCurrency(agendamento.desconto_aplicado_centavos)));
   grid.appendChild(createInfoRow('Final:', formatCurrency(agendamento.valor_total_centavos)));
@@ -882,7 +892,7 @@ function verDetalhes(agendamento) {
     vagasBox.appendChild(vagasUl);
   }
   (agendamento.vagas || []).forEach(v => {
-    vagasUl.appendChild(el('li', null, `${new Date(v.inicio).toLocaleString('pt-BR')} - ${v.status}`));
+    vagasUl.appendChild(el('li', null, `${formatDateTimeBR(v.inicio)} - ${v.status}`));
   });
   if (!agendamento.vagas || agendamento.vagas.length === 0) {
     vagasUl.appendChild(el('li', null, 'Sem vagas'));
@@ -989,8 +999,8 @@ function renderVagas(vagas) {
     actions.push(blockBtn, deleteBtn);
 
     const lines = [
-      `Início: ${new Date(v.inicio).toLocaleString('pt-BR')}`,
-      `Fim: ${new Date(v.fim).toLocaleString('pt-BR')}`
+      `Início: ${formatDateTimeBR(v.inicio)}`,
+      `Fim: ${formatDateTimeBR(v.fim)}`
     ];
 
     const card = adminCards.createVagaCard

@@ -11,9 +11,17 @@
     return response.text();
   };
 
+  const getCookie = (name) => {
+    return document.cookie
+      .split(';')
+      .map((c) => c.trim())
+      .find((c) => c.startsWith(`${name}=`))
+      ?.split('=')[1];
+  };
+
   const withAuth = (headers = {}) => {
-    const token = localStorage.getItem('token');
-    return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
+    const token = getCookie('admin_token') || getCookie('client_token');
+    return token ? { ...headers, Authorization: `Bearer ${decodeURIComponent(token)}` } : headers;
   };
 
   const json = async (path, options = {}) => {

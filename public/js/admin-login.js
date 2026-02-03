@@ -38,8 +38,6 @@ form.addEventListener('submit', async (event) => {
           return resData;
         })();
 
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('role', data.role);
     document.cookie = `admin_token=${encodeURIComponent(data.token)}; path=/; SameSite=Lax`;
     window.location.href = `${basePath}/admin`;
   } catch (err) {

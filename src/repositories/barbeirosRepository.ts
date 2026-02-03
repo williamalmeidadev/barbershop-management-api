@@ -49,21 +49,34 @@ export const barbeirosRepository = {
     foto_url?: string | null
     ativo?: number
   }): Promise<Barbeiro> {
-    const keys = Object.keys(payload)
+    const fields: string[] = []
+    const values: any[] = []
 
-    // Prevent SQL syntax error if payload is empty
-    if (keys.length === 0) {
+    if (payload.nome_profissional !== undefined) {
+      fields.push('nome_profissional = ?')
+      values.push(payload.nome_profissional)
+    }
+    if (payload.bio !== undefined) {
+      fields.push('bio = ?')
+      values.push(payload.bio ?? null)
+    }
+    if (payload.foto_url !== undefined) {
+      fields.push('foto_url = ?')
+      values.push(payload.foto_url ?? null)
+    }
+    if (payload.ativo !== undefined) {
+      fields.push('ativo = ?')
+      values.push(payload.ativo)
+    }
+
+    if (fields.length === 0) {
       throw new Error('Nenhum dado informado para atualização.')
     }
 
-    // Dynamically build SET clause
-    const setClause = keys.map((key) => `${key} = ?`).join(', ')
-    const values = Object.values(payload)
-
     await new Promise<void>((resolve, reject) => {
       db.run(
-        `UPDATE barbeiros SET ${setClause} WHERE id = ?`,
-        [...values, id], // Append ID for the WHERE clause
+        `UPDATE barbeiros SET ${fields.join(', ')} WHERE id = ?`,
+        [...values, id],
         function (err) {
           if (err) return reject(err)
           

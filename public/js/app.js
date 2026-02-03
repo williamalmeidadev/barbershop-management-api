@@ -35,10 +35,16 @@ const formatTimeBR = (value) => {
     if (!date || Number.isNaN(date.getTime())) return '';
     return timeFormatterBR.format(date);
 };
+const formatTimeSlot = (value) => {
+    if (typeof value !== 'string') return formatTimeBR(value);
+    const hasTz = /Z$/.test(value) || /[+-]\d{2}:\d{2}$/.test(value);
+    if (hasTz) return formatTimeBR(value);
+    const match = value.match(/T(\d{2}:\d{2})/);
+    return match ? match[1] : formatTimeBR(value);
+};
 
 const clientTokenCookie = getCookieValue ? getCookieValue('client_token') : null;
-const localToken = localStorage.getItem('token');
-if (!clientTokenCookie && !localToken) {
+if (!clientTokenCookie) {
     window.location.replace(`${BASE_PATH}/login`);
 }
 
@@ -55,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         customerName: '',
         customerPhone: '',
         currentStep: 1,
-        token: localStorage.getItem('token') || null,
-        isLoggedIn: !!localStorage.getItem('token')
+        token: clientTokenCookie ? decodeURIComponent(clientTokenCookie) : null,
+        isLoggedIn: !!clientTokenCookie
     };
 
     // --- DOM Elements ---
@@ -402,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
         profileTimeSlots.replaceChildren();
         slots.forEach((slot) => {
             const inicioIso = slot.inicio;
-            const label = formatTimeBR(inicioIso);
+            const label = formatTimeSlot(inicioIso);
             const item = createTimeSlotComponent({
                 label,
                 selected: state.selectedTime === inicioIso,
@@ -434,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSummary() {
         bookingSummary.replaceChildren();
-        const dateText = `${formatDateBR(state.selectedTime)} às ${formatTimeBR(state.selectedTime)}`;
+        const dateText = `${formatDateBR(state.selectedTime)} às ${formatTimeSlot(state.selectedTime)}`;
         const { summary, note } = createBookingSummaryComponent({
             professional: state.selectedProfessional.nome_profissional || state.selectedProfessional.nome,
             service: state.selectedService.nome,
@@ -562,12 +568,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const authBtn = e.target.closest('#auth-action');
             if (!authBtn) return;
 
-            const token = localStorage.getItem('token');
+            const token = getCookieValue ? getCookieValue('client_token') : null;
             if (token) {
                 e.preventDefault();
                 console.log('Logout clicked. Clearing session...');
-                localStorage.removeItem('token');
-                localStorage.removeItem('role');
                 console.log('Session cleared. Redirecting to login...');
                 document.cookie = 'client_token=; Max-Age=0; path=/; SameSite=Lax';
                 window.location.href = `${BASE_PATH}/login`;
