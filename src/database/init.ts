@@ -1,4 +1,5 @@
 import { db } from './sqlite'
+import bcrypt from 'bcrypt'
 
 export function initDatabase() {
   db.serialize(() => {
@@ -29,6 +30,35 @@ export function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_admins_usuario ON admins(usuario);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_admins_email ON admins(email);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_admins_ativo ON admins(ativo);`)
+
+    const adminEmail = process.env.ADMIN_EMAIL
+    const adminPassword = process.env.ADMIN_PASSWORD
+    const adminUsuario = process.env.ADMIN_USUARIO || 'admin'
+    const adminNome = process.env.ADMIN_NOME || 'Administrador'
+
+    if (adminEmail && adminPassword) {
+      db.get(
+        'SELECT id FROM admins WHERE email = ? OR usuario = ?',
+        [adminEmail, adminUsuario],
+        (err, row) => {
+          if (err) {
+            console.error('Erro ao verificar admin inicial:', err.message)
+            return
+          }
+          if (row) return
+          const passwordHash = bcrypt.hashSync(adminPassword, 10)
+          db.run(
+            `INSERT INTO admins (usuario, nome, email, password_hash, ativo) VALUES (?, ?, ?, ?, 1)`,
+            [adminUsuario, adminNome, adminEmail, passwordHash],
+            (insertErr) => {
+              if (insertErr) {
+                console.error('Erro ao criar admin inicial:', insertErr.message)
+              }
+            }
+          )
+        }
+      )
+    }
 
     db.run(`
       CREATE TABLE IF NOT EXISTS clientes (
