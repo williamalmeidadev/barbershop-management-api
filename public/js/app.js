@@ -249,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         barberProfileView.classList.remove('hidden');
         window.scrollTo(0, 0);
+        updateBookingPreview(); // Initialize preview
         checkBookingReady();
     }
 
@@ -297,6 +298,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadProfileTimeSlots();
             }, 600);
         }
+        updateBookingPreview();
+    }
+
+    function updateBookingPreview() {
+        const container = document.getElementById('booking-preview-summary');
+        if (!container) return;
+
+        container.replaceChildren();
+
+        if (state.selectedServices.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'flex';
+
+        // 1. Services List
+        state.selectedServices.forEach(s => {
+            const row = document.createElement('div');
+            row.className = 'preview-row';
+            const name = document.createElement('span');
+            name.innerText = s.nome;
+            const price = document.createElement('span');
+            price.innerText = formatCurrency(s.preco_centavos);
+            row.appendChild(name);
+            row.appendChild(price);
+            container.appendChild(row);
+        });
+
+        // 2. Booking Fee (Mocked/Optional, keeping simple based on services for now)
+        // Reference image has "Booking Fee". We can add if desired, but 0 for now.
+
+        // 3. Total
+        const totalValue = state.selectedServices.reduce((acc, s) => acc + s.preco_centavos, 0);
+        const totalRow = document.createElement('div');
+        totalRow.className = 'preview-total';
+
+        const labelCol = document.createElement('div');
+        labelCol.className = 'col';
+        const label = document.createElement('div');
+        label.className = 'label';
+        label.innerText = 'TOTAL A PAGAR';
+
+        const durationText = document.createElement('div');
+        durationText.className = 'label';
+        durationText.style.fontSize = '0.7rem';
+        durationText.style.marginTop = '0.2rem';
+        const totalDuration = state.selectedServices.reduce((acc, s) => acc + (s.duracao_minutos || 30), 0);
+        durationText.innerText = `${totalDuration} MIN TOTAL`;
+
+        labelCol.appendChild(label);
+        labelCol.appendChild(durationText);
+
+        const value = document.createElement('div');
+        value.className = 'value';
+        value.innerText = formatCurrency(totalValue);
+
+        totalRow.appendChild(labelCol);
+        totalRow.appendChild(value);
+        container.appendChild(totalRow);
     }
 
     // --- New Date Picker Logic ---
