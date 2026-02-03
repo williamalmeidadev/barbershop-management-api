@@ -22,7 +22,7 @@
   const heroTitle = createEl('h1', { className: 'hero-title', text: 'Seu Estilo,\nNo Seu Tempo.' });
   const heroDesc = createEl('p', {
     className: 'hero-description',
-    text: 'O maior marketplace de barbearias da região. Encontre os melhores profissionais, compare preços e agende em segundos.'
+    text: 'Corte impecável e atendimento personalizado. Escolha seu barbeiro favorito, confira nossos serviços e garanta seu horário agora mesmo'
   });
   const heroActions = createEl('div', { className: 'hero-actions' });
   const heroCta = createEl('a', { className: 'cta-button', text: 'Agendar Agora', attrs: { href: `${basePath}/app` } });
