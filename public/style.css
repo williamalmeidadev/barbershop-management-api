@@ -2447,6 +2447,10 @@ select:focus {
     color: var(--white);
 }
 
+[data-theme="light"] .preview-total .value {
+    color: var(--text);
+}
+
 .primary-button.full-width {
     width: 100%;
     margin-top: 0.5rem;
