@@ -220,6 +220,7 @@
   window.LAYOUT = {
     createEl,
     appendChildren,
+    createThemeToggle,
     createHeader,
     createFooter,
     createAppHeader,
@@ -262,7 +263,11 @@
     },
     createAdminTopbar: () => {
       const topbar = createEl('header', { className: 'topbar' });
-      topbar.appendChild(createEl('div'));
+      const left = createEl('div', { className: 'topbar-title', text: 'Painel Administrativo' });
+      const actions = createEl('div', { className: 'topbar-actions' });
+      const themeBtn = createThemeToggle();
+      actions.appendChild(themeBtn);
+      appendChildren(topbar, [left, actions]);
       return topbar;
     },
     renderAdminPanelHeader: (container, { title, subtitle, actions } = {}) => {

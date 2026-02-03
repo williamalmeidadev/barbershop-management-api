@@ -86,9 +86,18 @@ const adminCards = window.ADMIN_CARDS || {};
 const filters = window.FILTERS || {};
 const topbar = document.querySelector('.topbar');
 if (layout.renderAdminPanelHeader && topbar) {
+  let actions = null;
+  if (layout.createThemeToggle && layout.createEl) {
+    const themeBtn = layout.createThemeToggle();
+    const actionsWrap = layout.createEl('div', { className: 'topbar-actions' });
+    actionsWrap.appendChild(themeBtn);
+    actions = actionsWrap;
+  }
+
   layout.renderAdminPanelHeader(topbar, {
     title: 'Dashboard',
-    subtitle: 'Visão geral do sistema'
+    subtitle: 'Visão geral do sistema',
+    actions
   });
 }
 
