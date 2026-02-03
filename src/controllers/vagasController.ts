@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { vagasService } from '../services/vagasService'
+import { servicoService } from '../services/servicosService'
 
 export const slotController = {
   async apagarSlot(req: Request, res: Response) {
@@ -30,6 +31,42 @@ export const slotController = {
       const { barbeiroId, data, inicioExpediente, fimExpediente, duracaoSlot } = req.body
       const vagas = await vagasService.gerarAgendaDoDia(barbeiroId, data, inicioExpediente, fimExpediente, duracaoSlot)
       res.status(201).json(vagas)
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message })
+    }
+  },
+
+
+  async listarDisponibilidadeServicos(req: Request, res: Response) {
+    try {
+      const { barbeiroId, data, servicosIds } = req.query
+
+      if (!barbeiroId || !data || !servicosIds) {
+        return res.status(400).json({ error: 'barbeiroId, data e servicosIds são obrigatórios.' })
+      }
+
+      // Parse servicosIds (expecting string "1,2,3" or array)
+      let ids: number[] = []
+      if (Array.isArray(servicosIds)) {
+        ids = servicosIds.map(Number)
+      } else {
+        ids = String(servicosIds).split(',').map(Number)
+      }
+
+      const servicos = await servicoService.buscarPorIds(ids, Number(barbeiroId))
+      const duracaoTotal = servicos.reduce((acc, s) => acc + s.duracao_minutos, 0)
+
+      if (duracaoTotal === 0) {
+        return res.status(400).json({ error: 'Serviços não encontrados ou duração inválida.' })
+      }
+
+      const horarios = await vagasService.listarHorariosInicioDisponiveis(
+        Number(barbeiroId),
+        String(data),
+        duracaoTotal
+      )
+
+      res.json({ horarios, duracaoTotal })
     } catch (err) {
       res.status(400).json({ error: (err as Error).message })
     }

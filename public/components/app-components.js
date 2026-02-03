@@ -14,6 +14,7 @@
   const createProfileServiceCard = ({ service, selected, mediaUrl, onSelect } = {}) => {
     const card = createCard(`profile-service-card ${selected ? 'selected' : ''}`);
     card.dataset.id = String(service?.id || '');
+    // Selection handled by app.js logic toggling class, but we keep this for initial render
 
     const mediaWrap = createMedia({
       url: mediaUrl,
@@ -316,11 +317,12 @@
       const dateLabel = document.createElement('label');
       dateLabel.setAttribute('for', 'profile-booking-date');
       dateLabel.textContent = 'Data';
-      const dateInput = document.createElement('input');
-      dateInput.type = 'date';
-      dateInput.id = 'profile-booking-date';
       dateGroup.appendChild(dateLabel);
-      dateGroup.appendChild(dateInput);
+      // Removed input, added container for custom date selector
+      const dateSelector = document.createElement('div');
+      dateSelector.id = 'profile-date-selector';
+      dateSelector.className = 'date-selector-container';
+      dateGroup.appendChild(dateSelector);
       const timeSlots = document.createElement('div');
       timeSlots.className = 'time-grid-compact';
       timeSlots.id = 'profile-time-slots';

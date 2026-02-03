@@ -38,6 +38,5 @@ public/images/*
 # Ignore coverage directory
 coverage/
 .nyc_output/
-
-# Ignore public/uploads directory
+# Assets
 public/assets/images
