@@ -445,6 +445,77 @@ nav {
     z-index: 10;
 }
 
+/* --- AUTH PAGES (Layout.js) --- */
+.auth-hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 1rem;
+    min-height: 80vh;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 500px;
+    /* Wider card as requested */
+    background-color: transparent;
+    border: none;
+    border-radius: var(--radius);
+    padding: 2rem;
+    position: relative;
+    z-index: 10;
+    box-shadow: none;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: var(--text-muted);
+}
+
+/* --- PASSWORD VALIDATION --- */
+.requirements-list {
+    list-style: none;
+    margin-top: 0.5rem;
+    padding-left: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.req-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    transition: color 0.3s;
+}
+
+.req-item .material-icons {
+    font-size: 1rem;
+    color: var(--text-muted);
+    transition: color 0.3s;
+}
+
+.req-item.valid {
+    color: var(--success);
+}
+
+.req-item.valid .material-icons {
+    color: var(--success);
+}
+
+.input-error {
+    border-color: var(--danger) !important;
+}
+
 /* --- ABOUT SECTION (Layout Moderno) --- */
 .bg-light {
     background-color: #161311;
