@@ -497,6 +497,12 @@ nav {
     padding-top: calc(var(--header-height) + 2rem);
 }
 
+[data-theme="light"] .profile-view {
+    background:
+        radial-gradient(circle at top left, rgba(242, 93, 39, 0.08), transparent 45%),
+        radial-gradient(circle at 20% 20%, rgba(255, 202, 40, 0.06), transparent 40%),
+        var(--background);
+}
 .profile-container {
     max-width: 1120px;
     margin: 0 auto 4rem;
@@ -513,6 +519,11 @@ nav {
     color: var(--text);
     cursor: pointer;
     margin-bottom: 1.5rem;
+}
+
+[data-theme="light"] .back-button {
+    background: #ffffff;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
 }
 
 .back-button:hover {
@@ -534,6 +545,12 @@ nav {
     border-radius: 18px;
     background: linear-gradient(135deg, rgba(45, 34, 26, 0.95), rgba(30, 25, 21, 0.8));
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .profile-header {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 22px 40px rgba(15, 23, 42, 0.12);
 }
 
 .profile-avatar,
@@ -610,6 +627,12 @@ nav {
     position: relative;
 }
 
+[data-theme="light"] .profile-service-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+}
+
 .profile-service-card:hover {
     border-color: rgba(242, 93, 39, 0.6);
     background-color: rgba(242, 93, 39, 0.05);
@@ -635,6 +658,11 @@ nav {
     overflow: hidden;
 }
 
+[data-theme="light"] .profile-service-media {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
 .profile-service-media img {
     width: 100%;
     height: 100%;
@@ -658,6 +686,10 @@ nav {
     font-size: 1rem;
     color: var(--white);
     font-weight: 600;
+}
+
+[data-theme="light"] .profile-service-info h4 {
+    color: var(--text);
 }
 
 .profile-service-info p {
@@ -820,36 +852,6 @@ nav {
     background-color: var(--surface);
 }
 
-.summary-item {
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-}
-
-.summary-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.summary-total {
-    margin-top: 1.5rem;
-    border-top: 2px solid var(--primary);
-    padding-top: 1rem;
-    color: var(--primary);
-    font-size: 1.3rem;
-    font-weight: 700;
-}
-
-.summary-note {
-    padding: 0 1rem;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-}
-
 .notification.fade-in,
 .toast.fade-in {
     opacity: 1;
@@ -920,15 +922,6 @@ nav {
     top: calc(var(--header-height) + 1rem);
 }
 
-/* Booking Card (Lateral) */
-.booking-card {
-    background: linear-gradient(180deg, rgba(40, 28, 22, 0.98), rgba(23, 18, 16, 0.95));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
-    padding: 1.6rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-}
-
 /* --- BOOKING WIZARD (Resumo de Agendamento) --- */
 .booking-container {
     max-width: 960px;
@@ -947,6 +940,12 @@ nav {
     gap: 1.6rem;
 }
 
+[data-theme="light"] .booking-wizard {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.12);
+}
+
 .wizard-step h3 {
     margin-bottom: 1.2rem;
     font-size: 1.3rem;
@@ -961,6 +960,11 @@ nav {
     margin-bottom: 1.5rem;
     display: grid;
     gap: 1rem;
+}
+
+[data-theme="light"] .summary-card {
+    background: #f9fafb;
+    border-color: #e5e7eb;
 }
 
 .summary-item {
@@ -984,6 +988,12 @@ nav {
     color: var(--text-muted);
     font-size: 0.9rem;
     line-height: 1.5;
+}
+
+[data-theme="light"] .summary-note {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #7c2d12;
 }
 
 .confirm-button {
@@ -1326,6 +1336,10 @@ nav {
     border-radius: var(--radius);
     padding: 1rem;
     margin-bottom: 1rem;
+}
+
+[data-theme="light"] .appointment-card {
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
 }
 
 .appointment-header {
@@ -2286,6 +2300,12 @@ select:focus {
     box-shadow: 0 20px 40px rgba(0,0,0,0.35);
 }
 
+[data-theme="light"] .booking-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 22px 40px rgba(15, 23, 42, 0.12);
+}
+
 .booking-card-header {
     background: var(--primary);
     color: var(--white);
@@ -2298,6 +2318,11 @@ select:focus {
     font-size: 1.1rem;
     letter-spacing: 0.5px;
     border-radius: 18px 18px 0 0;
+}
+
+[data-theme="light"] .booking-card-header {
+    background: linear-gradient(135deg, #f25d27, #ffb066);
+    color: #ffffff;
 }
 
 .booking-card-header .material-icons {
@@ -2330,11 +2355,20 @@ select:focus {
     gap: 0.8rem;
 }
 
+[data-theme="light"] .booking-preview-summary {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+
 .preview-row {
     display: flex;
     justify-content: space-between;
     font-size: 0.9rem;
     color: var(--text-muted);
+}
+
+[data-theme="light"] .preview-row span:last-child {
+    color: var(--text);
 }
 
 .preview-row span:last-child {
@@ -2349,6 +2383,10 @@ select:focus {
     margin-top: 0.5rem;
     padding-top: 0.8rem;
     border-top: 1px solid var(--border);
+}
+
+[data-theme="light"] .preview-total {
+    border-top: 1px solid #e5e7eb;
 }
 
 .preview-total .label {
