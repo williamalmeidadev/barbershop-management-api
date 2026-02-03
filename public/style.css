@@ -65,6 +65,23 @@
         url('https://www.transparenttextures.com/patterns/barber-shop.png');
 }
 
+[data-theme="light"] .bg-light {
+    background-color: var(--white);
+    color: var(--text);
+}
+
+/* Light Mode Navigation Fixes */
+[data-theme="light"] .nav-link {
+    color: var(--text-muted);
+    /* Darker gray for legibility */
+}
+
+[data-theme="light"] .nav-link:hover,
+[data-theme="light"] .nav-link.active {
+    color: var(--primary);
+    /* Orange for active/hover state to replace invisible white */
+}
+
 * {
     margin: 0;
     padding: 0;
