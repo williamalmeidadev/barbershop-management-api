@@ -251,7 +251,7 @@
     createProfessionalsSection: () => {
       const { section, container } = window.APP_COMPONENTS.createSectionHeader({
         id: 'professionals',
-        title: 'Barbeiros na Sua Região',
+        title: 'Barbeiros Disponíveis',
         className: 'section professionals-section'
       });
       const grid = document.createElement('div');
