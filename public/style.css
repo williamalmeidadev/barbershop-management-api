@@ -70,6 +70,19 @@
     color: var(--text);
 }
 
+[data-theme="light"] .hero-description {
+    color: var(--text);
+    font-weight: 500;
+}
+
+[data-theme="light"] .nav-button-hero {
+    background-color: var(--white);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    color: var(--text);
+}
+
+
 /* Light Mode Navigation Fixes */
 [data-theme="light"] .nav-link {
     color: var(--text-muted);
@@ -454,6 +467,7 @@ nav {
 [data-theme="light"] .bg-light {
     background-color: #f1f5f9;
 }
+
 .about-wrapper {
     display: flex;
     align-items: center;
@@ -535,6 +549,7 @@ nav {
         radial-gradient(circle at 20% 20%, rgba(255, 202, 40, 0.06), transparent 40%),
         var(--background);
 }
+
 .profile-container {
     max-width: 1120px;
     margin: 0 auto 4rem;
@@ -2334,16 +2349,18 @@ select:focus {
     cursor: not-allowed;
     pointer-events: none;
 }
+
 /* --- BOOKING CARD (SECURE SLOT) --- */
 .booking-card {
     background: linear-gradient(180deg, rgba(40, 28, 22, 0.98), rgba(23, 18, 16, 0.95));
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 18px;
-    overflow: hidden; /* header flush */
+    overflow: hidden;
+    /* header flush */
     display: flex;
     flex-direction: column;
     padding: 0;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 [data-theme="light"] .booking-card {
