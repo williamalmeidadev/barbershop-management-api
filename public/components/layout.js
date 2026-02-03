@@ -18,6 +18,44 @@
     return parent;
   };
 
+  const createThemeToggle = () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light' || localStorage.getItem('theme') === 'light';
+
+    const btn = createEl('button', {
+      className: 'nav-button theme-toggle',
+      attrs: {
+        'aria-label': 'Alternar Tema',
+        style: 'margin-left: 0.5rem; padding: 0.6rem; min-width: auto;'
+      }
+    });
+
+    const updateIcon = () => {
+      const currentIsLight = document.documentElement.getAttribute('data-theme') === 'light';
+      btn.innerHTML = ''; // Clear
+      const icon = createEl('span', {
+        className: 'material-icons',
+        text: currentIsLight ? 'dark_mode' : 'light_mode'
+      });
+      btn.appendChild(icon);
+    };
+
+    // Init
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+    updateIcon();
+
+    btn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateIcon();
+    });
+
+    return btn;
+  };
+
   const createHeader = ({ navLinks = [] } = {}) => {
     const header = createEl('header', { className: 'main-header' });
     const container = createEl('div', { className: 'container header-container' });
@@ -38,6 +76,9 @@
       });
       nav.appendChild(anchor);
     });
+
+    const themeBtn = createThemeToggle();
+    nav.appendChild(themeBtn);
 
     appendChildren(container, [logo, nav]);
     header.appendChild(container);
@@ -108,7 +149,10 @@
       text: 'Login',
       attrs: { href: `${basePath}/login`, id: 'auth-action' }
     });
-    appendChildren(nav, [navHome, navAppointments, navAbout, authAction]);
+
+    const themeBtn = createThemeToggle();
+
+    appendChildren(nav, [navHome, navAppointments, navAbout, authAction, themeBtn]);
 
     appendChildren(container, [logo, menuToggle, nav]);
     header.appendChild(container);
