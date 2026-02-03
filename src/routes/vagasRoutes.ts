@@ -14,6 +14,7 @@ router.post('/bloquear', verifyToken, isAdmin, slotController.bloquearHorario)
 router.post('/reservar', verifyToken, slotController.reservarSlots)
 
 router.get('/disponiveis', slotController.listarDisponiveis)
+router.get('/disponibilidade-servicos', slotController.listarDisponibilidadeServicos)
 
 router.get('/todos', slotController.listarTodos)
 

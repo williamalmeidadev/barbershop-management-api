@@ -38,6 +38,21 @@ const services = {
         }
     },
 
+    async fetchAvailableServiceSlots(barbeiroId, data, servicosIds) {
+        try {
+            const ids = Array.isArray(servicosIds) ? servicosIds.join(',') : servicosIds;
+            const url = `/vagas/disponibilidade-servicos?barbeiroId=${barbeiroId}&data=${data}&servicosIds=${ids}`;
+
+            if (window.API?.json) return await window.API.json(url);
+            const response = await fetch(`${API_BASE_URL}${url}`);
+            if (!response.ok) throw new Error('Não foi possível carregar horários calculados');
+            return await response.json();
+        } catch (error) {
+            console.error(error);
+            return { horarios: [], duracaoTotal: 0 };
+        }
+    },
+
     async createAppointment(data) {
         try {
             if (window.API?.json) {
@@ -99,21 +114,21 @@ const services = {
     async login(email, password) {
         const data = window.API?.json
             ? await window.API.json('/auth/login', {
-                  method: 'POST',
-                  body: JSON.stringify({ email, password })
-              })
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            })
             : await (async () => {
-                  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({ email, password }),
-                  });
-                  const resData = await response.json();
-                  if (!response.ok) throw new Error(resData.message || 'Credenciais inválidas');
-                  return resData;
-              })();
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+                const resData = await response.json();
+                if (!response.ok) throw new Error(resData.message || 'Credenciais inválidas');
+                return resData;
+            })();
 
         return data;
     },
@@ -121,31 +136,31 @@ const services = {
     async register(nome, email, password, telefone) {
         const data = window.API?.json
             ? await window.API.json('/clientes', {
-                  method: 'POST',
-                  body: JSON.stringify({
-                      nome,
-                      email,
-                      password,
-                      telefone: telefone || null,
-                  })
-              })
+                method: 'POST',
+                body: JSON.stringify({
+                    nome,
+                    email,
+                    password,
+                    telefone: telefone || null,
+                })
+            })
             : await (async () => {
-                  const response = await fetch(`${API_BASE_URL}/clientes`, {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                          nome,
-                          email,
-                          password,
-                          telefone: telefone || null,
-                      }),
-                  });
-                  const resData = await response.json();
-                  if (!response.ok) throw new Error(resData.message || resData.error || 'Erro ao cadastrar');
-                  return resData;
-              })();
+                const response = await fetch(`${API_BASE_URL}/clientes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nome,
+                        email,
+                        password,
+                        telefone: telefone || null,
+                    }),
+                });
+                const resData = await response.json();
+                if (!response.ok) throw new Error(resData.message || resData.error || 'Erro ao cadastrar');
+                return resData;
+            })();
 
         return data;
     }

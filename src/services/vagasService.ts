@@ -128,7 +128,7 @@ export const vagasService = {
       const fim = new Date(inicio.getTime() + duracaoMinutos * 60000)
 
       const dataUtc = getUtcDateString(inicio)
-      
+
       const vagasDisponiveis = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, dataUtc)
 
       const slotsExatos = vagasDisponiveis.filter(v => {
@@ -144,7 +144,7 @@ export const vagasService = {
       }
 
       const ids = slotsExatos.map(s => s.id)
-      
+
       const aindaDisponiveis = await vagasRepository.verificarDisponiveisPorIds(ids)
       if (!aindaDisponiveis) return null
 
@@ -154,6 +154,56 @@ export const vagasService = {
     }
 
     return manageTransaction ? runInTransaction(reserva) : reserva()
+  },
+
+  async listarHorariosInicioDisponiveis(
+    barbeiroId: number,
+    data: string,
+    duracaoMinutos: number
+  ): Promise<string[]> {
+    if (!barbeiroId || !data || !duracaoMinutos) {
+      throw new Error('barbeiroId, data e duracaoMinutos são obrigatórios.')
+    }
+    if (duracaoMinutos <= 0) {
+      throw new Error('A duração deve ser positiva.')
+    }
+
+    const vagas = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, data)
+    const now = Date.now()
+    // Filtra apenas vagas futuras
+    const vagasFuturas = vagas.filter(v => new Date(v.inicio).getTime() >= now)
+
+    // Ordena por horário (garantia adicional)
+    vagasFuturas.sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime())
+
+    const horariosDisponiveis: string[] = []
+
+    for (let i = 0; i < vagasFuturas.length; i++) {
+      const slotsNecessarios: Vaga[] = []
+      let duracaoAcumulada = 0
+
+      // Tenta montar uma cadeia de slots a partir daqui
+      for (let j = i; j < vagasFuturas.length; j++) {
+        const atual = vagasFuturas[j]
+        const anterior = slotsNecessarios.length > 0 ? slotsNecessarios[slotsNecessarios.length - 1] : null
+
+        // Verifica contiguidade
+        if (anterior && anterior.fim !== atual.inicio) {
+          break // Quebrou a sequência
+        }
+
+        slotsNecessarios.push(atual)
+        duracaoAcumulada += getVagaDuration(atual)
+
+        if (duracaoAcumulada >= duracaoMinutos) {
+          // Encontrou sequência válida
+          horariosDisponiveis.push(vagasFuturas[i].inicio)
+          break
+        }
+      }
+    }
+
+    return horariosDisponiveis
   },
 
   async selecionarVagasParaAgendamento(
@@ -170,25 +220,44 @@ export const vagasService = {
     if (!isIsoWithTimezone(inicioDesejado)) {
       throw new Error('inicioDesejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
     }
-    if (new Date(inicioDesejado).getTime() < Date.now()) {
+    const inicio = new Date(inicioDesejado)
+    if (inicio.getTime() < Date.now()) {
       throw new Error('Não é possível reservar vagas no passado.')
     }
 
-    const inicio = new Date(inicioDesejado)
-    const fim = new Date(inicio.getTime() + duracaoMinutos * 60000)
     const dataUtc = getUtcDateString(inicio)
-
     const vagasDisponiveis = await vagasRepository.buscarDisponiveisPorBarbeiroEData(barbeiroId, dataUtc)
-    const slotsExatos = vagasDisponiveis.filter(v => {
-      const vInicio = new Date(v.inicio)
-      const vFim = new Date(v.fim)
-      return vInicio >= inicio && vFim <= fim
-    })
-    const totalMinutosEncontrados = slotsExatos.reduce((acc, v) => acc + getVagaDuration(v), 0)
-    if (totalMinutosEncontrados !== duracaoMinutos) {
-      return null
+
+    // Ordena
+    vagasDisponiveis.sort((a, b) => new Date(a.inicio).getTime() - new Date(b.inicio).getTime())
+
+    // Encontra o índice da vaga que começa no horário desejado
+    const startIndex = vagasDisponiveis.findIndex(v => new Date(v.inicio).getTime() === inicio.getTime())
+
+    if (startIndex === -1) {
+      return null // Não existe vaga começando neste horário
     }
-    return slotsExatos
+
+    const slotsSelecionados: Vaga[] = []
+    let duracaoAcumulada = 0
+
+    for (let i = startIndex; i < vagasDisponiveis.length; i++) {
+      const atual = vagasDisponiveis[i]
+      const anterior = slotsSelecionados.length > 0 ? slotsSelecionados[slotsSelecionados.length - 1] : null
+
+      if (anterior && anterior.fim !== atual.inicio) {
+        return null // Sequência quebrada antes de completar a duração
+      }
+
+      slotsSelecionados.push(atual)
+      duracaoAcumulada += getVagaDuration(atual)
+
+      if (duracaoAcumulada >= duracaoMinutos) {
+        return slotsSelecionados
+      }
+    }
+
+    return null // Acabaram as vagas e não completou a duração
   },
 
   async bloquearHorario(barbeiroId: number, inicio: string, fim: string, motivo?: string): Promise<Vaga[]> {

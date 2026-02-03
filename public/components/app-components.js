@@ -14,7 +14,9 @@
   const createProfileServiceCard = ({ service, selected, mediaUrl, onSelect } = {}) => {
     const card = createCard(`profile-service-card ${selected ? 'selected' : ''}`);
     card.dataset.id = String(service?.id || '');
+    // Selection handled by app.js, keeping initial class
 
+    // 1. Media (Left)
     const mediaWrap = createMedia({
       url: mediaUrl,
       alt: service?.nome || 'Serviço',
@@ -22,27 +24,46 @@
       className: 'profile-service-media'
     });
 
+    // 2. Info (Middle)
     const info = document.createElement('div');
     info.className = 'profile-service-info';
+
     const name = document.createElement('h4');
     name.textContent = service?.nome || 'Serviço';
+
     const desc = document.createElement('p');
-    desc.textContent = service?.descricao || 'Serviço de alta qualidade';
+    desc.textContent = service?.descricao || '';
+
+    // Duration row
+    const metaRow = document.createElement('div');
+    metaRow.className = 'service-meta-row';
+    const durIcon = createIcon('schedule');
+    const durText = document.createTextNode(` ${service?.duracao_minutos || 30} MIN`);
+    metaRow.appendChild(durIcon);
+    metaRow.appendChild(durText);
+
     info.appendChild(name);
     info.appendChild(desc);
+    info.appendChild(metaRow);
 
-    const price = document.createElement('div');
-    price.className = 'profile-service-price';
+    // 3. Right Side (Price + Radio)
+    const rightCol = document.createElement('div');
+    rightCol.className = 'profile-service-right';
+
     const priceValue = document.createElement('span');
+    priceValue.className = 'service-price-tag';
     priceValue.textContent = formatCurrency ? formatCurrency(service?.preco_centavos) : String(service?.preco_centavos || 0);
-    const duration = document.createElement('p');
-    duration.textContent = `${service?.duracao_minutos || 30} min`;
-    price.appendChild(priceValue);
-    price.appendChild(duration);
+
+    const radioIndicator = document.createElement('div');
+    radioIndicator.className = `service-radio-indicator ${selected ? 'checked' : ''}`;
+
+    rightCol.appendChild(priceValue);
+    rightCol.appendChild(radioIndicator);
 
     card.appendChild(mediaWrap);
     card.appendChild(info);
-    card.appendChild(price);
+    card.appendChild(rightCol);
+
     if (onSelect) card.onclick = onSelect;
     return card;
   };
@@ -308,34 +329,61 @@
       bookingCol.className = 'booking-column sticky-sidebar';
       const bookingCard = document.createElement('div');
       bookingCard.className = 'booking-card';
-      bookingCard.appendChild(document.createElement('h3')).textContent = 'Agendar Horário';
+
+      // Header matching reference
+      const cardHeader = document.createElement('div');
+      cardHeader.className = 'booking-card-header';
+      const headerIcon = document.createElement('span');
+      headerIcon.className = 'material-icons';
+      headerIcon.textContent = 'calendar_today';
+      cardHeader.appendChild(headerIcon);
+      cardHeader.appendChild(document.createTextNode(' RESERVA'));
+      bookingCard.appendChild(cardHeader);
+
       const bookingFlow = document.createElement('div');
       bookingFlow.className = 'booking-flow-compact';
+
+      // Date Selector
       const dateGroup = document.createElement('div');
       dateGroup.className = 'form-group';
-      const dateLabel = document.createElement('label');
-      dateLabel.setAttribute('for', 'profile-booking-date');
-      dateLabel.textContent = 'Data';
-      const dateInput = document.createElement('input');
-      dateInput.type = 'date';
-      dateInput.id = 'profile-booking-date';
-      dateGroup.appendChild(dateLabel);
-      dateGroup.appendChild(dateInput);
+      // Label is redundant if header implies context, but keeping specific label is fine or removing for cleaner look.
+      // Reference has 'NOVEMBER 2023' dynamic text. We'll use a container for that if needed, 
+      // but existing logic uses the date selector. Let's keep dateSelector.
+
+      const dateSelector = document.createElement('div');
+      dateSelector.id = 'profile-date-selector';
+      dateSelector.className = 'date-selector-container';
+      dateGroup.appendChild(dateSelector);
+
+      // Time Slots
       const timeSlots = document.createElement('div');
       timeSlots.className = 'time-grid-compact';
       timeSlots.id = 'profile-time-slots';
+
       const placeholder = document.createElement('p');
       placeholder.className = 'placeholder-text';
-      placeholder.textContent = 'Selecione uma data para ver os horários';
+      placeholder.textContent = 'Selecione uma data';
       timeSlots.appendChild(placeholder);
+
+      // PREVIEW SUMMARY (New)
+      const previewSummary = document.createElement('div');
+      previewSummary.id = 'booking-preview-summary';
+      previewSummary.className = 'booking-preview-summary';
+      // Init hidden or empty
+
       const startBtn = document.createElement('button');
-      startBtn.className = 'primary-button';
+      startBtn.className = 'primary-button full-width';
       startBtn.id = 'btn-start-booking';
       startBtn.disabled = true;
-      startBtn.textContent = 'Agendar Selecionado';
+      startBtn.innerHTML = 'CONFIRMAR AGENDAMENTO <span class="material-icons">arrow_forward</span>';
+
       bookingFlow.appendChild(dateGroup);
+      bookingFlow.appendChild(document.createElement('h4')).textContent = 'Horários Disponíveis';
+      bookingFlow.querySelector('h4').className = 'subsection-title';
       bookingFlow.appendChild(timeSlots);
+      bookingFlow.appendChild(previewSummary); // Inserted summary
       bookingFlow.appendChild(startBtn);
+
       bookingCard.appendChild(bookingFlow);
       bookingCol.appendChild(bookingCard);
 
