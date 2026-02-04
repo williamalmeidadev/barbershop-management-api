@@ -445,6 +445,35 @@ function closeModal() {
   clear(modalBody);
 }
 
+function askDeleteConfirmation({ title = 'Confirmar exclusão', message = 'Esta ação não pode ser desfeita.' } = {}) {
+  return new Promise((resolve) => {
+    const container = el('div', 'modal-form');
+    const text = el('p', null, message);
+    const actions = el('div', 'modal-actions center');
+    const cancelBtn = createButton('Cancelar', 'btn ghost');
+    const confirmBtn = createButton('Apagar', 'btn danger');
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(confirmBtn);
+    container.appendChild(text);
+    container.appendChild(actions);
+
+    const onCancel = () => {
+      closeModal();
+      resolve(false);
+    };
+    const onConfirm = () => {
+      closeModal();
+      resolve(true);
+    };
+
+    cancelBtn.addEventListener('click', onCancel, { once: true });
+    confirmBtn.addEventListener('click', onConfirm, { once: true });
+
+    openModal(title, container);
+  });
+}
+
 navItems.forEach(item => {
   item.addEventListener('click', () => switchTab(item.dataset.tab));
 });
@@ -757,7 +786,10 @@ async function toggleCliente(id, ativoAtual) {
 }
 
 async function apagarCliente(id, nome) {
-  const ok = window.confirm(`Apagar permanentemente o cliente "${nome}"? Esta ação não pode ser desfeita.`)
+  const ok = await askDeleteConfirmation({
+    title: 'Apagar cliente',
+    message: `Apagar permanentemente o cliente "${nome}"? Esta ação não pode ser desfeita.`
+  })
   if (!ok) return
   try {
     await request(`/admins/clientes/${id}/permanente`, { method: 'DELETE' })
@@ -1552,7 +1584,10 @@ async function toggleServico(id, ativoAtual) {
 }
 
 async function apagarServico(id, nome) {
-  const ok = window.confirm(`Apagar permanentemente o serviço "${nome}"? Esta ação não pode ser desfeita.`)
+  const ok = await askDeleteConfirmation({
+    title: 'Apagar serviço',
+    message: `Apagar permanentemente o serviço "${nome}"? Esta ação não pode ser desfeita.`
+  })
   if (!ok) return
   try {
     await request(`/servicos/${id}/permanente`, { method: 'DELETE' })
@@ -1778,7 +1813,10 @@ async function toggleBarbeiro(id, ativoAtual) {
 }
 
 async function apagarBarbeiro(id, nome) {
-  const ok = window.confirm(`Apagar permanentemente o barbeiro "${nome}"? Esta ação não pode ser desfeita.`)
+  const ok = await askDeleteConfirmation({
+    title: 'Apagar barbeiro',
+    message: `Apagar permanentemente o barbeiro "${nome}"? Esta ação não pode ser desfeita.`
+  })
   if (!ok) return
   try {
     await request(`/barbeiros/${id}/permanente`, { method: 'DELETE' })
