@@ -173,17 +173,53 @@
       hero.id = 'hero';
       const container = document.createElement('div');
       container.className = 'container hero-content';
+      const badge = document.createElement('div');
+      badge.className = 'hero-badge';
+      badge.textContent = '• Atendimentos premium';
       const h2 = document.createElement('h2');
-      h2.textContent = title || 'Encontre seu Barbeiro Ideal';
+      h2.innerHTML = title || 'Mestria em <span>Cada Corte.</span>';
       const p = document.createElement('p');
       p.textContent = description || 'Agende cortes e serviços de barbearia com os nossos melhores profissionais.';
-      const cta = document.createElement('a');
-      cta.className = 'cta-button';
-      cta.textContent = ctaLabel || 'Ver Barbeiros';
-      cta.href = ctaHref || '#professionals';
+      const actions = document.createElement('div');
+      actions.className = 'hero-actions';
+
+      const ctaPrimary = document.createElement('a');
+      ctaPrimary.className = 'cta-button';
+      ctaPrimary.textContent = ctaLabel || 'Agendar Agora';
+      ctaPrimary.href = ctaHref || '#professionals';
+
+      const ctaSecondary = document.createElement('a');
+      ctaSecondary.className = 'nav-button nav-button-hero';
+      ctaSecondary.textContent = 'Ver Serviços';
+      ctaSecondary.href = '#services';
+      actions.appendChild(ctaPrimary);
+      actions.appendChild(ctaSecondary);
+
+      const stats = document.createElement('div');
+      stats.className = 'hero-stats';
+      const items = [
+        { key: 'rating', value: '4.9/5', label: 'Avaliação' },
+        { key: 'cuts', value: '0', label: 'Cortes' },
+        { key: 'barbers', value: '0', label: 'Barbeiros' }
+      ];
+      items.forEach((item) => {
+        const stat = document.createElement('div');
+        stat.className = 'hero-stat';
+        const value = document.createElement('strong');
+        value.id = `hero-stat-${item.key}`;
+        value.textContent = item.value;
+        const label = document.createElement('small');
+        label.textContent = item.label;
+        stat.appendChild(value);
+        stat.appendChild(label);
+        stats.appendChild(stat);
+      });
+
+      container.appendChild(badge);
       container.appendChild(h2);
       container.appendChild(p);
-      container.appendChild(cta);
+      container.appendChild(actions);
+      container.appendChild(stats);
       hero.appendChild(container);
       return hero;
     },
@@ -251,9 +287,17 @@
     createProfessionalsSection: () => {
       const { section, container } = window.APP_COMPONENTS.createSectionHeader({
         id: 'professionals',
-        title: 'Barbeiros Disponíveis',
+        title: 'Conheça Nossos Barbeiros Master',
         className: 'section professionals-section'
       });
+      const kicker = document.createElement('p');
+      kicker.className = 'section-kicker';
+      kicker.textContent = 'Os Artesãos';
+      const subtitle = document.createElement('p');
+      subtitle.className = 'section-subtitle';
+      subtitle.textContent = 'Profissionais de alto nível, especialistas em precisão e estilo.';
+      container.insertBefore(kicker, container.firstChild);
+      container.appendChild(subtitle);
       const grid = document.createElement('div');
       grid.className = 'grid-container';
       grid.id = 'professionals-grid';
@@ -276,6 +320,68 @@
       grid.className = 'grid-container';
       grid.id = 'services-grid';
       container.appendChild(grid);
+      section.appendChild(container);
+      return section;
+    },
+    createTestimonialsSection: () => {
+      const section = document.createElement('section');
+      section.className = 'section testimonials-section hidden';
+      section.id = 'testimonials';
+
+      const container = document.createElement('div');
+      container.className = 'container';
+
+      const header = document.createElement('div');
+      header.className = 'text-center';
+      const kicker = document.createElement('p');
+      kicker.className = 'section-kicker';
+      kicker.textContent = 'Avaliações';
+      const title = document.createElement('h2');
+      title.className = 'section-title';
+      title.textContent = 'O que dizem nossos clientes';
+      header.appendChild(kicker);
+      header.appendChild(title);
+
+      const carousel = document.createElement('div');
+      carousel.className = 'reviews-carousel';
+
+      const track = document.createElement('div');
+      track.className = 'reviews-track';
+      track.id = 'reviews-track';
+
+      const reviews = [
+        { nome: 'Carlos M.', nota: '5.0', texto: 'Atendimento excelente e corte impecável. Virei cliente fixo.' },
+        { nome: 'Rafael S.', nota: '4.9', texto: 'Ambiente top, barbeiro muito técnico e pontual.' },
+        { nome: 'João P.', nota: '5.0', texto: 'Agendamento rápido e resultado acima do esperado.' },
+        { nome: 'Matheus L.', nota: '4.8', texto: 'Ótimo custo-benefício e profissionais muito atenciosos.' },
+        { nome: 'Bruno A.', nota: '5.0', texto: 'Barba perfeita e ótimo atendimento. Recomendo demais.' },
+        { nome: 'Diego R.', nota: '4.9', texto: 'Estrutura excelente e profissionais muito qualificados.' },
+        { nome: 'Felipe T.', nota: '4.8', texto: 'Pontualidade e qualidade acima da média.' },
+        { nome: 'Henrique V.', nota: '5.0', texto: 'Melhor experiência de barbearia da cidade.' }
+      ];
+
+      reviews.forEach((review) => {
+        const card = document.createElement('article');
+        card.className = 'review-card';
+        const stars = document.createElement('div');
+        stars.className = 'review-stars';
+        stars.textContent = `★ ${review.nota}`;
+        const text = document.createElement('p');
+        text.className = 'review-text';
+        text.textContent = review.texto;
+        const author = document.createElement('strong');
+        author.className = 'review-author';
+        author.textContent = review.nome;
+        card.appendChild(stars);
+        card.appendChild(text);
+        card.appendChild(author);
+        track.appendChild(card);
+      });
+
+      carousel.appendChild(track);
+
+      container.appendChild(header);
+      container.appendChild(carousel);
       section.appendChild(container);
       return section;
     },

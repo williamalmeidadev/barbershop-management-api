@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function init() {
         await loadInitialData();
+        renderHeroStats();
 
         renderProfessionals();
         renderServices();
@@ -127,7 +128,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function renderHeroStats() {
+        const cutsEl = document.getElementById('hero-stat-cuts');
+        const barbersEl = document.getElementById('hero-stat-barbers');
+        if (cutsEl) cutsEl.textContent = `${state.allServices.length}+`;
+        if (barbersEl) barbersEl.textContent = `${state.professionals.length}+`;
+    }
+
     // --- Navigation Logic ---
+    function initReviewsCarousel() {
+        const reviewsTrack = document.getElementById('reviews-track');
+        if (!reviewsTrack || reviewsTrack.dataset.loopReady) return;
+
+        // Wait until the section is visible and has measurable width.
+        if (reviewsTrack.offsetWidth === 0 || reviewsTrack.scrollWidth === 0) {
+            window.requestAnimationFrame(initReviewsCarousel);
+            return;
+        }
+
+        const originalItems = Array.from(reviewsTrack.children);
+        originalItems.forEach((item) => {
+            reviewsTrack.appendChild(item.cloneNode(true));
+        });
+        reviewsTrack.dataset.loopReady = 'true';
+
+        const first = reviewsTrack.children[0];
+        const mid = reviewsTrack.children[originalItems.length - 1];
+        const originalWidth = first && mid
+            ? (mid.getBoundingClientRect().right - first.getBoundingClientRect().left + reviewsTrack.scrollLeft)
+            : (reviewsTrack.scrollWidth / 2);
+        let isPaused = false;
+        let rafId = 0;
+        const speed = 0.5;
+
+        const tick = () => {
+            if (!isPaused) {
+                reviewsTrack.scrollLeft += speed;
+                if (reviewsTrack.scrollLeft >= originalWidth) {
+                    reviewsTrack.scrollLeft = 0;
+                }
+            }
+            rafId = window.requestAnimationFrame(tick);
+        };
+
+        reviewsTrack.addEventListener('mouseenter', () => { isPaused = true; });
+        reviewsTrack.addEventListener('mouseleave', () => { isPaused = false; });
+        tick();
+
+        window.addEventListener('beforeunload', () => {
+            if (rafId) window.cancelAnimationFrame(rafId);
+        });
+    }
+
     function setupNavigation() {
         const views = {
             home: ['hero', 'professionals', 'services'],
@@ -156,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (viewName === 'appointments') {
                 renderAppointments();
             }
+            if (viewName === 'home') initReviewsCarousel();
 
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             const activeLink = document.getElementById(`nav-${viewName}`);
@@ -519,11 +572,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Events ---
     function setupEventListeners() {
         closeProfileBtn.onclick = () => {
-            barberProfileView.classList.add('hidden');
-            document.getElementById('hero').classList.remove('hidden');
-            document.getElementById('professionals').classList.remove('hidden');
-            document.getElementById('services').classList.remove('hidden');
-            document.getElementById('about').classList.remove('hidden');
+            // Keep section visibility consistent with normal "home" navigation.
+            if (typeof window.navigateTo === 'function') {
+                window.navigateTo('home');
+            } else {
+                barberProfileView.classList.add('hidden');
+                document.getElementById('hero')?.classList.remove('hidden');
+                document.getElementById('professionals')?.classList.remove('hidden');
+                document.getElementById('services')?.classList.remove('hidden');
+                document.getElementById('about')?.classList.add('hidden');
+            }
         };
 
         btnStartBooking.onclick = () => {
@@ -627,6 +685,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = `${BASE_PATH}/login`;
             }
         });
+
+        const reviewsTrack = document.getElementById('reviews-track');
     }
 
     async function renderAppointments() {
