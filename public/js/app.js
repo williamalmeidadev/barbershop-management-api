@@ -659,19 +659,56 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
 
+        // "Ver Serviços" button in Hero
+        const servicesBtn = document.querySelector('.nav-button-hero');
+        if (servicesBtn) {
+            servicesBtn.onclick = (e) => {
+                e.preventDefault();
+                const el = document.getElementById('services');
+                if (!el) return;
+                window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+            };
+        }
+
         // Mobile Menu Toggle
         if (menuToggle && navMenu) {
-            menuToggle.onclick = () => {
-                navMenu.classList.toggle('active');
+            const closeMobileMenu = () => {
+                navMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                document.body.classList.remove('menu-open');
                 const icon = menuToggle.querySelector('.material-icons');
-                if (icon) icon.innerText = navMenu.classList.contains('active') ? 'close' : 'menu';
+                if (icon) icon.innerText = 'menu';
+            };
+
+            menuToggle.onclick = () => {
+                const willOpen = !navMenu.classList.contains('active');
+                navMenu.classList.toggle('active', willOpen);
+                menuToggle.setAttribute('aria-expanded', String(willOpen));
+                document.body.classList.toggle('menu-open', willOpen);
+                const icon = menuToggle.querySelector('.material-icons');
+                if (icon) icon.innerText = willOpen ? 'close' : 'menu';
             };
             navMenu.querySelectorAll('.nav-link, .nav-button').forEach(link => {
                 link.addEventListener('click', () => {
-                    navMenu.classList.remove('active');
-                    const icon = menuToggle.querySelector('.material-icons');
-                    if (icon) icon.innerText = 'menu';
+                    closeMobileMenu();
                 });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth > 960) return;
+                const target = event.target;
+                if (!(target instanceof Element)) return;
+                if (!navMenu.classList.contains('active')) return;
+                if (target.closest('#menu-toggle') || target.closest('#nav-menu')) return;
+                closeMobileMenu();
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 960) closeMobileMenu();
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') closeMobileMenu();
             });
         }
 
