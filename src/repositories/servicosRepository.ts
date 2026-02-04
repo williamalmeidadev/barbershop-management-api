@@ -133,4 +133,27 @@ export const servicoRepository = {
   async deactivate(id: number): Promise<Servico> {
     return await this.update(id, { ativo: 0 })
   },
+
+  async countAgendamentoReferencias(id: number): Promise<number> {
+    return await new Promise<number>((resolve, reject) => {
+      db.get(
+        'SELECT COUNT(*) as total FROM agendamento_servicos WHERE servico_id = ?',
+        [id],
+        (err, row: any) => {
+          if (err) return reject(err)
+          resolve(Number(row?.total || 0))
+        }
+      )
+    })
+  },
+
+  async remove(id: number): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      db.run('DELETE FROM servicos WHERE id = ?', [id], function (err) {
+        if (err) return reject(err)
+        if (this.changes === 0) return reject(new Error('Serviço não encontrado.'))
+        resolve()
+      })
+    })
+  },
 }

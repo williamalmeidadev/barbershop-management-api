@@ -14,6 +14,7 @@ router.post('/', verifyToken, isAdmin, servicosController.criar)
 router.put('/:id', verifyToken, isAdmin, servicosController.atualizar)
 
 router.delete('/:id', verifyToken, isAdmin, servicosController.desativar)
+router.delete('/:id/permanente', verifyToken, isAdmin, servicosController.apagarPermanente)
 
 router.delete('/:id/foto', verifyToken, isAdmin, servicosController.removerFoto)
 router.patch('/:id/foto', verifyToken, isAdmin, (req, res, next) => {

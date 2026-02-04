@@ -3,7 +3,7 @@ const API_BASE_URL = window.BASE_PATH || '';
 const services = {
     async fetchServices(barbeiroId) {
         try {
-            const query = barbeiroId ? `?barbeiro_id=${barbeiroId}` : '';
+            const query = barbeiroId ? `?ativo=1&barbeiro_id=${barbeiroId}` : '?ativo=1';
             if (window.API?.json) return await window.API.json(`/servicos${query}`);
             const response = await fetch(`${API_BASE_URL}/servicos${query}`);
             if (!response.ok) throw new Error('Não foi possível carregar os serviços');
@@ -16,8 +16,8 @@ const services = {
 
     async fetchBarbeiros() {
         try {
-            if (window.API?.json) return await window.API.json('/barbeiros');
-            const response = await fetch(`${API_BASE_URL}/barbeiros`);
+            if (window.API?.json) return await window.API.json('/barbeiros?ativo=1');
+            const response = await fetch(`${API_BASE_URL}/barbeiros?ativo=1`);
             if (!response.ok) throw new Error('Não foi possível carregar os barbeiros');
             return await response.json();
         } catch (error) {

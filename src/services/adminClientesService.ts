@@ -44,5 +44,25 @@ export const adminClientesService = {
   async desativar(id: number): Promise<Cliente> {
     if (!id) throw new Error('O id do cliente é obrigatório.')
     return clientesRepository.deactivate(id)
+  },
+
+  async apagarPermanente(id: number): Promise<void> {
+    if (!id) throw new Error('O id do cliente é obrigatório.')
+    const cliente = await clientesRepository.findById(id)
+    if (!cliente) throw new Error('Cliente não encontrado.')
+
+    const agendamentos = await clientesRepository.countAgendamentos(id)
+    if (agendamentos > 0) {
+      throw new Error('Não é possível apagar cliente com agendamentos vinculados.')
+    }
+
+    try {
+      await clientesRepository.remove(id)
+    } catch (err: any) {
+      if (String(err?.message || '').includes('FOREIGN KEY')) {
+        throw new Error('Não é possível apagar cliente com vínculos ativos.')
+      }
+      throw err
+    }
   }
 }

@@ -70,8 +70,25 @@ function resolveBasePath(req: Request): string {
   return '';
 }
 
-export function verifyTokenPage(req: Request, res: Response, next: NextFunction) {
+function clearAuthCookie(res: Response, cookieName: 'admin_token' | 'client_token') {
+  res.clearCookie(cookieName, { path: '/' });
+  // Compatibilidade para instalações onde o cookie foi criado com path no subpath.
+  res.clearCookie(cookieName, { path: '/server08' });
+}
+
+function redirectToAdminLogin(req: Request, res: Response) {
+  clearAuthCookie(res, 'admin_token');
   const basePath = resolveBasePath(req);
+  return res.redirect(`${basePath}/admin-login`);
+}
+
+function redirectToClientLogin(req: Request, res: Response) {
+  clearAuthCookie(res, 'client_token');
+  const basePath = resolveBasePath(req);
+  return res.redirect(`${basePath}/login`);
+}
+
+export function verifyTokenPage(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   let token: string | undefined;
   if (authHeader) {
@@ -84,7 +101,7 @@ export function verifyTokenPage(req: Request, res: Response, next: NextFunction)
     }
   }
   if (!token) {
-    return res.redirect(`${basePath}/admin-login`);
+    return redirectToAdminLogin(req, res);
   }
   try {
     const secret = process.env.JWT_SECRET;
@@ -95,12 +112,11 @@ export function verifyTokenPage(req: Request, res: Response, next: NextFunction)
     req.user = decoded as TokenPayload;
     return next();
   } catch (err) {
-    return res.redirect(`${basePath}/admin-login`);
+    return redirectToAdminLogin(req, res);
   }
 }
 
 export function verifyTokenPageClient(req: Request, res: Response, next: NextFunction) {
-  const basePath = resolveBasePath(req);
   const authHeader = req.headers.authorization;
   let token: string | undefined;
   if (authHeader) {
@@ -113,7 +129,7 @@ export function verifyTokenPageClient(req: Request, res: Response, next: NextFun
     }
   }
   if (!token) {
-    return res.redirect(`${basePath}/login`);
+    return redirectToClientLogin(req, res);
   }
   try {
     const secret = process.env.JWT_SECRET;
@@ -124,6 +140,6 @@ export function verifyTokenPageClient(req: Request, res: Response, next: NextFun
     req.user = decoded as TokenPayload;
     return next();
   } catch (err) {
-    return res.redirect(`${basePath}/login`);
+    return redirectToClientLogin(req, res);
   }
 }

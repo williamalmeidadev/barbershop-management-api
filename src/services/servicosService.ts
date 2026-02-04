@@ -91,4 +91,24 @@ export const servicoService = {
     if (!id) throw new Error('O id do serviço é obrigatório.')
     return servicoRepository.deactivate(id)
   },
+
+  async apagarPermanente(id: number): Promise<void> {
+    if (!id) throw new Error('O id do serviço é obrigatório.')
+    const existente = await servicoRepository.findById(id)
+    if (!existente) throw new Error('Serviço não encontrado.')
+
+    const referencias = await servicoRepository.countAgendamentoReferencias(id)
+    if (referencias > 0) {
+      throw new Error('Não é possível apagar serviço com agendamentos vinculados.')
+    }
+
+    try {
+      await servicoRepository.remove(id)
+    } catch (err: any) {
+      if (String(err?.message || '').includes('FOREIGN KEY')) {
+        throw new Error('Não é possível apagar serviço com vínculos ativos.')
+      }
+      throw err
+    }
+  },
 }

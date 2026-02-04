@@ -9,11 +9,12 @@ const router = Router()
 const upload = multer(uploadConfig)
 const uploadFoto = upload.single('foto')
 
-router.post('/', barbeirosController.criar)
+router.post('/', verifyToken, isAdmin, barbeirosController.criar)
 router.get('/', barbeirosController.listar)
 router.get('/:id', barbeirosController.buscarPorId)
-router.put('/:id', barbeirosController.atualizar)
-router.delete('/:id', barbeirosController.desativar)
+router.put('/:id', verifyToken, isAdmin, barbeirosController.atualizar)
+router.delete('/:id', verifyToken, isAdmin, barbeirosController.desativar)
+router.delete('/:id/permanente', verifyToken, isAdmin, barbeirosController.apagarPermanente)
 router.delete('/:id/foto', verifyToken, isAdmin, barbeirosController.removerFoto)
 router.patch('/:id/foto', verifyToken, isAdmin, (req, res, next) => {
   uploadFoto(req, res, (err) => {

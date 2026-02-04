@@ -13,5 +13,6 @@ router.get('/', adminClientesController.listar)
 router.get('/:id', adminClientesController.buscarPorId)
 router.put('/:id', adminClientesController.atualizar)
 router.delete('/:id', adminClientesController.desativar)
+router.delete('/:id/permanente', adminClientesController.apagarPermanente)
 
 export default router

@@ -31,10 +31,11 @@
     return card;
   };
 
-  const createServiceCard = ({ id, name, description, duration, priceText, barbeiroNome, mediaUrl, onEdit, onToggle, ativo } = {}) => {
+  const createServiceCard = ({ id, name, description, duration, priceText, barbeiroNome, mediaUrl, onEdit, onToggle, onDelete, ativo } = {}) => {
     const actions = [];
     if (onEdit) actions.push(createButton('Editar', 'btn ghost'));
     if (onToggle) actions.push(createButton(ativo === 1 ? 'Desativar' : 'Ativar', `btn ${ativo === 1 ? 'danger' : ''}`));
+    if (onDelete) actions.push(createButton('Apagar', 'btn danger'));
     const card = createCardWithLines({
       title: name,
       lines: [
@@ -55,18 +56,21 @@
       });
       card.insertBefore(media, card.firstChild);
     }
-    const [editBtn, toggleBtn] = actions;
+    const [editBtn, toggleBtn, deleteBtn] = actions;
     if (onEdit && editBtn) editBtn.addEventListener('click', () => onEdit(editBtn));
     if (onToggle && toggleBtn) toggleBtn.addEventListener('click', () => onToggle(toggleBtn));
+    if (onDelete && deleteBtn) deleteBtn.addEventListener('click', () => onDelete(deleteBtn));
     return card;
   };
 
-  const createClienteCard = ({ nome, email, ativo, concluidos, desconto, onEdit, onToggle } = {}) => {
+  const createClienteCard = ({ nome, email, ativo, concluidos, desconto, onEdit, onToggle, onDelete } = {}) => {
     const actions = [];
     const editBtn = onEdit ? createButton('Editar', 'btn ghost') : null;
     const toggleBtn = onToggle ? createButton(ativo === 1 ? 'Desativar' : 'Ativar', `btn ${ativo === 1 ? 'danger' : ''}`) : null;
+    const deleteBtn = onDelete ? createButton('Apagar', 'btn danger') : null;
     if (editBtn) actions.push(editBtn);
     if (toggleBtn) actions.push(toggleBtn);
+    if (deleteBtn) actions.push(deleteBtn);
     const card = createCardWithLines({
       title: nome,
       lines: [
@@ -79,10 +83,11 @@
     });
     if (onEdit && editBtn) editBtn.addEventListener('click', () => onEdit(editBtn));
     if (onToggle && toggleBtn) toggleBtn.addEventListener('click', () => onToggle(toggleBtn));
+    if (onDelete && deleteBtn) deleteBtn.addEventListener('click', () => onDelete(deleteBtn));
     return card;
   };
 
-  const createBarbeiroCard = ({ nome, bio, ativo, mediaUrl, onEdit, onToggle } = {}) => {
+  const createBarbeiroCard = ({ nome, bio, ativo, mediaUrl, onEdit, onToggle, onDelete } = {}) => {
     const card = createCard('card');
     const header = document.createElement('div');
     header.className = 'card-header vertical';
@@ -110,10 +115,12 @@
     const actions = [];
     if (onEdit) actions.push(createButton('Editar', 'btn ghost'));
     if (onToggle) actions.push(createButton(ativo === 1 ? 'Desativar' : 'Ativar', `btn ${ativo === 1 ? 'danger' : ''}`));
+    if (onDelete) actions.push(createButton('Apagar', 'btn danger'));
     card.appendChild(createActionsRow(actions));
-    const [editBtn, toggleBtn] = actions;
+    const [editBtn, toggleBtn, deleteBtn] = actions;
     if (onEdit && editBtn) editBtn.addEventListener('click', () => onEdit(editBtn));
     if (onToggle && toggleBtn) toggleBtn.addEventListener('click', () => onToggle(toggleBtn));
+    if (onDelete && deleteBtn) deleteBtn.addEventListener('click', () => onDelete(deleteBtn));
     return card;
   };
 

@@ -146,6 +146,25 @@ export const clientesRepository = {
     return await this.update(id, { ativo: 0 })
   },
 
+  async countAgendamentos(id: number): Promise<number> {
+    return await new Promise<number>((resolve, reject) => {
+      db.get('SELECT COUNT(*) as total FROM agendamentos WHERE cliente_id = ?', [id], (err, row: any) => {
+        if (err) return reject(err)
+        resolve(Number(row?.total || 0))
+      })
+    })
+  },
+
+  async remove(id: number): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      db.run('DELETE FROM clientes WHERE id = ?', [id], function (err) {
+        if (err) return reject(err)
+        if (this.changes === 0) return reject(new Error('Cliente não encontrado.'))
+        resolve()
+      })
+    })
+  },
+
   async atualizarContagemEDesconto(id: number, concluidosCount: number, descontoDisponivel?: number | null): Promise<void> {
     const fields = ['concluidos_count = ?']
     const values: any[] = [concluidosCount]
