@@ -1424,6 +1424,13 @@ nav {
     margin-bottom: 0.75rem;
 }
 
+.appointment-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+}
+
 .appointment-details {
     display: grid;
     gap: 0.5rem;
