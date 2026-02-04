@@ -23,23 +23,28 @@ describe('Validadores Utilitários (Unitário)', () => {
 
     // Validação de Senha
     describe('isStrongPassword', () => {
-        it('deve retornar ture para senhas com min 8 chars, com letras e números', () => {
-            const result = isStrongPassword('test1234');
+        it('deve retornar true para senha com no mínimo 6 chars, maiúscula, minúscula e número', () => {
+            const result = isStrongPassword('Teste123');
             expect(result).to.be.true;
         });
 
-        it('deve retornar false para senha com menos de 8 chars', () => {
+        it('deve retornar false para senha com menos de 6 chars', () => {
             const result = isStrongPassword('test12');
             expect(result).to.be.false;
         });
 
-        it('deve retornar false para senhas sem letras', () => {
-            const result = isStrongPassword('123456789');
+        it('deve retornar false para senhas sem letras maiúsculas', () => {
+            const result = isStrongPassword('teste123');
+            expect(result).to.be.false;
+        });
+
+        it('deve retornar false para senhas sem letras minúsculas', () => {
+            const result = isStrongPassword('TESTE123');
             expect(result).to.be.false;
         });
 
         it('deve retornar false para senha sem números', () => {
-            const result = isStrongPassword('testpassword');
+            const result = isStrongPassword('Testepassword');
             expect(result).to.be.false;
         });
     });
@@ -76,4 +81,3 @@ describe('Validadores Utilitários (Unitário)', () => {
         });
     });
 });
-

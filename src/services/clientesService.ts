@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { isValidEmail } from '../utils/validators'
+import { isStrongPassword, isValidEmail, PASSWORD_MIN_LENGTH } from '../utils/validators'
 import { clientesRepository } from '../repositories/clientesRepository'
 import { ClienteCreatePayload } from '../interfaces/cliente'
 
@@ -13,6 +13,10 @@ export const clientesService = {
 
     if (!isValidEmail(email)) {
       throw new Error('E-mail inválido.')
+    }
+
+    if (!isStrongPassword(password)) {
+      throw new Error(`Senha fraca. Use no mínimo ${PASSWORD_MIN_LENGTH} caracteres, com letra maiúscula, minúscula e número.`)
     }
 
     const existente = await clientesRepository.findByEmail(email)
