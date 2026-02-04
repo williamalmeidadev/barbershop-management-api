@@ -123,7 +123,7 @@
     clientName,
     barberName,
     dateText,
-    priceComponents = [], // Array of { label, value, isTotal }
+    priceComponents = [], // Array of { label, value, isTotal}
     actions = []
   } = {}) => {
     const card = document.createElement('div');

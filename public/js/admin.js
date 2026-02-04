@@ -1744,7 +1744,7 @@ async function toggleBarbeiro(id, ativoAtual) {
   }
 }
 
-// Auto-load lists on initial load
+// Auto-load lists on initial load //
 loadConfig();
 loadClientesBtn?.click();
 loadServicosBtn?.click();
