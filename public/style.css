@@ -604,18 +604,16 @@ body.app-page #professionals-grid .card:hover {
 
 [data-theme="light"] body.app-page .hero-section {
     background:
-        linear-gradient(180deg, rgba(248, 250, 252, 0.64), rgba(248, 250, 252, 0.9)),
+        linear-gradient(180deg, rgba(15, 23, 42, 0.10), rgba(15, 23, 42, 0.22)),
         url('https://static.vecteezy.com/ti/fotos-gratis/p2/6515885-interior-da-barbearia-solidol-knyazya-roman-street-28-lviv-lviv-region-79000-gratis-foto.JPG') center/cover;
 }
 
 [data-theme="light"] body.app-page .hero-content {
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(15, 23, 42, 0.14);
-    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.14);
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
     border-radius: 16px;
     padding: 1.45rem 1.7rem;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
 }
 
 [data-theme="light"] body.app-page .hero-content h2 {
