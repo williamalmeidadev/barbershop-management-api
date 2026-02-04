@@ -235,16 +235,18 @@ h6 {
     text-decoration: none;
 }
 
+.logo-img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
 .logo h1 {
     font-size: 1.4rem;
     color: var(--text);
     /* Logo branca conforme protótipo */
 }
 
-.logo .material-icons {
-    color: var(--primary);
-    /* Ícone laranja */
-}
 
 nav {
     display: flex;
@@ -1541,6 +1543,11 @@ nav {
     gap: 12px;
     margin-bottom: 2.5rem;
     padding-left: 0.5rem;
+}
+
+.sidebar-header .logo-img {
+    width: 70px;
+    height: 70px;
 }
 
 .sidebar-header h1 {

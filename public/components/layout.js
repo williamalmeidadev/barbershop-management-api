@@ -63,9 +63,12 @@
       className: 'logo',
       attrs: { href: `${basePath}/` || '/' }
     });
-    const logoIcon = createEl('span', { className: 'material-icons', text: 'diversity_3' });
+    const logoImg = createEl('img', {
+      className: 'logo-img',
+      attrs: { src: `${basePath}/assets/logo.png`, alt: 'AlphaCuts' }
+    });
     const logoTitle = createEl('h1', { text: 'AlphaCuts' });
-    appendChildren(logo, [logoIcon, logoTitle]);
+    appendChildren(logo, [logoImg, logoTitle]);
 
     const nav = createEl('nav', { attrs: { id: 'nav-menu' } });
     navLinks.forEach((link) => {
@@ -118,9 +121,12 @@
       className: 'logo',
       attrs: { href: `${basePath}/app` }
     });
-    const logoIcon = createEl('span', { className: 'material-icons', text: 'diversity_3' });
+    const logoImg = createEl('img', {
+      className: 'logo-img',
+      attrs: { src: `${basePath}/assets/logo.png`, alt: 'AlphaCuts' }
+    });
     const logoTitle = createEl('h1', { text: 'AlphaCuts' });
-    appendChildren(logo, [logoIcon, logoTitle]);
+    appendChildren(logo, [logoImg, logoTitle]);
 
     const menuToggle = createEl('button', {
       className: 'menu-toggle',
@@ -230,7 +236,11 @@
     createAdminSidebar: ({ onLogoutId = 'logout-btn' } = {}) => {
       const sidebar = createEl('aside', { className: 'sidebar' });
       const sidebarHeader = createEl('div', { className: 'sidebar-header' });
-      sidebarHeader.appendChild(createEl('span', { className: 'material-icons', text: 'diversity_3' }));
+      const logoImg = createEl('img', {
+        className: 'logo-img',
+        attrs: { src: `${basePath}/assets/logo.png`, alt: 'AlphaCuts' }
+      });
+      sidebarHeader.appendChild(logoImg);
       sidebarHeader.appendChild(createEl('h1', { text: 'Admin' }));
 
       const nav = createEl('nav', { className: 'sidebar-nav' });
