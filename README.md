@@ -61,25 +61,72 @@ Utilizamos o **DBDesigner** para estruturar as relações entre Clientes, Barbei
 
 ## ⚙️ Como Instalar e Rodar
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/williamalmeidadev/barbershop-management-api.git](https://github.com/williamalmeidadev/barbershop-management-api.git)
-    cd barbershop-management-api
-    ```
-2.  **Instale as dependências:**
-    ```bash
-    npm install
-    ```
-3.  **Configure as variáveis de ambiente:**
-    Crie um arquivo `.env` baseado no exemplo:
-    ```env
-    PORT=3000
-    JWT_SECRET=coloque_aqui_uma_string_segura
-    ```
-4.  **Inicie em modo de desenvolvimento:**
-    ```bash
-    npm run dev
-    ```
+### Pré-requisitos
+
+* Node.js 18+ (recomendado: 20+)
+* NPM 9+
+
+### 1) Clone o repositório
+
+```bash
+git clone https://github.com/williamalmeidadev/barbershop-management-api.git
+cd barbershop-management-api
+```
+
+### 2) Instale as dependências
+
+```bash
+npm install
+```
+
+### 3) Configure o `.env`
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+PORT=3000
+JWT_SECRET=troque_por_uma_chave_forte
+
+# Admin inicial (criado automaticamente ao iniciar a API, se não existir)
+ADMIN_USUARIO=admin
+ADMIN_NOME=Administrador
+ADMIN_EMAIL=admin@alphacuts.com
+ADMIN_PASSWORD=Admin@123
+```
+
+Observações:
+
+* `JWT_SECRET` é obrigatório para geração/validação de tokens.
+* O admin inicial só é criado se `ADMIN_EMAIL` e `ADMIN_PASSWORD` estiverem definidos.
+* A criação do admin ocorre no startup da aplicação e não duplica usuário já existente.
+
+### 4) Rode a aplicação
+
+Modo desenvolvimento:
+
+```bash
+npm run dev
+```
+
+Build + execução:
+
+```bash
+npm run build
+npm start
+```
+
+### 5) (Opcional) Popular o banco com dados de exemplo
+
+O projeto possui seed em `src/seed.ts` com clientes, admin, barbeiros, serviços, vagas e agendamentos:
+
+```bash
+npx ts-node src/seed.ts
+```
+
+Depois, acesse:
+
+* App cliente: `http://localhost:3000/`
+* Login admin: `http://localhost:3000/admin-login`
 
 ---
 
