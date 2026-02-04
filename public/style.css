@@ -1324,7 +1324,7 @@ body.app-page #professionals-grid .card:hover {
 }
 
 .service-duration {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 6px;
     color: var(--text-muted);
@@ -1335,17 +1335,24 @@ body.app-page #professionals-grid .card:hover {
 .service-duration .material-icons {
     font-size: 1rem;
     line-height: 1;
-    vertical-align: middle;
     display: inline-flex;
     align-items: center;
-    position: relative;
-    top: 1px;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    height: auto;
+    color: var(--primary);
+    vertical-align: middle;
 }
 
 .service-price {
+    display: inline-flex;
+    align-items: center;
     color: var(--primary);
     font-weight: 700;
     font-size: 1.2rem;
+    line-height: 1;
 }
 
 .booking-flow-compact {

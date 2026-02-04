@@ -572,11 +572,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Events ---
     function setupEventListeners() {
         closeProfileBtn.onclick = () => {
-            barberProfileView.classList.add('hidden');
-            document.getElementById('hero').classList.remove('hidden');
-            document.getElementById('professionals').classList.remove('hidden');
-            document.getElementById('services').classList.remove('hidden');
-            document.getElementById('about').classList.remove('hidden');
+            // Keep section visibility consistent with normal "home" navigation.
+            if (typeof window.navigateTo === 'function') {
+                window.navigateTo('home');
+            } else {
+                barberProfileView.classList.add('hidden');
+                document.getElementById('hero')?.classList.remove('hidden');
+                document.getElementById('professionals')?.classList.remove('hidden');
+                document.getElementById('services')?.classList.remove('hidden');
+                document.getElementById('about')?.classList.add('hidden');
+            }
         };
 
         btnStartBooking.onclick = () => {
