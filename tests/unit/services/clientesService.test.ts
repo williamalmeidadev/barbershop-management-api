@@ -79,12 +79,29 @@ describe('ClientesService', () => {
         });
 
         it('deve lançar erro se a senha for fraca', async () => {
+            const findByEmailStub = sandbox.stub(clientesRepository, 'findByEmail');
+            const createStub = sandbox.stub(clientesRepository, 'create');
             try {
                 await clientesService.criar({ ...validPayload, password: 'fraca1' });
                 expect.fail('Should have thrown error');
             } catch (err: any) {
                 expect(err.message).to.contain('Senha fraca');
+                sinon.assert.notCalled(findByEmailStub);
+                sinon.assert.notCalled(createStub);
             }
+        });
+
+        it('deve aceitar senha forte com 6 caracteres (regra mínima)', async () => {
+            const hashStub = sandbox.stub(bcrypt, 'hash').resolves('hash_minimo' as any);
+            sandbox.stub(clientesRepository, 'findByEmail').resolves(null);
+            const createStub = sandbox.stub(clientesRepository, 'create').resolves(2);
+
+            const payload = { ...validPayload, password: 'Aa1bbb' };
+            const result = await clientesService.criar(payload);
+
+            expect(result).to.deep.equal({ clienteId: 2 });
+            sinon.assert.calledWith(hashStub, payload.password, 10);
+            sinon.assert.calledOnce(createStub);
         });
     });
 });

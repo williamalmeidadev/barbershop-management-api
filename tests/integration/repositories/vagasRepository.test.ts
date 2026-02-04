@@ -60,14 +60,17 @@ describe('VagasRepository Integration', function () {
             const v1 = vagas[0];
             const v2 = vagas[1];
 
-            // 09:00 UTC
-            expect(v1.inicio).to.equal('2026-01-30T09:00:00.000Z');
-            expect(v1.fim).to.equal('2026-01-30T09:30:00.000Z');
+            // Assert against runtime timezone conversion used by Date constructor.
+            const expectedStart = new Date(`${data}T${inicioExpediente}:00`).toISOString();
+            const expectedMid = new Date(`${data}T09:30:00`).toISOString();
+            const expectedEnd = new Date(`${data}T${fimExpediente}:00`).toISOString();
+
+            expect(v1.inicio).to.equal(expectedStart);
+            expect(v1.fim).to.equal(expectedMid);
             expect(v1.status).to.equal(StatusVaga.DISPONIVEL);
 
-            // 09:30 UTC
-            expect(v2.inicio).to.equal('2026-01-30T09:30:00.000Z');
-            expect(v2.fim).to.equal('2026-01-30T10:00:00.000Z');
+            expect(v2.inicio).to.equal(expectedMid);
+            expect(v2.fim).to.equal(expectedEnd);
         });
     });
 

@@ -3,14 +3,16 @@ import request from 'supertest';
 import express, { Request, Response } from 'express';
 import { expect } from 'chai';
 import jwt from 'jsonwebtoken';
+import net from 'net';
 import { verifyToken } from '../../../src/middlewares/verifyToken';
 import { isAdmin } from '../../../src/middlewares/verifyAdmin';
 
 describe('Auth Middlewares Integration', () => {
     let app: express.Express;
     const TEST_SECRET = 'test-secret';
+    let canBindSocket = true;
 
-    before(() => {
+    before((done) => {
         process.env.JWT_SECRET = TEST_SECRET;
 
         app = express();
@@ -24,10 +26,23 @@ describe('Auth Middlewares Integration', () => {
         app.get('/admin', verifyToken, isAdmin, (req: Request, res: Response) => {
             res.status(200).json({ message: 'Admin access granted' });
         });
+
+        const probe = net.createServer();
+        probe.once('error', () => {
+            canBindSocket = false;
+            done();
+        });
+        probe.listen(0, '127.0.0.1', () => {
+            probe.close(() => done());
+        });
     });
 
     after(() => {
         delete process.env.JWT_SECRET;
+    });
+
+    beforeEach(function () {
+        if (!canBindSocket) this.skip();
     });
 
     describe('verifyToken', () => {

@@ -19,15 +19,19 @@ describe('ServicosRepository Integration', function () {
 
     beforeEach(async () => {
         await new Promise<void>((resolve, reject) => {
-            const tables = ['servicos', 'barbeiros'];
-            let completed = 0;
-            tables.forEach(table => {
+            const tables = ['agendamento_servicos', 'agendamento_vagas', 'agendamentos', 'vagas', 'servicos', 'barbeiros'];
+            let index = 0;
+
+            const runNext = () => {
+                if (index >= tables.length) return resolve();
+                const table = tables[index++];
                 db.run(`DELETE FROM ${table}`, (err) => {
                     if (err) return reject(err);
-                    completed++;
-                    if (completed === tables.length) resolve();
+                    runNext();
                 });
-            });
+            };
+
+            runNext();
         });
 
         barbeiroId = await new Promise<number>((resolve, reject) => {

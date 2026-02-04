@@ -2,6 +2,7 @@
 import request from 'supertest';
 import { expect } from 'chai';
 import jwt from 'jsonwebtoken';
+import net from 'net';
 import app from '../../../src/app';
 import { db } from '../../../src/database/sqlite';
 import { initDatabase } from '../../../src/database/init';
@@ -14,6 +15,7 @@ describe('Agendamentos Route Integration (E2E)', function () {
     let clienteId: number;
     let barbeiroId: number;
     let servicoId: number;
+    let canBindSocket = true;
     // Data/Hora para o teste
     const dataAgendamento = '2026-08-20';
     const horaInicio = '10:00';
@@ -24,7 +26,16 @@ describe('Agendamentos Route Integration (E2E)', function () {
         initDatabase();
         db.get('SELECT 1', (err) => {
             if (err) done(err);
-            else done();
+            else {
+                const probe = net.createServer();
+                probe.once('error', () => {
+                    canBindSocket = false;
+                    done();
+                });
+                probe.listen(0, '127.0.0.1', () => {
+                    probe.close(() => done());
+                });
+            }
         });
     });
 
@@ -33,11 +44,16 @@ describe('Agendamentos Route Integration (E2E)', function () {
     });
 
     beforeEach(async () => {
+        if (!canBindSocket) return;
         await clearTables();
         await seedDatabase();
 
         // Generate valid token for the seeded client
         token = jwt.sign({ id: clienteId, role: 'client', email: 'teste@e2e.com' }, TEST_SECRET, { expiresIn: '1h' });
+    });
+
+    beforeEach(function () {
+        if (!canBindSocket) this.skip();
     });
 
     async function clearTables() {

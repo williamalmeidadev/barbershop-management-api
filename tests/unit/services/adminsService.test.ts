@@ -79,12 +79,29 @@ describe('AdminsService', () => {
         });
 
         it('deve lançar erro se a senha for fraca', async () => {
+            const findStub = sandbox.stub(adminsRepository, 'findByEmailOrUsuario');
+            const createStub = sandbox.stub(adminsRepository, 'create');
             try {
                 await adminsService.criar({ ...validPayload, password: 'fraca1' });
                 expect.fail('Should have thrown error');
             } catch (err: any) {
                 expect(err.message).to.contain('Senha fraca');
+                sinon.assert.notCalled(findStub);
+                sinon.assert.notCalled(createStub);
             }
+        });
+
+        it('deve aceitar senha forte com 6 caracteres (regra mínima)', async () => {
+            const hashStub = sandbox.stub(bcrypt, 'hash').resolves('hash_minimo' as any);
+            sandbox.stub(adminsRepository, 'findByEmailOrUsuario').resolves(null);
+            const createStub = sandbox.stub(adminsRepository, 'create').resolves(2);
+
+            const payload = { ...validPayload, password: 'Aa1bbb' };
+            const result = await adminsService.criar(payload);
+
+            expect(result).to.deep.equal({ adminId: 2 });
+            sinon.assert.calledWith(hashStub, payload.password, 10);
+            sinon.assert.calledOnce(createStub);
         });
     });
 });
