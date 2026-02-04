@@ -1,50 +1,53 @@
-const form = document.getElementById('login-form');
-const btnLogin = document.getElementById('btn-login');
-const errorContainer = document.getElementById('error-container');
-const errorMsg = document.getElementById('error-msg');
 const basePath = window.BASE_PATH || '';
 
-if (form) {
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+document.addEventListener('submit', async (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || form.id !== 'login-form') return;
 
-        errorContainer.classList.add('hidden');
-        btnLogin.disabled = true;
-        const originalText = btnLogin.innerText;
-        btnLogin.innerText = 'Entrando...';
+    event.preventDefault();
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    const btnLogin = document.getElementById('btn-login');
+    const errorContainer = document.getElementById('error-container');
+    const errorMsg = document.getElementById('error-msg');
 
-        try {
-            const data = await window.services.login(email, password);
-            document.cookie = `client_token=${encodeURIComponent(data.token)}; path=/; SameSite=Lax`;
+    if (!(btnLogin instanceof HTMLButtonElement) || !errorContainer || !errorMsg) return;
 
-            btnLogin.innerText = 'Sucesso!';
-            setTimeout(() => {
-                window.location.href = `${basePath}/app`;
-            }, 500);
+    errorContainer.classList.add('hidden');
+    btnLogin.disabled = true;
+    const originalText = btnLogin.innerText;
+    btnLogin.innerText = 'Entrando...';
 
-        } catch (err) {
-            console.error(err);
-            const msg = err.message || 'E-mail ou senha inválidos';
-            errorMsg.textContent = msg;
-            errorContainer.classList.remove('hidden');
-            if (window.NOTIFY?.notify) {
-                window.NOTIFY.notify(msg, 'error', { containerId: 'notification-container' });
-            }
+    const email = document.getElementById('email')?.value;
+    const password = document.getElementById('password')?.value;
 
-            btnLogin.disabled = false;
-            btnLogin.innerText = originalText;
+    try {
+        const data = await window.services.login(email, password);
+        document.cookie = `client_token=${encodeURIComponent(data.token)}; path=/; SameSite=Lax`;
+
+        btnLogin.innerText = 'Sucesso!';
+        setTimeout(() => {
+            window.location.href = `${basePath}/app`;
+        }, 500);
+    } catch (err) {
+        console.error(err);
+        const msg = err.message || 'E-mail ou senha inválidos';
+        errorMsg.textContent = msg;
+        errorContainer.classList.remove('hidden');
+        if (window.NOTIFY?.notify) {
+            window.NOTIFY.notify(msg, 'error', { containerId: 'notification-container' });
         }
-    });
-}
 
-const btnLogout = document.getElementById('btn-logout');
-if (btnLogout) {
-    btnLogout.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.cookie = 'client_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        window.location.reload();
-    });
-}
+        btnLogin.disabled = false;
+        btnLogin.innerText = originalText;
+    }
+});
+
+document.addEventListener('click', (e) => {
+    const target = e.target;
+    if (!(target instanceof Element)) return;
+    const logoutBtn = target.closest('#btn-logout');
+    if (!logoutBtn) return;
+    e.preventDefault();
+    document.cookie = 'client_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    window.location.reload();
+});
