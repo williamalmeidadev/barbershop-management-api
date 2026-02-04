@@ -1,6 +1,19 @@
 import { Vaga, StatusVaga } from '../interfaces/vaga'
 import { db } from '../database/sqlite'
 
+const APP_TZ_OFFSET = process.env.APP_TZ_OFFSET || '-03:00'
+
+function getUtcRangeFromLocalDate(dateStr: string) {
+  const start = new Date(`${dateStr}T00:00:00${APP_TZ_OFFSET}`)
+  const end = new Date(start)
+  end.setDate(end.getDate() + 1)
+  return { start: start.toISOString(), end: end.toISOString() }
+}
+
+function toUtcFromLocal(dateStr: string, timeStr: string) {
+  return new Date(`${dateStr}T${timeStr}${APP_TZ_OFFSET}`)
+}
+
 export const vagasRepository = {
 
   async buscarVagasPorIds(ids: number[]): Promise<Vaga[]> {
@@ -59,13 +72,11 @@ export const vagasRepository = {
     })
   },
   async buscarTodasPorBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
-    const inicioDia = `${data}T00:00:00.000Z`
-    const proximoDia = new Date(inicioDia)
-    proximoDia.setUTCDate(proximoDia.getUTCDate() + 1)
+    const { start, end } = getUtcRangeFromLocalDate(data)
     return await new Promise<Vaga[]>((resolve, reject) => {
       db.all(
         `SELECT * FROM vagas WHERE barbeiro_id = ? AND inicio >= ? AND inicio < ? ORDER BY inicio ASC`,
-        [barbeiroId, inicioDia, proximoDia.toISOString()],
+        [barbeiroId, start, end],
         (err, rows) => {
           if (err) return reject(err)
           resolve(rows as Vaga[])
@@ -76,11 +87,8 @@ export const vagasRepository = {
 
   async criarVagasParaBarbeiro(barbeiroId: number, data: string, inicioExpediente: string, fimExpediente: string, duracaoVaga: number): Promise<Vaga[]> {
     const vagas: Vaga[] = []
-    const [ano, mes, dia] = data.split('-').map(Number)
-    const [hIni, mIni, sIni = 0] = inicioExpediente.split(':').map(Number)
-    const [hFim, mFim, sFim = 0] = fimExpediente.split(':').map(Number)
-    const start = new Date(Date.UTC(ano, mes - 1, dia, hIni, mIni, sIni))
-    const end = new Date(Date.UTC(ano, mes - 1, dia, hFim, mFim, sFim))
+    const start = toUtcFromLocal(data, inicioExpediente)
+    const end = toUtcFromLocal(data, fimExpediente)
     let atual = new Date(start)
     while (atual < end) {
       const vagaInicio = new Date(atual)
@@ -122,13 +130,11 @@ export const vagasRepository = {
   },
 
   async buscarDisponiveisPorBarbeiroEData(barbeiroId: number, data: string): Promise<Vaga[]> {
-    const inicioDia = `${data}T00:00:00.000Z`
-    const proximoDia = new Date(inicioDia)
-    proximoDia.setUTCDate(proximoDia.getUTCDate() + 1)
+    const { start, end } = getUtcRangeFromLocalDate(data)
     return await new Promise<Vaga[]>((resolve, reject) => {
       db.all(
         `SELECT * FROM vagas WHERE barbeiro_id = ? AND inicio >= ? AND inicio < ? AND status = 'DISPONIVEL' ORDER BY inicio ASC`,
-        [barbeiroId, inicioDia, proximoDia.toISOString()],
+        [barbeiroId, start, end],
         (err, rows) => {
           if (err) return reject(err)
           resolve(rows as Vaga[])
