@@ -470,7 +470,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkBookingReady() {
         const ready = state.selectedServices.length > 0 && state.selectedProfessional && state.selectedDate && state.selectedTime;
-        btnStartBooking.disabled = !ready;
+        btnStartBooking.disabled = false;
+        btnStartBooking.classList.toggle('is-disabled', !ready);
+        btnStartBooking.setAttribute('aria-disabled', (!ready).toString());
     }
 
     function goToWizardStep(step) {
@@ -525,6 +527,18 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         btnStartBooking.onclick = () => {
+            if (!state.selectedServices.length || !state.selectedDate || !state.selectedTime) {
+                const msg = !state.selectedServices.length && !state.selectedDate && !state.selectedTime
+                    ? 'Selecione um serviço, um dia e um horário antes de agendar.'
+                    : !state.selectedServices.length
+                        ? 'Selecione pelo menos um serviço antes de agendar.'
+                        : !state.selectedDate
+                            ? 'Selecione um dia antes de agendar.'
+                            : 'Selecione um horário antes de agendar.';
+                showNotification(msg, 'error');
+                return;
+            }
+
             barberProfileView.classList.add('hidden');
             bookingWizardView.classList.remove('hidden');
             goToWizardStep(1);
@@ -537,6 +551,17 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         confirmBtn.addEventListener('click', async () => {
+            if (!state.selectedServices.length || !state.selectedDate || !state.selectedTime) {
+                const msg = !state.selectedServices.length && !state.selectedDate && !state.selectedTime
+                    ? 'Selecione um serviço, um dia e um horário antes de confirmar.'
+                    : !state.selectedServices.length
+                        ? 'Selecione pelo menos um serviço antes de confirmar.'
+                        : !state.selectedDate
+                            ? 'Selecione um dia antes de confirmar.'
+                            : 'Selecione um horário antes de confirmar.';
+                showNotification(msg, 'error');
+                return;
+            }
             try {
                 confirmBtn.disabled = true;
                 confirmBtn.innerText = 'Processando...';

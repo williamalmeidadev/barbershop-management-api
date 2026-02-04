@@ -301,6 +301,7 @@ nav {
 
 /* --- HERO SECTION --- */
 .hero-section {
+    position: relative;
     height: 85vh;
     /* Gradiente mais quente/marrom para combinar com o laranja */
     background: linear-gradient(to bottom, rgba(18, 16, 14, 0.3), var(--background)),
@@ -313,8 +314,17 @@ nav {
     padding-top: calc(var(--header-height) + 2rem);
 }
 
+[data-theme="light"] .hero-section {
+    background-image:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 60%, rgba(255, 255, 255, 0.0) 100%),
+        url('https://images.unsplash.com/photo-1496181832051-69dcf27fc27d?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    background-blend-mode: screen, normal;
+}
+
 .hero-content {
     max-width: 700px;
+    position: relative;
+    z-index: 1;
 }
 
 .hero-content h2 {
@@ -328,6 +338,20 @@ nav {
     margin-bottom: 2.5rem;
     color: var(--text-muted);
     max-width: 500px;
+}
+
+[data-theme="light"] .hero-content {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    box-shadow: 0 26px 54px rgba(15, 23, 42, 0.12);
+    border-radius: 16px;
+    padding: 1.6rem 1.8rem;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+[data-theme="light"] .hero-content p {
+    color: #334155;
 }
 
 /* Botão Principal (Laranja Sólido) */
@@ -2484,4 +2508,11 @@ select:focus {
     gap: 0.5rem;
     padding: 1rem;
     font-size: 1rem;
+}
+
+.primary-button.full-width.is-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(0.15);
+    box-shadow: none;
 }
