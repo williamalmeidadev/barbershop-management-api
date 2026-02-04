@@ -81,7 +81,17 @@
     const logoTitle = createEl('h1', { text: 'AlphaCuts' });
     appendChildren(logo, [logoImg, logoTitle]);
 
-    const nav = createEl('nav', { attrs: { id: 'nav-menu' } });
+    const menuToggle = createEl('button', {
+      className: 'menu-toggle',
+      attrs: {
+        'aria-label': 'Abrir menu',
+        'aria-expanded': 'false',
+        type: 'button'
+      }
+    });
+    menuToggle.appendChild(createEl('span', { className: 'material-icons', text: 'menu' }));
+
+    const nav = createEl('nav', { className: 'nav-collapsible' });
     navLinks.forEach((link) => {
       const anchor = createEl('a', {
         className: link.className || 'nav-link',
@@ -94,7 +104,40 @@
     const themeBtn = createThemeToggle();
     nav.appendChild(themeBtn);
 
-    appendChildren(container, [logo, nav]);
+    const closeMenu = () => {
+      nav.classList.remove('active');
+      menuToggle.setAttribute('aria-expanded', 'false');
+      const icon = menuToggle.querySelector('.material-icons');
+      if (icon) icon.textContent = 'menu';
+      document.body.classList.remove('menu-open');
+    };
+
+    menuToggle.addEventListener('click', () => {
+      const willOpen = !nav.classList.contains('active');
+      nav.classList.toggle('active');
+      menuToggle.setAttribute('aria-expanded', String(willOpen));
+      const icon = menuToggle.querySelector('.material-icons');
+      if (icon) icon.textContent = willOpen ? 'close' : 'menu';
+      document.body.classList.toggle('menu-open', willOpen);
+    });
+
+    nav.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest('a, button')) {
+        closeMenu();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 960) closeMenu();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeMenu();
+    });
+
+    appendChildren(container, [logo, menuToggle, nav]);
     header.appendChild(container);
     return header;
   };
@@ -141,7 +184,7 @@
 
     const menuToggle = createEl('button', {
       className: 'menu-toggle',
-      attrs: { id: 'menu-toggle', 'aria-label': 'Abrir menu' }
+      attrs: { id: 'menu-toggle', 'aria-label': 'Abrir menu', 'aria-expanded': 'false', type: 'button' }
     });
     menuToggle.appendChild(createEl('span', { className: 'material-icons', text: 'menu' }));
 
@@ -275,7 +318,7 @@
           attrs: { 'data-tab': item.tab }
         });
         btn.appendChild(createEl('span', { className: 'material-icons', text: item.icon }));
-        btn.appendChild(document.createTextNode(` ${item.label}`));
+        btn.appendChild(createEl('span', { className: 'nav-label', text: item.label }));
         nav.appendChild(btn);
       });
 
