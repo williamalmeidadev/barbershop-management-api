@@ -306,7 +306,7 @@ nav {
     /* Gradiente mais quente/marrom para combinar com o laranja */
     background: linear-gradient(to bottom, rgba(18, 16, 14, 0.3), var(--background)),
         linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-        url('https://images.unsplash.com/photo-1496181832051-69dcf27fc27d?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover;
+        url('https://static.vecteezy.com/ti/fotos-gratis/p2/6515885-interior-da-barbearia-solidol-knyazya-roman-street-28-lviv-lviv-region-79000-gratis-foto.JPG') center/cover;
     display: flex;
     align-items: center;
     margin-top: 0;
@@ -315,7 +315,7 @@ nav {
 }
 
 [data-theme="light"] .hero-section {
-    background-image: url('https://images.unsplash.com/photo-1496181832051-69dcf27fc27d?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    background-image: url('https://static.vecteezy.com/ti/fotos-gratis/p2/6515885-interior-da-barbearia-solidol-knyazya-roman-street-28-lviv-lviv-region-79000-gratis-foto.JPG');
     background-color: #f3f4f6;
     background-position: center;
     background-size: cover;
@@ -338,6 +338,379 @@ nav {
     margin-bottom: 2.5rem;
     color: var(--text-muted);
     max-width: 500px;
+}
+
+body.app-page .hero-section {
+    min-height: 86vh;
+    height: auto;
+    padding-top: calc(var(--header-height) + 2.4rem);
+    padding-bottom: 3.2rem;
+    background:
+        linear-gradient(180deg, rgba(9, 10, 13, 0.72), rgba(9, 10, 13, 0.86)),
+        url('https://static.vecteezy.com/ti/fotos-gratis/p2/6515885-interior-da-barbearia-solidol-knyazya-roman-street-28-lviv-lviv-region-79000-gratis-foto.JPG') center/cover;
+}
+
+body.app-page .hero-content {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+body.app-page .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--primary);
+    border: 1px solid rgba(242, 93, 39, 0.35);
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: rgba(242, 93, 39, 0.12);
+}
+
+body.app-page .hero-content h2 {
+    font-size: clamp(2.65rem, 5.6vw, 4.2rem);
+    line-height: 1.02;
+    margin-bottom: 1rem;
+}
+
+body.app-page .hero-content h2 span {
+    color: var(--primary);
+}
+
+body.app-page .hero-content p {
+    margin: 0 auto 1.7rem;
+    max-width: 600px;
+    color: #d4d7dd;
+    font-size: 1.03rem;
+}
+
+body.app-page .hero-actions {
+    justify-content: center;
+    margin-bottom: 1.8rem;
+}
+
+body.app-page .nav-button-hero {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: #f3f4f6;
+}
+
+body.app-page .nav-button-hero:hover {
+    border-color: var(--primary);
+    background: rgba(242, 93, 39, 0.12);
+    color: var(--white);
+}
+
+body.app-page .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    max-width: 560px;
+    margin: 0 auto;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+body.app-page .hero-stat {
+    display: grid;
+    gap: 0.2rem;
+    justify-items: center;
+}
+
+body.app-page .hero-stat strong {
+    font-size: 1.2rem;
+    color: var(--white);
+}
+
+body.app-page .hero-stat small {
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+    font-size: 0.66rem;
+    font-weight: 700;
+}
+
+body.app-page .professionals-section {
+    background: linear-gradient(180deg, #251b16 0%, #1a1411 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.app-page .professionals-section .section-title {
+    margin-bottom: 0.7rem;
+}
+
+body.app-page .professionals-section .section-kicker {
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+body.app-page .professionals-section .section-subtitle {
+    color: #9ca3af;
+    font-size: 0.92rem;
+    max-width: 540px;
+    margin: 0 auto 1.8rem;
+}
+
+body.app-page #professionals-grid .card {
+    padding: 1rem;
+    border-radius: 14px;
+    overflow: visible;
+    position: relative;
+    background: #1a1411;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+body.app-page #professionals-grid .avatar-container {
+    position: relative;
+    width: clamp(150px, 62%, 190px);
+    height: clamp(150px, 62%, 190px);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0 auto 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #161210;
+    flex: 0 0 auto;
+}
+
+body.app-page #professionals-grid .avatar-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(12, 10, 9, 0.1), rgba(12, 10, 9, 0.55));
+}
+
+body.app-page #professionals-grid .barber-avatar-img,
+body.app-page #professionals-grid .avatar-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+body.app-page #professionals-grid .centered-title,
+body.app-page #professionals-grid .centered-muted,
+body.app-page #professionals-grid .centered-cta {
+    position: relative;
+    text-align: center;
+    padding: 0;
+}
+
+body.app-page #professionals-grid .centered-title {
+    color: #fff;
+    margin-top: 0.15rem;
+    font-size: 1.08rem;
+}
+
+body.app-page #professionals-grid .centered-muted {
+    min-height: 2.8em;
+    margin-bottom: 0.35rem;
+    color: #d1d5db;
+    line-height: 1.35;
+}
+
+body.app-page #professionals-grid .centered-cta {
+    padding-bottom: 1rem;
+    margin-top: auto;
+}
+
+body.app-page #professionals-grid .card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(242, 93, 39, 0.5);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+.testimonials-section {
+    background: linear-gradient(180deg, #1a1411 0%, #15110f 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reviews-carousel {
+    margin-top: 1.4rem;
+    position: relative;
+}
+
+.reviews-carousel::before,
+.reviews-carousel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 56px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.reviews-carousel::before {
+    left: 0;
+    background: linear-gradient(90deg, rgba(23, 18, 16, 1), rgba(23, 18, 16, 0));
+}
+
+.reviews-carousel::after {
+    right: 0;
+    background: linear-gradient(270deg, rgba(23, 18, 16, 1), rgba(23, 18, 16, 0));
+}
+
+.reviews-track {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: none;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.reviews-track::-webkit-scrollbar {
+    display: none;
+}
+
+.review-card {
+    flex: 0 0 300px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 1rem;
+}
+
+.review-stars {
+    color: #fbbf24;
+    font-weight: 700;
+    margin-bottom: 0.45rem;
+}
+
+.review-text {
+    color: #d1d5db;
+    margin-bottom: 0.8rem;
+    line-height: 1.45;
+}
+
+.review-author {
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+[data-theme="light"] body.app-page .hero-section {
+    background:
+        linear-gradient(180deg, rgba(248, 250, 252, 0.64), rgba(248, 250, 252, 0.9)),
+        url('https://static.vecteezy.com/ti/fotos-gratis/p2/6515885-interior-da-barbearia-solidol-knyazya-roman-street-28-lviv-lviv-region-79000-gratis-foto.JPG') center/cover;
+}
+
+[data-theme="light"] body.app-page .hero-content {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.14);
+    border-radius: 16px;
+    padding: 1.45rem 1.7rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] body.app-page .hero-content h2 {
+    color: #0f172a;
+}
+
+[data-theme="light"] body.app-page .hero-content p {
+    color: #334155;
+}
+
+[data-theme="light"] body.app-page .nav-button-hero {
+    border-color: rgba(15, 23, 42, 0.22);
+    background: rgba(15, 23, 42, 0.04);
+    color: #0f172a;
+}
+
+[data-theme="light"] body.app-page .hero-stat strong {
+    color: #0f172a;
+}
+
+[data-theme="light"] body.app-page .hero-stat small {
+    color: #64748b;
+}
+
+[data-theme="light"] body.app-page .hero-stats {
+    border-top: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+[data-theme="light"] body.app-page .professionals-section {
+    background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] body.app-page .professionals-section .section-subtitle {
+    color: #475569;
+}
+
+[data-theme="light"] body.app-page #professionals-grid .card {
+    border-color: rgba(15, 23, 42, 0.12);
+    background: #ffffff;
+}
+
+[data-theme="light"] body.app-page #professionals-grid .avatar-container {
+    border-color: rgba(15, 23, 42, 0.14);
+    background: #f8fafc;
+}
+
+[data-theme="light"] body.app-page #professionals-grid .avatar-container::after {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(15, 23, 42, 0.28));
+}
+
+[data-theme="light"] body.app-page #professionals-grid .centered-title {
+    color: #0f172a;
+}
+
+[data-theme="light"] body.app-page #professionals-grid .centered-muted {
+    color: #475569;
+}
+
+[data-theme="light"] body.app-page #professionals-grid .centered-cta span {
+    color: #f25d27;
+}
+
+[data-theme="light"] .testimonials-section {
+    background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .reviews-carousel::before {
+    background: linear-gradient(90deg, rgba(226, 232, 240, 1), rgba(226, 232, 240, 0));
+}
+
+[data-theme="light"] .reviews-carousel::after {
+    background: linear-gradient(270deg, rgba(226, 232, 240, 1), rgba(226, 232, 240, 0));
+}
+
+[data-theme="light"] .review-card {
+    border-color: rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.78);
+}
+
+[data-theme="light"] .review-text {
+    color: #334155;
+}
+
+[data-theme="light"] .review-author {
+    color: #0f172a;
+}
+
+@media (max-width: 768px) {
+    body.app-page .hero-stats {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        max-width: 300px;
+    }
 }
 
 [data-theme="light"] .hero-content {
@@ -1524,7 +1897,7 @@ nav {
     justify-content: center;
     text-align: center;
     background: linear-gradient(to bottom, rgba(18, 16, 14, 0.7), var(--background)),
-        url('https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&q=80&w=2000') center/cover;
+        url('https://static.vecteezy.com/ti/fotos-gratis/p2/6515885-interior-da-barbearia-solidol-knyazya-roman-street-28-lviv-lviv-region-79000-gratis-foto.JPG') center/cover;
     padding-top: var(--header-height);
 }
 

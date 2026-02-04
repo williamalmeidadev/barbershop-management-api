@@ -25,8 +25,8 @@
     text: 'A barbearia referência da região. Cortes modernos, barba impecável e agendamento descomplicado para o homem moderno.'
   });
   const heroActions = createEl('div', { className: 'hero-actions' });
-  const heroCta = createEl('a', { className: 'cta-button', text: 'Agendar Agora', attrs: { href: `${basePath}/app` } });
-  const heroAdmin = createEl('a', { className: 'nav-button nav-button-hero', text: 'Sou Barbeiro', attrs: { href: `${basePath}/admin` } });
+  const heroCta = createEl('a', { className: 'cta-button', text: 'Entrar na sua conta', attrs: { href: `${basePath}/login` } });
+  const heroAdmin = createEl('a', { className: 'nav-button nav-button-hero', text: 'Sou Barbeiro', attrs: { href: `${basePath}/admin-login` } });
   appendChildren(heroActions, [heroCta, heroAdmin]);
   appendChildren(heroContainer, [heroTitle, heroDesc, heroActions]);
   hero.appendChild(heroContainer);
@@ -65,7 +65,34 @@
   appendChildren(featuresContainer, [featuresHeader, grid]);
   features.appendChild(featuresContainer);
 
-  appendChildren(main, [hero, features]);
+  const testimonials = createEl('section', { className: 'section testimonials-section' });
+  const tContainer = createEl('div', { className: 'container' });
+  const tHeader = createEl('div', { className: 'text-center' });
+  tHeader.appendChild(createEl('p', { className: 'section-kicker', text: 'Avaliações' }));
+  tHeader.appendChild(createEl('h2', { className: 'section-title', text: 'O que dizem nossos clientes' }));
+
+  const carousel = createEl('div', { className: 'reviews-carousel' });
+  const track = createEl('div', { className: 'reviews-track', attrs: { id: 'reviews-track-landing' } });
+  const reviews = [
+    { nome: 'Carlos M.', nota: '5.0', texto: 'Atendimento excelente e corte impecável. Virei cliente fixo.' },
+    { nome: 'Rafael S.', nota: '4.9', texto: 'Ambiente top, barbeiro muito técnico e pontual.' },
+    { nome: 'João P.', nota: '5.0', texto: 'Agendamento rápido e resultado acima do esperado.' },
+    { nome: 'Matheus L.', nota: '4.8', texto: 'Ótimo custo-benefício e profissionais muito atenciosos.' },
+    { nome: 'Bruno A.', nota: '5.0', texto: 'Barba perfeita e ótimo atendimento. Recomendo demais.' },
+    { nome: 'Diego R.', nota: '4.9', texto: 'Estrutura excelente e profissionais muito qualificados.' }
+  ];
+  reviews.forEach((review) => {
+    const card = createEl('article', { className: 'review-card' });
+    card.appendChild(createEl('div', { className: 'review-stars', text: `★ ${review.nota}` }));
+    card.appendChild(createEl('p', { className: 'review-text', text: review.texto }));
+    card.appendChild(createEl('strong', { className: 'review-author', text: review.nome }));
+    track.appendChild(card);
+  });
+  carousel.appendChild(track);
+  appendChildren(tContainer, [tHeader, carousel]);
+  testimonials.appendChild(tContainer);
+
+  appendChildren(main, [hero, features, testimonials]);
 
   const footer = createFooter({
     brand: 'AlphaCuts',
@@ -74,4 +101,44 @@
   });
 
   appendChildren(appRoot, [header, main, footer]);
+
+  const initLandingReviews = () => {
+    const reviewsTrack = document.getElementById('reviews-track-landing');
+    if (!reviewsTrack || reviewsTrack.dataset.loopReady) return;
+    const boot = () => {
+      const items = Array.from(reviewsTrack.children);
+      if (!items.length) return;
+
+      // Ensure track overflows before starting animation.
+      while (reviewsTrack.scrollWidth <= reviewsTrack.clientWidth && reviewsTrack.children.length < items.length * 4) {
+        items.forEach((item) => reviewsTrack.appendChild(item.cloneNode(true)));
+      }
+      // Duplicate once more so reset is seamless.
+      const baseItems = Array.from(reviewsTrack.children);
+      baseItems.forEach((item) => reviewsTrack.appendChild(item.cloneNode(true)));
+
+      reviewsTrack.dataset.loopReady = 'true';
+
+      const originalWidth = reviewsTrack.scrollWidth / 2;
+      let isPaused = false;
+      let timerId = 0;
+
+      const tick = () => {
+        if (!isPaused) {
+          reviewsTrack.scrollLeft += 1; // integer step avoids browser rounding no-op
+          if (reviewsTrack.scrollLeft >= originalWidth) reviewsTrack.scrollLeft = 0;
+        }
+      };
+
+      reviewsTrack.addEventListener('mouseenter', () => { isPaused = true; });
+      reviewsTrack.addEventListener('mouseleave', () => { isPaused = false; });
+      timerId = window.setInterval(tick, 24);
+      window.addEventListener('beforeunload', () => timerId && window.clearInterval(timerId));
+    };
+
+    // Wait one frame so dimensions are accurate.
+    window.requestAnimationFrame(boot);
+  };
+
+  initLandingReviews();
 })();

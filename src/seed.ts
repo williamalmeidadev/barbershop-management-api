@@ -35,7 +35,7 @@ function buildUtcDate(date: Date, hour: number, minute: number): Date {
 
 async function seed() {
   console.log('Iniciando Seed...')
-  
+
   try {
     console.log('Limpando dados antigos...')
     await run(`DELETE FROM agendamento_vagas`)
