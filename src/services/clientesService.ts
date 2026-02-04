@@ -1,0 +1,42 @@
+import bcrypt from 'bcrypt'
+import { isStrongPassword, isValidEmail, PASSWORD_MIN_LENGTH } from '../utils/validators'
+import { clientesRepository } from '../repositories/clientesRepository'
+import { ClienteCreatePayload } from '../interfaces/cliente'
+
+export const clientesService = {
+  async criar(payload: ClienteCreatePayload): Promise<{ clienteId: number }> {
+    const { nome, email, telefone, password } = payload
+
+    if (!nome || !email || !password) {
+      throw new Error('Nome, email e senha são obrigatórios.')
+    }
+
+    if (!isValidEmail(email)) {
+      throw new Error('E-mail inválido.')
+    }
+
+    if (!isStrongPassword(password)) {
+      throw new Error(`Senha fraca. Use no mínimo ${PASSWORD_MIN_LENGTH} caracteres, com letra maiúscula, minúscula e número.`)
+    }
+
+    const existente = await clientesRepository.findByEmail(email)
+    if (existente) {
+      throw new Error('E-mail já cadastrado.')
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10)
+    const clienteId = await clientesRepository.create({
+      nome,
+      email,
+      telefone: telefone ?? null,
+      password_hash: passwordHash
+    })
+
+    return { clienteId }
+  },
+
+  async buscarPorId(id: number) {
+    if (!id) throw new Error('Cliente ID é obrigatório.')
+    return clientesRepository.findById(id)
+  },
+}

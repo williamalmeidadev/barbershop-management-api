@@ -1,0 +1,72 @@
+{
+  "name": "barbershop-management-api",
+  "version": "1.0.0",
+  "description": "API REST e front-end para gerenciamento de uma barbearia/salão de beleza",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "prestart": "npm run build",
+    "start": "node dist/server.js",
+    "test": "cross-env NODE_ENV=test JWT_SECRET=test_secret mocha -r ts-node/register \"tests/**/*.test.ts\"",
+    "test:coverage": "nyc npm test",
+    "test:file": "cross-env NODE_ENV=test JWT_SECRET=test_secret mocha -r ts-node/register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/williamalmeidadev/barbershop-management-api.git"
+  },
+  "keywords": [],
+  "author": "William Almeida",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/williamalmeidadev/barbershop-management-api/issues"
+  },
+  "homepage": "https://github.com/williamalmeidadev/barbershop-management-api#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/chai": "^5.2.3",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mocha": "^10.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.1.0",
+    "@types/sinon": "^21.0.0",
+    "@types/sqlite3": "^3.1.11",
+    "@types/supertest": "^6.0.3",
+    "chai": "^6.2.2",
+    "cross-env": "^10.1.0",
+    "mocha": "^11.7.5",
+    "nyc": "^17.1.0",
+    "sinon": "^21.0.1",
+    "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ],
+    "exclude": [
+      "tests/**",
+      "node_modules/**"
+    ]
+  }
+}

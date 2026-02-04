@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AlphaCuts</title>
+
+    <script>
+        if (window.location.pathname.startsWith('/server08')) {
+            const base = document.createElement('base');
+            base.href = '/server08/';
+            document.head.appendChild(base);
+        }
+    </script>
+    <script>
+        (function () {
+            try {
+                const theme = localStorage.getItem('theme');
+                if (theme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            } catch (e) { }
+        })();
+    </script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="components/fonts.js"></script>
+    <script src="components/basepath.js"></script>
+</head>
+
+<body class="dark-theme">
+    <div id="app"></div>
+    <div id="notification-container"></div>
+
+    <script src="components/ui.js"></script>
+    <script src="components/forms.js"></script>
+    <script src="components/layout.js"></script>
+    <script src="components/notifications.js"></script>
+    <script src="components/request.js"></script>
+    <script src="components/services.js"></script>
+    <script src="js/login.ui.js"></script>
+    <script src="js/login.js"></script>
+</body>
+
+</html>
