@@ -6,6 +6,7 @@ import { runInTransaction } from '../repositories/transaction'
 import { isIsoWithTimezone } from '../utils/validators'
 import { clientesRepository } from '../repositories/clientesRepository'
 import { configuracoesRepository } from '../repositories/configuracoesRepository'
+import { barbeirosService } from './barbeirosService'
 
 export const bookingService = {
   async criarAgendamento(payload: CriarAgendamentoPayload): Promise<Agendamento> {
@@ -14,6 +15,10 @@ export const bookingService = {
     }
     if (!isIsoWithTimezone(payload.inicio_desejado)) {
       throw new Error('inicio_desejado deve ser ISO 8601 com timezone (ex: 2026-01-28T12:00:00Z).')
+    }
+    const barbeiro = await barbeirosService.buscarPorId(payload.barbeiro_id)
+    if (barbeiro.ativo !== 1) {
+      throw new Error('Barbeiro indisponível para agendamento.')
     }
     const servicos = await servicoService.buscarPorIds(payload.servicos, payload.barbeiro_id)
     if (servicos.length !== payload.servicos.length) {
