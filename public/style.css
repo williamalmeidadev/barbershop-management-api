@@ -4,8 +4,6 @@
     --primary: #f25d27;
     --primary-dark: #d14412;
     --primary-hover: #d14412;
-
-    /* Fundos "Café/Dark" (Em vez de preto azulado) */
     --background: #12100e;
     --surface: #1f1c1a;
     --surface-hover: #2a2624;
@@ -1441,6 +1439,13 @@ nav {
     align-items: center;
     gap: 1rem;
     margin-bottom: 0.75rem;
+}
+
+.appointment-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
 }
 
 .appointment-details {
