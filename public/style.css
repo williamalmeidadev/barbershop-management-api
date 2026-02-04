@@ -1914,7 +1914,7 @@ body.app-page #professionals-grid .card:hover {
     justify-content: center;
     text-align: center;
     background: linear-gradient(to bottom, rgba(18, 16, 14, 0.7), var(--background)),
-        url('https://static.vecteezy.com/ti/fotos-gratis/p2/6515885-interior-da-barbearia-solidol-knyazya-roman-street-28-lviv-lviv-region-79000-gratis-foto.JPG') center/cover;
+        url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') center/cover;
     padding-top: var(--header-height);
 }
 
