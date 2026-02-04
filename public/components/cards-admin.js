@@ -117,13 +117,85 @@
     return card;
   };
 
-  const createAgendamentoCard = ({ id, status, lines = [], actions = [] } = {}) => {
-    const title = id ? `#${id} - ${status || ''}` : status || '';
-    const card = createCardWithLines({
-      title,
-      lines,
-      actions
-    });
+  const createAgendamentoCard = ({
+    id,
+    status,
+    clientName,
+    barberName,
+    dateText,
+    priceComponents = [], // Array of { label, value, isTotal}
+    actions = []
+  } = {}) => {
+    const card = document.createElement('div');
+    card.className = 'appointment-card';
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'appointment-header';
+
+    const title = document.createElement('strong');
+    title.textContent = id ? `#${id}` : '';
+    header.appendChild(title);
+
+    const statusBadge = document.createElement('span');
+    statusBadge.className = 'appointment-status';
+    statusBadge.textContent = status || '';
+    header.appendChild(statusBadge);
+
+    card.appendChild(header);
+
+    // Details (Client, Barber, Date)
+    const details = document.createElement('div');
+    details.className = 'appointment-details';
+
+    const addDetail = (icon, text) => {
+      const p = document.createElement('div');
+      const i = document.createElement('span');
+      i.className = 'material-icons';
+      i.textContent = icon;
+      p.appendChild(i);
+      p.appendChild(document.createTextNode(text));
+      details.appendChild(p);
+    };
+
+    if (clientName) addDetail('person', clientName);
+    if (barberName) addDetail('content_cut', barberName);
+    if (dateText) addDetail('event', dateText);
+
+    card.appendChild(details);
+
+    // Price
+    if (priceComponents.length) {
+      const priceBox = document.createElement('div');
+      priceBox.className = 'appointment-price';
+
+      priceComponents.forEach(({ label, value, isTotal }) => {
+        const row = document.createElement('div');
+        row.className = isTotal ? 'info-row appointment-total' : 'info-row';
+
+        const l = document.createElement('strong');
+        l.textContent = label;
+
+        const v = document.createElement('span');
+        v.textContent = value;
+
+        row.appendChild(l);
+        row.appendChild(v);
+        priceBox.appendChild(row);
+      });
+
+      card.appendChild(priceBox);
+    }
+
+    // Actions
+    if (actions.length) {
+      const actionsRow = document.createElement('div');
+      actionsRow.className = 'card-actions';
+      actionsRow.style.marginTop = '1rem'; // Ensure separation
+      actions.forEach(btn => btn && actionsRow.appendChild(btn));
+      card.appendChild(actionsRow);
+    }
+
     return card;
   };
 

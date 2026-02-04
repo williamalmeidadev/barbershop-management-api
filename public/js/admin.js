@@ -208,7 +208,7 @@ initPanelHeaders();
 function initFilters() {
   if (!filters.createFilterForm) return;
 
-const clientesFilters = filters.createFilterForm({
+  const clientesFilters = filters.createFilterForm({
     fields: [
       {
         label: 'Status',
@@ -508,15 +508,15 @@ function renderConfigCard(data, error) {
     const card = adminCards.createConfigCard
       ? adminCards.createConfigCard({ title: 'Erro', message: error, icon: 'error' })
       : (() => {
-          const c = el('div', 'config-card');
-          const icon = el('span', 'material-icons', 'error');
-          const wrap = el('div');
-          wrap.appendChild(el('h4', null, 'Erro'));
-          wrap.appendChild(el('p', 'output', error));
-          c.appendChild(icon);
-          c.appendChild(wrap);
-          return c;
-        })();
+        const c = el('div', 'config-card');
+        const icon = el('span', 'material-icons', 'error');
+        const wrap = el('div');
+        wrap.appendChild(el('h4', null, 'Erro'));
+        wrap.appendChild(el('p', 'output', error));
+        c.appendChild(icon);
+        c.appendChild(wrap);
+        return c;
+      })();
     configContainer.appendChild(card);
     return;
   }
@@ -525,20 +525,20 @@ function renderConfigCard(data, error) {
   if (!hasRule) {
     const card = adminCards.createConfigCard
       ? adminCards.createConfigCard({
-          title: 'Sem regra ativa',
-          message: 'Crie uma regra de desconto para começar.',
-          icon: 'info'
-        })
+        title: 'Sem regra ativa',
+        message: 'Crie uma regra de desconto para começar.',
+        icon: 'info'
+      })
       : (() => {
-          const c = el('div', 'config-card');
-          const icon = el('span', 'material-icons', 'info');
-          const wrap = el('div');
-          wrap.appendChild(el('h4', null, 'Sem regra ativa'));
-          wrap.appendChild(el('p', 'output', 'Crie uma regra de desconto para começar.'));
-          c.appendChild(icon);
-          c.appendChild(wrap);
-          return c;
-        })();
+        const c = el('div', 'config-card');
+        const icon = el('span', 'material-icons', 'info');
+        const wrap = el('div');
+        wrap.appendChild(el('h4', null, 'Sem regra ativa'));
+        wrap.appendChild(el('p', 'output', 'Crie uma regra de desconto para começar.'));
+        c.appendChild(icon);
+        c.appendChild(wrap);
+        return c;
+      })();
     configContainer.appendChild(card);
     return;
   }
@@ -548,25 +548,25 @@ function renderConfigCard(data, error) {
   const message = `${data.desconto_qtd_concluidos} concluídos → ${formatCurrency(data.desconto_valor_centavos)} de desconto`;
   const card = adminCards.createConfigCard
     ? adminCards.createConfigCard({
-        title: 'Regra Atual',
-        message,
-        icon: 'verified',
-        actions: [editBtn, removeBtn]
-      })
+      title: 'Regra Atual',
+      message,
+      icon: 'verified',
+      actions: [editBtn, removeBtn]
+    })
     : (() => {
-        const c = el('div', 'config-card');
-        const icon = el('span', 'material-icons', 'verified');
-        const wrap = el('div');
-        wrap.appendChild(el('h4', null, 'Regra Atual'));
-        wrap.appendChild(el('p', 'output', message));
-        const actions = el('div', 'config-actions');
-        actions.appendChild(editBtn);
-        actions.appendChild(removeBtn);
-        wrap.appendChild(actions);
-        c.appendChild(icon);
-        c.appendChild(wrap);
-        return c;
-      })();
+      const c = el('div', 'config-card');
+      const icon = el('span', 'material-icons', 'verified');
+      const wrap = el('div');
+      wrap.appendChild(el('h4', null, 'Regra Atual'));
+      wrap.appendChild(el('p', 'output', message));
+      const actions = el('div', 'config-actions');
+      actions.appendChild(editBtn);
+      actions.appendChild(removeBtn);
+      wrap.appendChild(actions);
+      c.appendChild(icon);
+      c.appendChild(wrap);
+      return c;
+    })();
   configContainer.appendChild(card);
 
   editBtn.addEventListener('click', () => openConfigModal(data));
@@ -807,18 +807,27 @@ function renderAgendamentos(items) {
     ];
     if (a.pagamento_tipo) lines.push(`Pagamento: ${a.pagamento_tipo}`);
 
+    const priceComponents = [];
+    if (a.pagamento_tipo) {
+      priceComponents.push({ label: 'Pagamento:', value: a.pagamento_tipo });
+    }
+    priceComponents.push({ label: 'Valor:', value: formatCurrency(a.valor_total_centavos), isTotal: true });
+
     const card = adminCards.createAgendamentoCard
       ? adminCards.createAgendamentoCard({
-          id: a.id,
-          status: a.status,
-          lines,
-          actions
-        })
+        id: a.id,
+        status: a.status,
+        clientName: clienteNome,
+        barberName: a.barbeiro?.nome_profissional || a.barbeiro_id,
+        dateText: formatDateTimeBR(a.inicio),
+        priceComponents,
+        actions
+      })
       : createCardWithLines({
-          title: `#${a.id} - ${a.status}`,
-          lines,
-          actions
-        });
+        title: `#${a.id} - ${a.status}`,
+        lines,
+        actions
+      });
 
     detailsBtn.addEventListener('click', () => verDetalhes(a));
     if (a.status === 'SOLICITADO') {
@@ -991,13 +1000,13 @@ formVagas.addEventListener('submit', (e) => {
   return withButtonLock(submitBtn, async () => {
     const barbeiroId = qs('vagas-barbeiro').value;
     const data = qs('vagas-data').value;
-  try {
-    const vagas = await request(`/vagas/todos?barbeiroId=${barbeiroId}&data=${data}`);
-    renderVagas(vagas);
-  } catch (err) {
-    renderStatus(vagasList, err.message);
-  }
-});
+    try {
+      const vagas = await request(`/vagas/todos?barbeiroId=${barbeiroId}&data=${data}`);
+      renderVagas(vagas);
+    } catch (err) {
+      renderStatus(vagasList, err.message);
+    }
+  });
 });
 
 function renderVagas(vagas) {
@@ -1014,16 +1023,16 @@ function renderVagas(vagas) {
 
     const card = adminCards.createVagaCard
       ? adminCards.createVagaCard({
-          id: v.id,
-          status: v.status,
-          lines,
-          actions
-        })
+        id: v.id,
+        status: v.status,
+        lines,
+        actions
+      })
       : createCardWithLines({
-          title: `#${v.id} - ${v.status}`,
-          lines,
-          actions
-        });
+        title: `#${v.id} - ${v.status}`,
+        lines,
+        actions
+      });
 
     blockBtn.addEventListener('click', () => abrirBloqueioVaga(v.barbeiro_id || 0, v.inicio));
     deleteBtn.addEventListener('click', () => withButtonLock(deleteBtn, () => apagarVaga(v.id)));
@@ -1385,7 +1394,7 @@ function editarServico(servico) {
       };
       reader.readAsDataURL(file);
     },
-    onRemove: () => {}
+    onRemove: () => { }
   });
   const fotoGroup = photo?.group || el('div', 'form-group photo-group');
   const preview = photo?.preview;
@@ -1656,7 +1665,7 @@ function editarBarbeiro(barbeiro) {
       };
       reader.readAsDataURL(file);
     },
-    onRemove: () => {}
+    onRemove: () => { }
   });
   const fotoGroup = photo?.group || el('div', 'form-group photo-group');
   const preview = photo?.preview;
@@ -1735,7 +1744,7 @@ async function toggleBarbeiro(id, ativoAtual) {
   }
 }
 
-// Auto-load lists on initial load
+// Auto-load lists on initial load //
 loadConfig();
 loadClientesBtn?.click();
 loadServicosBtn?.click();
