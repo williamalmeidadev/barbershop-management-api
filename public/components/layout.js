@@ -197,12 +197,18 @@
     const container = createEl('div', { className: 'container auth-shell auth-shell-single' });
     const panel = createEl('div', { className: 'auth-panel' });
     const card = createEl('div', { className: 'auth-card' });
+    const authLogo = createEl('div', { className: 'auth-form-logo' });
+    const authLogoImg = createEl('img', {
+      className: 'auth-form-logo-img',
+      attrs: { src: `${basePath}/assets/logo.png`, alt: 'AlphaCuts' }
+    });
+    authLogo.appendChild(authLogoImg);
 
     const headerWrap = createEl('div', { className: 'auth-header' });
     if (title) headerWrap.appendChild(createEl('h3', { text: title }));
     if (subtitle) headerWrap.appendChild(createEl('p', { text: subtitle }));
 
-    appendChildren(card, [headerWrap, ...bodyNodes]);
+    appendChildren(card, [authLogo, headerWrap, ...bodyNodes]);
     panel.appendChild(card);
     container.appendChild(panel);
     section.appendChild(container);
