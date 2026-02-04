@@ -46,5 +46,25 @@ export const barbeirosService = {
   async desativar(id: number): Promise<Barbeiro> {
     if (!id) throw new Error('O id do barbeiro é obrigatório.')
     return barbeirosRepository.desativar(id)
+  },
+
+  async apagarPermanente(id: number): Promise<void> {
+    if (!id) throw new Error('O id do barbeiro é obrigatório.')
+    const barbeiro = await barbeirosRepository.buscarPorId(id)
+    if (!barbeiro) throw new Error('Barbeiro não encontrado.')
+
+    const deps = await barbeirosRepository.countDependencias(id)
+    if (deps.servicos > 0 || deps.vagas > 0 || deps.agendamentos > 0) {
+      throw new Error('Não é possível apagar barbeiro com serviços, vagas ou agendamentos vinculados.')
+    }
+
+    try {
+      await barbeirosRepository.remover(id)
+    } catch (err: any) {
+      if (String(err?.message || '').includes('FOREIGN KEY')) {
+        throw new Error('Não é possível apagar barbeiro com vínculos ativos.')
+      }
+      throw err
+    }
   }
 }

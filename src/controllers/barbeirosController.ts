@@ -54,6 +54,17 @@ export const barbeirosController = {
     }
   },
 
+  async apagarPermanente(req: Request, res: Response) {
+    try {
+      await barbeirosService.apagarPermanente(Number(req.params.id))
+      res.status(204).send()
+    } catch (err: any) {
+      const message = err?.message || 'Erro ao apagar barbeiro.'
+      const status = message.includes('não encontrado') ? 404 : message.includes('vinculados') || message.includes('vínculos') ? 409 : 400
+      res.status(status).json({ error: message })
+    }
+  },
+
   async uploadFoto(req: Request, res: Response) {
     try {
       const id = Number(req.params.id)

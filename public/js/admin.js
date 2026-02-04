@@ -661,13 +661,15 @@ function renderClientes(clientes) {
         concluidos: c.concluidos_count || 0,
         desconto: formatCurrency(c.desconto_disponivel_centavos || 0),
         onEdit: () => editarCliente(c),
-        onToggle: (btn) => withButtonLock(btn, () => toggleCliente(c.id, c.ativo))
+        onToggle: (btn) => withButtonLock(btn, () => toggleCliente(c.id, c.ativo)),
+        onDelete: (btn) => withButtonLock(btn, () => apagarCliente(c.id, c.nome))
       });
     }
     const actions = [];
     const editBtn = createButton('Editar', 'btn ghost');
     const toggleBtn = createButton(c.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${c.ativo === 1 ? 'danger' : ''}`);
-    actions.push(editBtn, toggleBtn);
+    const deleteBtn = createButton('Apagar', 'btn danger');
+    actions.push(editBtn, toggleBtn, deleteBtn);
 
     const card = createCardWithLines({
       title: c.nome,
@@ -682,6 +684,7 @@ function renderClientes(clientes) {
 
     editBtn.addEventListener('click', () => editarCliente(c));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleCliente(c.id, c.ativo)));
+    deleteBtn.addEventListener('click', () => withButtonLock(deleteBtn, () => apagarCliente(c.id, c.nome)));
     return card;
   }, { emptyMessage: 'Sem clientes.' });
 }
@@ -750,6 +753,18 @@ async function toggleCliente(id, ativoAtual) {
     loadClientesBtn.click();
   } catch (err) {
     showToast(err.message, 'error');
+  }
+}
+
+async function apagarCliente(id, nome) {
+  const ok = window.confirm(`Apagar permanentemente o cliente "${nome}"? Esta ação não pode ser desfeita.`)
+  if (!ok) return
+  try {
+    await request(`/admins/clientes/${id}/permanente`, { method: 'DELETE' })
+    showToast('Cliente apagado permanentemente.')
+    loadClientesBtn.click()
+  } catch (err) {
+    showToast(err.message, 'error')
   }
 }
 
@@ -1330,7 +1345,8 @@ function renderServicos(items) {
         mediaUrl: s.foto_url,
         ativo: s.ativo,
         onEdit: () => editarServico(s),
-        onToggle: (btn) => withButtonLock(btn, () => toggleServico(s.id, s.ativo))
+        onToggle: (btn) => withButtonLock(btn, () => toggleServico(s.id, s.ativo)),
+        onDelete: (btn) => withButtonLock(btn, () => apagarServico(s.id, s.nome))
       });
     }
 
@@ -1344,7 +1360,8 @@ function renderServicos(items) {
     const actions = [];
     const editBtn = createButton('Editar', 'btn ghost');
     const toggleBtn = createButton(s.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${s.ativo === 1 ? 'danger' : ''}`);
-    actions.push(editBtn, toggleBtn);
+    const deleteBtn = createButton('Apagar', 'btn danger');
+    actions.push(editBtn, toggleBtn, deleteBtn);
 
     const card = createCardWithLines({
       title: s.nome,
@@ -1361,6 +1378,7 @@ function renderServicos(items) {
 
     editBtn.addEventListener('click', () => editarServico(s));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleServico(s.id, s.ativo)));
+    deleteBtn.addEventListener('click', () => withButtonLock(deleteBtn, () => apagarServico(s.id, s.nome)));
     return card;
   }, { emptyMessage: 'Sem serviços.' });
 }
@@ -1533,6 +1551,18 @@ async function toggleServico(id, ativoAtual) {
   }
 }
 
+async function apagarServico(id, nome) {
+  const ok = window.confirm(`Apagar permanentemente o serviço "${nome}"? Esta ação não pode ser desfeita.`)
+  if (!ok) return
+  try {
+    await request(`/servicos/${id}/permanente`, { method: 'DELETE' })
+    showToast('Serviço apagado permanentemente.')
+    loadServicosBtn.click()
+  } catch (err) {
+    showToast(err.message, 'error')
+  }
+}
+
 loadBarbeirosBtn?.addEventListener('click', () => withButtonLock(loadBarbeirosBtn, async () => {
   try {
     const data = await request('/barbeiros');
@@ -1593,7 +1623,8 @@ function renderBarbeiros(items) {
         ativo: b.ativo,
         mediaUrl: b.foto_url,
         onEdit: () => editarBarbeiro(b),
-        onToggle: (btn) => withButtonLock(btn, () => toggleBarbeiro(b.id, b.ativo))
+        onToggle: (btn) => withButtonLock(btn, () => toggleBarbeiro(b.id, b.ativo)),
+        onDelete: (btn) => withButtonLock(btn, () => apagarBarbeiro(b.id, b.nome_profissional))
       });
     }
 
@@ -1615,10 +1646,12 @@ function renderBarbeiros(items) {
 
     const editBtn = createButton('Editar', 'btn ghost');
     const toggleBtn = createButton(b.ativo === 1 ? 'Desativar' : 'Ativar', `btn ${b.ativo === 1 ? 'danger' : ''}`);
-    card.appendChild(createActionsRow([editBtn, toggleBtn]));
+    const deleteBtn = createButton('Apagar', 'btn danger');
+    card.appendChild(createActionsRow([editBtn, toggleBtn, deleteBtn]));
 
     editBtn.addEventListener('click', () => editarBarbeiro(b));
     toggleBtn.addEventListener('click', () => withButtonLock(toggleBtn, () => toggleBarbeiro(b.id, b.ativo)));
+    deleteBtn.addEventListener('click', () => withButtonLock(deleteBtn, () => apagarBarbeiro(b.id, b.nome_profissional)));
     return card;
   }, { emptyMessage: 'Sem barbeiros.' });
 }
@@ -1741,6 +1774,18 @@ async function toggleBarbeiro(id, ativoAtual) {
     loadBarbeirosBtn.click();
   } catch (err) {
     showToast(err.message, 'error');
+  }
+}
+
+async function apagarBarbeiro(id, nome) {
+  const ok = window.confirm(`Apagar permanentemente o barbeiro "${nome}"? Esta ação não pode ser desfeita.`)
+  if (!ok) return
+  try {
+    await request(`/barbeiros/${id}/permanente`, { method: 'DELETE' })
+    showToast('Barbeiro apagado permanentemente.')
+    loadBarbeirosBtn.click()
+  } catch (err) {
+    showToast(err.message, 'error')
   }
 }
 

@@ -50,5 +50,16 @@ export const adminClientesController = {
       const status = err.message?.includes('não encontrado') ? 404 : 400
       res.status(status).json({ error: err.message })
     }
-  }
+  },
+
+  async apagarPermanente(req: Request, res: Response) {
+    try {
+      await adminClientesService.apagarPermanente(Number(req.params.id))
+      res.status(204).send()
+    } catch (err: any) {
+      const message = err?.message || 'Erro ao apagar cliente.'
+      const status = message.includes('não encontrado') ? 404 : message.includes('vinculados') || message.includes('vínculos') ? 409 : 400
+      res.status(status).json({ error: message })
+    }
+  },
 }

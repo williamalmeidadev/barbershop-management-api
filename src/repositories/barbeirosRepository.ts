@@ -94,5 +94,39 @@ export const barbeirosRepository = {
 
   async desativar(id: number): Promise<Barbeiro> {
     return await this.atualizar(id, { ativo: 0 })
+  },
+
+  async countDependencias(id: number): Promise<{ servicos: number; vagas: number; agendamentos: number }> {
+    const [servicos, vagas, agendamentos] = await Promise.all([
+      new Promise<number>((resolve, reject) => {
+        db.get('SELECT COUNT(*) as total FROM servicos WHERE barbeiro_id = ?', [id], (err, row: any) => {
+          if (err) return reject(err)
+          resolve(Number(row?.total || 0))
+        })
+      }),
+      new Promise<number>((resolve, reject) => {
+        db.get('SELECT COUNT(*) as total FROM vagas WHERE barbeiro_id = ?', [id], (err, row: any) => {
+          if (err) return reject(err)
+          resolve(Number(row?.total || 0))
+        })
+      }),
+      new Promise<number>((resolve, reject) => {
+        db.get('SELECT COUNT(*) as total FROM agendamentos WHERE barbeiro_id = ?', [id], (err, row: any) => {
+          if (err) return reject(err)
+          resolve(Number(row?.total || 0))
+        })
+      }),
+    ])
+    return { servicos, vagas, agendamentos }
+  },
+
+  async remover(id: number): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      db.run('DELETE FROM barbeiros WHERE id = ?', [id], function (err) {
+        if (err) return reject(err)
+        if (this.changes === 0) return reject(new Error('Barbeiro não encontrado.'))
+        resolve()
+      })
+    })
   }
 }
