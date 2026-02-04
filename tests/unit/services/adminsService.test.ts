@@ -21,7 +21,7 @@ describe('AdminsService', () => {
             usuario: 'adminUser',
             nome: 'Admin Teste',
             email: 'admin@test.com',
-            password: 'senhaSegura123'
+            password: 'SenhaSegura123'
         };
 
         it('deve criar um admin com sucesso (senha hashada)', async () => {
@@ -75,6 +75,15 @@ describe('AdminsService', () => {
                 expect.fail('Should have thrown error');
             } catch (err: any) {
                 expect(err.message).to.contain('Admin já existe com esse usuário ou email');
+            }
+        });
+
+        it('deve lançar erro se a senha for fraca', async () => {
+            try {
+                await adminsService.criar({ ...validPayload, password: 'fraca1' });
+                expect.fail('Should have thrown error');
+            } catch (err: any) {
+                expect(err.message).to.contain('Senha fraca');
             }
         });
     });

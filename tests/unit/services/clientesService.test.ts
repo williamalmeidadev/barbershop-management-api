@@ -20,7 +20,7 @@ describe('ClientesService', () => {
         const validPayload = {
             nome: 'Cliente Teste',
             email: 'cliente@teste.com',
-            password: 'senhaSegura123',
+            password: 'SenhaSegura123',
             telefone: '11999999999'
         };
 
@@ -75,6 +75,15 @@ describe('ClientesService', () => {
                 expect.fail('Should have thrown error');
             } catch (err: any) {
                 expect(err.message).to.contain('E-mail já cadastrado');
+            }
+        });
+
+        it('deve lançar erro se a senha for fraca', async () => {
+            try {
+                await clientesService.criar({ ...validPayload, password: 'fraca1' });
+                expect.fail('Should have thrown error');
+            } catch (err: any) {
+                expect(err.message).to.contain('Senha fraca');
             }
         });
     });

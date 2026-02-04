@@ -1652,8 +1652,137 @@ body.app-page #professionals-grid .card:hover {
     width: 100%;
 }
 
+.auth-form .form-group.has-password-toggle {
+    position: relative;
+}
+
+.auth-form .form-group.has-password-toggle input {
+    padding-right: 2.8rem;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.65rem;
+    top: 0;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.password-toggle-btn .material-icons {
+    font-size: 1.15rem;
+}
+
+.password-toggle-btn:hover {
+    color: var(--text);
+}
+
 .auth-submit {
     width: 100%;
+}
+
+.password-feedback {
+    margin-top: 0.2rem;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.password-meter {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+[data-theme="light"] .password-meter {
+    background: rgba(15, 23, 42, 0.12);
+}
+
+.password-meter-fill {
+    width: 8%;
+    height: 100%;
+    border-radius: inherit;
+    background: #64748b;
+    transition: width 0.28s ease, background-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.password-feedback[data-tone="weak"] .password-meter-fill {
+    background: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.16);
+}
+
+.password-feedback[data-tone="medium"] .password-meter-fill {
+    background: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.16);
+}
+
+.password-feedback[data-tone="strong"] .password-meter-fill {
+    background: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+}
+
+.password-feedback[data-tone="very-strong"] .password-meter-fill {
+    background: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+}
+
+.password-strength-label {
+    margin: 0;
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    transition: color 0.25s ease;
+}
+
+.password-feedback[data-tone="weak"] .password-strength-label {
+    color: #f87171;
+}
+
+.password-feedback[data-tone="medium"] .password-strength-label {
+    color: #fbbf24;
+}
+
+.password-feedback[data-tone="strong"] .password-strength-label,
+.password-feedback[data-tone="very-strong"] .password-strength-label {
+    color: #4ade80;
+}
+
+.password-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.2rem;
+}
+
+.password-checklist li {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    transition: color 0.22s ease, transform 0.22s ease;
+}
+
+.password-checklist li::before {
+    content: '•';
+    display: inline-block;
+    margin-right: 0.4rem;
+    color: currentColor;
+}
+
+.password-checklist li.is-valid {
+    color: #34d399;
+    transform: translateX(2px);
+}
+
+.password-checklist li.is-valid::before {
+    content: '✓';
+    font-weight: 700;
 }
 
 .auth-error-box {

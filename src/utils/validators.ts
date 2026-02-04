@@ -3,15 +3,30 @@ export function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
-//Valida se a senha tem min 8 chars, letras e números.
+export const PASSWORD_MIN_LENGTH = 6
 
+export interface PasswordChecks {
+  minLength: boolean
+  hasLower: boolean
+  hasUpper: boolean
+  hasNumber: boolean
+  hasSymbol: boolean
+}
+
+export function getPasswordChecks(password: string): PasswordChecks {
+  return {
+    minLength: password.length >= PASSWORD_MIN_LENGTH,
+    hasLower: /[a-z]/.test(password),
+    hasUpper: /[A-Z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSymbol: /[^A-Za-z0-9]/.test(password)
+  }
+}
+
+// Regras mínimas de segurança no backend.
 export function isStrongPassword(password: string): boolean {
-  if (password.length < 8) return false;
-
-  const hasLetter = /[a-zA-Z]/.test(password);
-  const hasNumber = /\d/.test(password);
-
-  return hasLetter && hasNumber;
+  const checks = getPasswordChecks(password)
+  return checks.minLength && checks.hasLower && checks.hasUpper && checks.hasNumber
 }
 
 export function getMissingFields(  //funcao que verifica se tem campos obrigatorios faltando
