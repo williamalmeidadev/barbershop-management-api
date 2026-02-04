@@ -1000,6 +1000,18 @@ nav {
 .booking-container {
     max-width: 960px;
     margin: 0 auto;
+    display: grid;
+    gap: 1.2rem;
+    justify-items: center;
+}
+
+.booking-container .back-button {
+    margin-bottom: 0;
+    justify-self: center;
+}
+
+.booking-container .section-title {
+    text-align: center;
 }
 
 .booking-wizard {
