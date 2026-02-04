@@ -1313,6 +1313,13 @@ nav {
     text-decoration: none;
 }
 
+.footer-social svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    display: block;
+}
+
 .footer-bottom {
     grid-column: 1 / -1;
     padding-top: 1.5rem;

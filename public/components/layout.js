@@ -18,6 +18,17 @@
     return parent;
   };
 
+  const createInstagramIcon = () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('icon-instagram');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm-5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5zm5.75-2.25a1.25 1.25 0 1 1-1.25-1.25 1.25 1.25 0 0 1 1.25 1.25z');
+    svg.appendChild(path);
+    return svg;
+  };
+
   const createThemeToggle = () => {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light' || localStorage.getItem('theme') === 'light';
 
@@ -100,10 +111,10 @@
     appendChildren(info, [createEl('h3', { text: brand }), createEl('p', { text: location })]);
 
     const social = createEl('div', { className: 'footer-social' });
-    const fb = createEl('a', { attrs: { href: '#' } });
+    const fb = createEl('a', { attrs: { href: 'https://www.facebook.com', target: '_blank', rel: 'noopener' } });
     fb.appendChild(createEl('span', { className: 'material-icons', text: 'facebook' }));
-    const insta = createEl('a', { attrs: { href: '#' } });
-    insta.appendChild(createEl('span', { className: 'material-icons', text: 'camera_alt' }));
+    const insta = createEl('a', { attrs: { href: 'https://www.instagram.com', target: '_blank', rel: 'noopener' } });
+    insta.appendChild(createInstagramIcon());
     appendChildren(social, [fb, insta]);
 
     const bottom = createEl('div', { className: 'footer-bottom' });
