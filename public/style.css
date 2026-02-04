@@ -346,7 +346,7 @@ body.app-page .hero-section {
     padding-top: calc(var(--header-height) + 2.4rem);
     padding-bottom: 3.2rem;
     background:
-        linear-gradient(180deg, rgba(9, 10, 13, 0.72), rgba(9, 10, 13, 0.86)),
+        linear-gradient(0deg, rgba(9, 10, 13, 0.96) 0%, rgba(9, 10, 13, 0.8) 46%, rgba(9, 10, 13, 0.5) 76%, rgba(9, 10, 13, 0.24) 100%),
         url('https://static.vecteezy.com/ti/fotos-gratis/p2/6515885-interior-da-barbearia-solidol-knyazya-roman-street-28-lviv-lviv-region-79000-gratis-foto.JPG') center/cover;
 }
 
@@ -354,6 +354,13 @@ body.app-page .hero-content {
     text-align: center;
     max-width: 760px;
     margin: 0 auto;
+}
+
+body.app-page .hero-content,
+body.app-page .hero-content * {
+    text-shadow:
+        0 3px 14px rgba(0, 0, 0, 0.7),
+        0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
 body.app-page .hero-badge {
@@ -614,6 +621,11 @@ body.app-page #professionals-grid .card:hover {
     box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
     border-radius: 16px;
     padding: 1.45rem 1.7rem;
+}
+
+[data-theme="light"] body.app-page .hero-content,
+[data-theme="light"] body.app-page .hero-content * {
+    text-shadow: none;
 }
 
 [data-theme="light"] body.app-page .hero-content h2 {
