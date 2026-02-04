@@ -134,6 +134,7 @@ export function initDatabase() {
         fim DATETIME NOT NULL,
         status TEXT NOT NULL DEFAULT 'DISPONIVEL'
           CHECK (status IN ('DISPONIVEL','RESERVADO','BLOQUEADO')),
+        motivo_bloqueio TEXT,
         FOREIGN KEY (barbeiro_id) REFERENCES barbeiros(id)
       );
     `)
@@ -141,6 +142,11 @@ export function initDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_vagas_barbeiro ON vagas(barbeiro_id);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_vagas_inicio ON vagas(inicio);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_vagas_status ON vagas(status);`)
+    db.run(`ALTER TABLE vagas ADD COLUMN motivo_bloqueio TEXT`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna motivo_bloqueio em vagas:', err.message)
+      }
+    })
 
     db.run(`
       CREATE TABLE IF NOT EXISTS agendamentos (

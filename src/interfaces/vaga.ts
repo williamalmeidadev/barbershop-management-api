@@ -10,6 +10,7 @@ export interface Vaga {
   inicio: string;
   fim: string;
   status: StatusVaga;
+  motivo_bloqueio?: string | null;
 }
 
 export interface CriarVagasParams {
