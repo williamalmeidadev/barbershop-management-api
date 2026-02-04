@@ -272,7 +272,16 @@ export const vagasService = {
     if (inicioDate >= fimDate) {
       throw new Error('O início deve ser antes do fim.')
     }
-    return vagasRepository.bloquearIntervalo(barbeiroId, inicioDate.toISOString(), fimDate.toISOString())
+    const bloqueadas = await vagasRepository.bloquearIntervalo(
+      barbeiroId,
+      inicioDate.toISOString(),
+      fimDate.toISOString(),
+      motivo
+    )
+    if (!bloqueadas.length) {
+      throw new Error('Nenhuma vaga disponível para bloquear (todas já reservadas/bloqueadas).')
+    }
+    return bloqueadas
   },
 
   async verificarDisponiveisPorIds(ids: number[]): Promise<boolean> {

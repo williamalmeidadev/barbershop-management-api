@@ -165,11 +165,11 @@ export const vagasRepository = {
     })
   },
 
-  async bloquearIntervalo(barbeiroId: number, inicio: string, fim: string): Promise<Vaga[]> {
+  async bloquearIntervalo(barbeiroId: number, inicio: string, fim: string, motivo?: string | null): Promise<Vaga[]> {
     await new Promise<void>((resolve, reject) => {
       db.run(
-        `UPDATE vagas SET status = 'BLOQUEADO' WHERE barbeiro_id = ? AND inicio >= ? AND fim <= ? AND status = 'DISPONIVEL'`,
-        [barbeiroId, inicio, fim],
+        `UPDATE vagas SET status = 'BLOQUEADO', motivo_bloqueio = ? WHERE barbeiro_id = ? AND inicio >= ? AND fim <= ? AND status = 'DISPONIVEL'`,
+        [motivo ?? null, barbeiroId, inicio, fim],
         err => {
           if (err) return reject(err)
           resolve()
@@ -193,7 +193,7 @@ export const vagasRepository = {
     await new Promise<void>((resolve, reject) => {
       const placeholders = vagaIds.map(() => '?').join(',')
       db.run(
-        `UPDATE vagas SET status = 'DISPONIVEL' WHERE id IN (${placeholders})`,
+        `UPDATE vagas SET status = 'DISPONIVEL', motivo_bloqueio = NULL WHERE id IN (${placeholders})`,
         vagaIds,
         err => {
           if (err) return reject(err)
