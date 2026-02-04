@@ -6,6 +6,7 @@ import { agendamentosRepository } from '../../../src/repositories/agendamentosRe
 import { clientesRepository } from '../../../src/repositories/clientesRepository';
 import { servicoService } from '../../../src/services/servicosService';
 import { vagasService } from '../../../src/services/vagasService';
+import { barbeirosService } from '../../../src/services/barbeirosService';
 import { configuracoesRepository } from '../../../src/repositories/configuracoesRepository';
 import * as transactionModule from '../../../src/repositories/transaction';
 import { StatusAgendamento, CriarAgendamentoPayload, PagamentoTipo } from '../../../src/interfaces/agendamento';
@@ -39,6 +40,13 @@ describe('AgendamentosService', () => {
             { id: 101, inicio: '2030-01-29T10:00:00Z', fim: '2030-01-29T10:30:00Z', status: 'LIVRE' },
             { id: 102, inicio: '2030-01-29T10:30:00Z', fim: '2030-01-29T10:50:00Z', status: 'LIVRE' }
         ];
+
+        beforeEach(() => {
+            sandbox.stub(barbeirosService, 'buscarPorId').resolves({
+                id: validPayload.barbeiro_id,
+                ativo: 1
+            } as any);
+        });
 
         it('deve criar um agendamento com sucesso com desconto', async () => {
             // Mocks

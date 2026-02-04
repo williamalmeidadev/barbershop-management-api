@@ -1,6 +1,12 @@
 import { expect } from 'chai';
 
-import { isValidEmail, isStrongPassword, getMissingFields } from '../../src/utils/validators'
+import {
+    getMissingFields,
+    getPasswordChecks,
+    isIsoWithTimezone,
+    isStrongPassword,
+    isValidEmail
+} from '../../src/utils/validators'
 
 describe('Validadores Utilitários (Unitário)', () => {
     // Validação de Email
@@ -28,6 +34,11 @@ describe('Validadores Utilitários (Unitário)', () => {
             expect(result).to.be.true;
         });
 
+        it('deve retornar true para senha válida no limite mínimo de 6 caracteres', () => {
+            const result = isStrongPassword('Aa1bbb');
+            expect(result).to.be.true;
+        });
+
         it('deve retornar false para senha com menos de 6 chars', () => {
             const result = isStrongPassword('test12');
             expect(result).to.be.false;
@@ -46,6 +57,28 @@ describe('Validadores Utilitários (Unitário)', () => {
         it('deve retornar false para senha sem números', () => {
             const result = isStrongPassword('Testepassword');
             expect(result).to.be.false;
+        });
+    });
+
+    describe('getPasswordChecks', () => {
+        it('deve marcar todos os checks quando a senha atende todos os critérios', () => {
+            const checks = getPasswordChecks('Teste123!');
+            expect(checks).to.deep.equal({
+                minLength: true,
+                hasLower: true,
+                hasUpper: true,
+                hasNumber: true,
+                hasSymbol: true
+            });
+        });
+
+        it('deve marcar false quando um critério não for atendido', () => {
+            const checks = getPasswordChecks('abc');
+            expect(checks.minLength).to.be.false;
+            expect(checks.hasLower).to.be.true;
+            expect(checks.hasUpper).to.be.false;
+            expect(checks.hasNumber).to.be.false;
+            expect(checks.hasSymbol).to.be.false;
         });
     });
 
@@ -78,6 +111,23 @@ describe('Validadores Utilitários (Unitário)', () => {
             
             expect(missing).to.include('nome');
             expect(missing).to.have.lengthOf(1);
+        });
+    });
+
+    describe('isIsoWithTimezone', () => {
+        it('deve retornar true para ISO com timezone Z', () => {
+            const result = isIsoWithTimezone('2026-02-04T10:30:00Z');
+            expect(result).to.be.true;
+        });
+
+        it('deve retornar true para ISO com offset', () => {
+            const result = isIsoWithTimezone('2026-02-04T10:30:00-03:00');
+            expect(result).to.be.true;
+        });
+
+        it('deve retornar false para ISO sem timezone', () => {
+            const result = isIsoWithTimezone('2026-02-04T10:30:00');
+            expect(result).to.be.false;
         });
     });
 });
