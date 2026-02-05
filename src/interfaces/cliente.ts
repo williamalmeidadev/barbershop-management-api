@@ -6,6 +6,8 @@ export interface Cliente {
   ativo: number
   concluidos_count: number
   desconto_disponivel_centavos: number
+  is_verified: number
+  verification_token?: string | null
 }
 
 export interface ClienteCreatePayload {

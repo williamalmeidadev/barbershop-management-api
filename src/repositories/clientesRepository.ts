@@ -37,11 +37,11 @@ export const clientesRepository = {
     })
   },
 
-  async create(payload: { nome: string; email: string; telefone?: string | null; password_hash: string }): Promise<number> {
+  async create(payload: { nome: string; email: string; telefone?: string | null; password_hash: string; verification_token: string }): Promise<number> {
     return await new Promise<number>((resolve, reject) => {
       db.run(
-        `INSERT INTO clientes (nome, email, telefone, password_hash) VALUES (?, ?, ?, ?)`,
-        [payload.nome, payload.email, payload.telefone ?? null, payload.password_hash],
+        `INSERT INTO clientes (nome, email, telefone, password_hash, verification_token, is_verified) VALUES (?, ?, ?, ?, ?, 0)`,
+        [payload.nome, payload.email, payload.telefone ?? null, payload.password_hash, payload.verification_token],
         function (err) {
           if (err) return reject(err)
           resolve(this.lastID)
@@ -50,10 +50,28 @@ export const clientesRepository = {
     })
   },
 
+  async findByVerificationToken(token: string): Promise<{ id: number } | null> {
+    return await new Promise((resolve, reject) => {
+      db.get('SELECT id FROM clientes WHERE verification_token = ?', [token], (err, row) => {
+        if (err) return reject(err)
+        resolve((row as { id: number }) ?? null)
+      })
+    })
+  },
+
+  async verify(id: number): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      db.run('UPDATE clientes SET is_verified = 1, verification_token = NULL WHERE id = ?', [id], (err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
+  },
+
   async findLoginByEmail(email: string): Promise<ClienteLoginRow | null> {
     return await new Promise((resolve, reject) => {
       db.get(
-        `SELECT id, email, password_hash, ativo FROM clientes WHERE email = ?`,
+        `SELECT id, email, password_hash, ativo, is_verified FROM clientes WHERE email = ?`,
         [email],
         (err, row) => {
           if (err) return reject(err)
@@ -94,7 +112,7 @@ export const clientesRepository = {
   async findById(id: number): Promise<Cliente | null> {
     return await new Promise((resolve, reject) => {
       db.get(
-        `SELECT id, nome, email, telefone, ativo, concluidos_count, desconto_disponivel_centavos FROM clientes WHERE id = ?`,
+        `SELECT id, nome, email, telefone, ativo, concluidos_count, desconto_disponivel_centavos, is_verified, verification_token FROM clientes WHERE id = ?`,
         [id],
         (err, row) => {
           if (err) return reject(err)
