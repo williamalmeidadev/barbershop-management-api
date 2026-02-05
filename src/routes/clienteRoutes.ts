@@ -21,6 +21,8 @@ const registerLimiter = createRateLimiter({
 
 router.post("/", registerLimiter, clientesController.criar);
 router.post("/register", registerLimiter, clientesController.criar);
-router.get("/me", verifyToken, clientesController.me);
+router.get("/me", verifyToken, clientesController.getMe);
+router.put("/me", verifyToken, clientesController.updateMe);
+router.delete("/me", verifyToken, clientesController.deleteMe);
 
 export default router;

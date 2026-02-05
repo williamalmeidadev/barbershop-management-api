@@ -27,6 +27,8 @@ app.get('/', (_, res) => res.sendFile(path.join(publicDir, 'index.html')))
 app.get('/login', (_, res) => res.sendFile(path.join(publicDir, 'pages', 'login.html')))
 app.get('/admin-login', (_, res) => res.sendFile(path.join(publicDir, 'pages', 'admin-login.html')))
 app.get('/register', (_, res) => res.sendFile(path.join(publicDir, 'pages', 'register.html')))
+app.get('/register', (_, res) => res.sendFile(path.join(publicDir, 'pages', 'register.html')))
+app.get('/profile', (_, res) => res.sendFile(path.join(publicDir, 'pages', 'profile.html')))
 app.get('/app', (_, res) => res.sendFile(path.join(publicDir, 'pages', 'app.html')))
 app.get('/admin', verifyTokenPage, isAdmin, (_, res) => {
   res.set('Cache-Control', 'no-store')
@@ -39,6 +41,8 @@ app.get(`${basePath}/`, (_, res) => res.sendFile(path.join(publicDir, 'index.htm
 app.get(`${basePath}/login`, (_, res) => res.sendFile(path.join(publicDir, 'pages', 'login.html')))
 app.get(`${basePath}/admin-login`, (_, res) => res.sendFile(path.join(publicDir, 'pages', 'admin-login.html')))
 app.get(`${basePath}/register`, (_, res) => res.sendFile(path.join(publicDir, 'pages', 'register.html')))
+app.get(`${basePath}/register`, (_, res) => res.sendFile(path.join(publicDir, 'pages', 'register.html')))
+app.get(`${basePath}/profile`, (_, res) => res.sendFile(path.join(publicDir, 'pages', 'profile.html')))
 app.get(`${basePath}/app`, (_, res) => res.sendFile(path.join(publicDir, 'pages', 'app.html')))
 app.get(`${basePath}/admin`, verifyTokenPage, isAdmin, (_, res) => {
   res.set('Cache-Control', 'no-store')

@@ -78,6 +78,16 @@ export function initDatabase() {
 
     db.run(`CREATE INDEX IF NOT EXISTS idx_clientes_email ON clientes(email);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_clientes_ativo ON clientes(ativo);`)
+    db.run(`ALTER TABLE clientes ADD COLUMN is_verified INTEGER DEFAULT 0 CHECK (is_verified IN (0,1))`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna is_verified em clientes:', err.message)
+      }
+    })
+    db.run(`ALTER TABLE clientes ADD COLUMN verification_token TEXT`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna verification_token em clientes:', err.message)
+      }
+    })
 
     db.run(`
       CREATE TABLE IF NOT EXISTS barbeiros (

@@ -64,4 +64,27 @@ export const clientesService = {
     if (!id) throw new Error('Cliente ID é obrigatório.')
     return clientesRepository.findById(id)
   },
+
+  async updateProfile(id: number, payload: { nome?: string; email?: string; telefone?: string | null }) {
+    if (!id) throw new Error('ID do cliente é obrigatório.')
+
+    // Validations
+    if (payload.email && !isValidEmail(payload.email)) {
+      throw new Error('E-mail inválido.')
+    }
+
+    if (payload.email) {
+      const existing = await clientesRepository.findByEmailExcludingId(payload.email, id)
+      if (existing) {
+        throw new Error('Este e-mail já está em uso.')
+      }
+    }
+
+    return clientesRepository.update(id, payload)
+  },
+
+  async deleteAccount(id: number) {
+    if (!id) throw new Error('ID do cliente é obrigatório.')
+    return clientesRepository.deactivate(id)
+  },
 }

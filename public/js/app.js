@@ -108,7 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateAuthUI() {
         if (state.isLoggedIn) {
+            const navAppointments = document.getElementById('nav-appointments');
+            const navProfile = document.getElementById('nav-profile');
+
             if (navAppointments) navAppointments.classList.remove('hidden');
+            if (navProfile) navProfile.classList.remove('hidden');
+
             const authBtn = document.getElementById('auth-action');
             if (authBtn) {
                 authBtn.innerText = 'Sair';
