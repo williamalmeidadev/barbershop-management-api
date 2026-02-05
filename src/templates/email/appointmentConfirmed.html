@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #121212; margin: 0; padding: 0; color: #ffffff !important; }
+        .container { width: 100%; max-width: 600px; margin: 20px auto; background-color: #1a1a1a; border-radius: 8px; border: 1px solid #333; }
+        .header { background-color: #121212; padding: 30px 20px; text-align: center; border-bottom: 2px solid #ff5722; }
+        .logo { font-size: 26px; font-weight: bold; color: #ffffff !important; }
+        .logo span { color: #ff5722 !important; }
+        .content { padding: 40px; color: #ffffff !important; }
+        .info-box { background-color: #252525; padding: 20px; border-radius: 8px; border-left: 4px solid #ff5722; margin: 20px 0; }
+        .button { display: inline-block; padding: 12px 25px; background-color: #ff5722; color: #ffffff !important; text-decoration: none; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"><div class="logo">💈 Alpha<span>Cuts</span></div></div>
+        <div class="content">
+            <h1 style="color: #ffffff !important;">Agendamento Confirmado! ✅</h1>
+            <p>Tudo certo, <strong style="color: #ff5722;">${nome}</strong>!</p>
+            <p>Seu barbeiro aceitou sua solicitação e seu horário está garantido em nossa agenda.</p>
+            
+            <div class="info-box">
+                <p style="margin: 0;">📅 <strong>Data e Hora:</strong> ${data}</p>
+                <p style="margin: 5px 0 0 0;">📍 <strong>Local:</strong> AlphaCuts Barbershop</p>
+            </div>
+
+            <p>Te esperamos no horário marcado. Se precisar cancelar, faça-o com pelo menos 1h de antecedência pelo portal.</p>
+            <a href="#" class="button">Ver Meus Agendamentos</a>
+        </div>
+    </div>
+</body>
+</html>

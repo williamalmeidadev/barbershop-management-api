@@ -1,7 +1,11 @@
 import bcrypt from 'bcrypt'
+import crypto from 'crypto'
 import { isStrongPassword, isValidEmail, PASSWORD_MIN_LENGTH } from '../utils/validators'
 import { clientesRepository } from '../repositories/clientesRepository'
 import { ClienteCreatePayload } from '../interfaces/cliente'
+import { EmailService } from './emailService'
+
+const emailService = new EmailService()
 
 export const clientesService = {
   async criar(payload: ClienteCreatePayload): Promise<{ clienteId: number }> {
@@ -25,14 +29,35 @@ export const clientesService = {
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
+    const verificationToken = crypto.randomBytes(32).toString('hex')
+
     const clienteId = await clientesRepository.create({
       nome,
       email,
       telefone: telefone ?? null,
-      password_hash: passwordHash
+      password_hash: passwordHash,
+      verification_token: verificationToken
     })
 
+    try {
+      await emailService.sendVerificationEmail(email, nome, verificationToken)
+    } catch (error) {
+      console.error('Erro ao enviar email de verificação:', error)
+    }
+
     return { clienteId }
+  },
+
+  async verificarCadastro(token: string) {
+    if (!token) throw new Error('Token inválido.')
+
+    const cliente = await clientesRepository.findByVerificationToken(token)
+    if (!cliente) {
+      throw new Error('Token inválido ou expirado.')
+    }
+
+    await clientesRepository.verify(cliente.id)
+    return cliente
   },
 
   async buscarPorId(id: number) {

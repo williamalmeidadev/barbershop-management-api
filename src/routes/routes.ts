@@ -10,6 +10,8 @@ import servicosRoutes from './servicosRoutes'
 import barbeirosRoutes from './barbeirosRoutes'
 import configuracoesRoutes from './configuracoesRoutes'
 
+import authRoutes from './authRoutes'
+
 const routes = Router()
 
 routes.get('/teste', (_, res) => {
@@ -26,5 +28,6 @@ routes.use('/admins', adminRoutes);
 routes.use('/admins/clientes', adminClientesRoutes);
 routes.use('/auth', loginClienteRoutes);
 routes.use('/auth', loginAdminRoutes);
+routes.use('/auth', authRoutes);
 
 export default routes

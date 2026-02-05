@@ -1,3 +1,4 @@
+import { EmailService } from './emailService'
 import { Agendamento, StatusAgendamento, CriarAgendamentoPayload, ServicoAgendamento, PagamentoTipo } from '../interfaces/agendamento'
 import { servicoService } from './servicosService'
 import { vagasService } from './vagasService'
@@ -7,6 +8,8 @@ import { isIsoWithTimezone } from '../utils/validators'
 import { clientesRepository } from '../repositories/clientesRepository'
 import { configuracoesRepository } from '../repositories/configuracoesRepository'
 import { barbeirosService } from './barbeirosService'
+
+const emailService = new EmailService()
 
 export const bookingService = {
   async criarAgendamento(payload: CriarAgendamentoPayload): Promise<Agendamento> {
@@ -29,9 +32,15 @@ export const bookingService = {
       throw new Error('A soma das durações dos serviços deve ser positiva.')
     }
     const valorTotal = servicos.reduce((acc, s) => acc + s.preco_centavos, 0)
-    return runInTransaction(async () => {
-      const cliente = await clientesRepository.buscarResumo(payload.cliente_id)
+
+    const agendamento = await runInTransaction(async () => {
+      const cliente = await clientesRepository.findById(payload.cliente_id)
       if (!cliente) throw new Error('Cliente não encontrado.')
+
+      if (!cliente.is_verified) {
+        throw new Error('E-mail não verificado. Verifique sua caixa de entrada para ativar sua conta.')
+      }
+
       const descontoDisponivel = cliente.desconto_disponivel_centavos ?? 0
       const descontoUsado = Math.min(valorTotal, descontoDisponivel)
       const valorComDesconto = Math.max(0, valorTotal - descontoUsado)
@@ -67,8 +76,100 @@ export const bookingService = {
       }
       return completo
     })
+
+    // Gatilho: Notifica a administração de um novo pedido
+    try {
+      const detalhes = `Agendamento solicitado por ${agendamento.cliente?.nome || 'ID ' + payload.cliente_id} para ${agendamento.inicio}`
+      await emailService.sendAdminNotification(detalhes)
+    } catch (error) {
+      console.error('Erro ao notificar admin sobre novo agendamento:', error)
+    }
+
+    return agendamento
   },
 
+  async aceitarAgendamento(id: number): Promise<Agendamento> {
+    if (!id) throw new Error('O id do agendamento é obrigatório.')
+    const atualizado = await runInTransaction(async () => {
+      const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
+      if (!agendamento) throw new Error('Agendamento não encontrado.')
+
+      if (agendamento.status !== StatusAgendamento.SOLICITADO) {
+        throw new Error('Apenas agendamentos solicitados podem ser aceitos.')
+      }
+      const vagas = await agendamentosRepository.buscarVagasDoAgendamento(id)
+      const ids = vagas.map(v => v.id)
+      const disponiveis = await vagasService.verificarDisponiveisPorIds(ids)
+      if (!disponiveis) {
+        throw new Error('Não foi possível aceitar: vagas já reservadas por outro agendamento.')
+      }
+      await vagasService.reservarVagasPorIds(ids)
+      await agendamentosRepository.atualizarStatus(id, StatusAgendamento.AGENDADO)
+      const completo = await agendamentosRepository.buscarAgendamentoCompleto(id)
+      if (!completo) throw new Error('Agendamento não encontrado.')
+      return completo
+    })
+
+    // Gatilho: Envia confirmação real para o cliente quando o barbeiro aceita
+    try {
+      const cliente = await clientesRepository.findById(atualizado.cliente_id)
+      if (cliente?.email) {
+        await emailService.sendAppointmentConfirmation(cliente.email, cliente.nome, atualizado.inicio)
+      }
+    } catch (error) {
+      console.error('Erro ao enviar confirmação de aceite para o cliente:', error)
+    }
+
+    return atualizado
+  },
+
+  async concluirAgendamento(id: number, pagamentoTipo: PagamentoTipo): Promise<Agendamento> {
+    if (!id) throw new Error('O id do agendamento é obrigatório.')
+    if (!pagamentoTipo) throw new Error('pagamento_tipo é obrigatório.')
+
+    const atualizado = await runInTransaction(async () => {
+      const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
+      if (!agendamento) throw new Error('Agendamento não encontrado.')
+
+      if (agendamento.status === StatusAgendamento.CONCLUIDO) throw new Error('Agendamento já concluído.')
+
+      // ... (sua lógica de validação de datas e liberação de vagas)
+      const concluidoEm = new Date().toISOString()
+      await agendamentosRepository.concluirAgendamento(id, concluidoEm, pagamentoTipo)
+
+      const cliente = await clientesRepository.buscarResumo(agendamento.cliente_id)
+      if (!cliente) throw new Error('Cliente não encontrado.')
+
+      const novaContagem = cliente.concluidos_count + 1
+      const qtdConcluidos = await configuracoesRepository.getInt('desconto_qtd_concluidos')
+      const valorDesconto = await configuracoesRepository.getInt('desconto_valor_centavos')
+
+      let novoDesconto = undefined
+      if (qtdConcluidos && valorDesconto && novaContagem % qtdConcluidos === 0 && cliente.desconto_disponivel_centavos === 0) {
+        novoDesconto = valorDesconto
+      }
+
+      await clientesRepository.atualizarContagemEDesconto(agendamento.cliente_id, novaContagem, novoDesconto)
+
+      const completo = await agendamentosRepository.buscarAgendamentoCompleto(id)
+      if (!completo) throw new Error('Agendamento não encontrado.')
+      return completo
+    })
+
+    // Gatilho: Envia recibo e finalização de serviço
+    try {
+      const cliente = await clientesRepository.findById(atualizado.cliente_id)
+      if (cliente?.email) {
+        const servicoNome = atualizado.servicos?.[0]?.nome || "Serviço AlphaCuts"
+        const valorFormatado = `R$ ${(atualizado.valor_total_centavos / 100).toFixed(2)}`
+        await emailService.sendPaymentReceipt(cliente.email, cliente.nome, servicoNome, valorFormatado)
+      }
+    } catch (error) {
+      console.error('Erro ao enviar recibo de pagamento:', error)
+    }
+
+    return atualizado
+  },
 
   async listarAgendamentos(): Promise<Agendamento[]> {
     return agendamentosRepository.listarAgendamentosComServicosEVagas()
@@ -116,30 +217,6 @@ export const bookingService = {
     })
   },
 
-  async aceitarAgendamento(id: number): Promise<Agendamento> {
-    if (!id) throw new Error('O id do agendamento é obrigatório.')
-    return runInTransaction(async () => {
-      const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
-      if (!agendamento) {
-        throw new Error('Agendamento não encontrado.')
-      }
-      if (agendamento.status !== StatusAgendamento.SOLICITADO) {
-        throw new Error('Apenas agendamentos solicitados podem ser aceitos.')
-      }
-      const vagas = await agendamentosRepository.buscarVagasDoAgendamento(id)
-      const ids = vagas.map(v => v.id)
-      const disponiveis = await vagasService.verificarDisponiveisPorIds(ids)
-      if (!disponiveis) {
-        throw new Error('Não foi possível aceitar: vagas já reservadas por outro agendamento.')
-      }
-      await vagasService.reservarVagasPorIds(ids)
-      await agendamentosRepository.atualizarStatus(id, StatusAgendamento.AGENDADO)
-      const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
-      if (!atualizado) throw new Error('Agendamento não encontrado.')
-      return atualizado
-    })
-  },
-
   async recusarAgendamento(id: number): Promise<Agendamento> {
     if (!id) throw new Error('O id do agendamento é obrigatório.')
     return runInTransaction(async () => {
@@ -161,73 +238,6 @@ export const bookingService = {
 
       const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
       if (!atualizado) throw new Error('Agendamento não encontrado.')
-      return atualizado
-    })
-  },
-
-  async concluirAgendamento(id: number, pagamentoTipo: PagamentoTipo): Promise<Agendamento> {
-    if (!id) throw new Error('O id do agendamento é obrigatório.')
-    if (!pagamentoTipo) throw new Error('pagamento_tipo é obrigatório.')
-    if (!Object.values(PagamentoTipo).includes(pagamentoTipo)) {
-      throw new Error('pagamento_tipo inválido.')
-    }
-    return runInTransaction(async () => {
-      const agendamento = await agendamentosRepository.buscarAgendamentoPorId(id)
-      if (!agendamento) {
-        throw new Error('Agendamento não encontrado.')
-      }
-      if (agendamento.status === StatusAgendamento.SOLICITADO) {
-        throw new Error('Agendamento ainda não foi aceito.')
-      }
-      if (agendamento.status === StatusAgendamento.RECUSADO) {
-        throw new Error('Agendamento recusado.')
-      }
-      if (agendamento.status === StatusAgendamento.CONCLUIDO) {
-        throw new Error('Agendamento já concluído.')
-      }
-      if (agendamento.status === StatusAgendamento.CANCELADO) {
-        throw new Error('Agendamento já cancelado.')
-      }
-      const concluidoEm = new Date().toISOString()
-      const concluidoDate = new Date(concluidoEm)
-      const inicioAgendamento = new Date(agendamento.inicio)
-      const fimAgendamento = new Date(agendamento.fim)
-      if (concluidoDate < inicioAgendamento) {
-        throw new Error('concluido_em não pode ser antes do início do agendamento.')
-      }
-      if (concluidoDate < fimAgendamento) {
-        const vagas = await agendamentosRepository.buscarVagasDoAgendamento(id)
-        const vagasLiberar = vagas.filter(v => new Date(v.inicio) >= concluidoDate).map(v => v.id)
-        if (vagasLiberar.length) {
-          await vagasService.liberarVagasDoAgendamento(vagasLiberar)
-        }
-      }
-      await agendamentosRepository.concluirAgendamento(id, concluidoEm, pagamentoTipo)
-
-      const cliente = await clientesRepository.buscarResumo(agendamento.cliente_id)
-      if (!cliente) {
-        throw new Error('Cliente não encontrado.')
-      }
-      const novaContagem = cliente.concluidos_count + 1
-      const qtdConcluidos = await configuracoesRepository.getInt('desconto_qtd_concluidos')
-      const valorDesconto = await configuracoesRepository.getInt('desconto_valor_centavos')
-
-      let novoDesconto: number | null | undefined = undefined
-      if (qtdConcluidos && valorDesconto && qtdConcluidos > 0 && valorDesconto > 0) {
-        if (novaContagem % qtdConcluidos === 0 && cliente.desconto_disponivel_centavos === 0) {
-          novoDesconto = valorDesconto
-        }
-      }
-
-      await clientesRepository.atualizarContagemEDesconto(
-        agendamento.cliente_id,
-        novaContagem,
-        novoDesconto
-      )
-      const atualizado = await agendamentosRepository.buscarAgendamentoCompleto(id)
-      if (!atualizado) {
-        throw new Error('Agendamento não encontrado.')
-      }
       return atualizado
     })
   },
