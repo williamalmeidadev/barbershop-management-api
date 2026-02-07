@@ -30,6 +30,10 @@ export const loginService = {
       throw new Error('Usuário inativo')
     }
 
+    if (!cliente.is_verified) {
+      throw new Error('Email não verificado.')
+    }
+
     const senhaValida = await bcrypt.compare(password, cliente.password_hash)
     if (!senhaValida) {
       throw new Error('Credenciais inválidas')

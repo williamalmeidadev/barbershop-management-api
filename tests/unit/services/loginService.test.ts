@@ -26,7 +26,8 @@ describe('LoginService', () => {
                 id: 1,
                 email: 'client@test.com',
                 password_hash: 'hash',
-                ativo: 1
+                ativo: 1,
+                is_verified: 1
             };
 
             sandbox.stub(clientesRepository, 'findLoginByEmail').resolves(mockCliente as any);
@@ -79,12 +80,30 @@ describe('LoginService', () => {
             }
         });
 
+        it('deve gerar um erro se o e-mail não for verificado.', async () => {
+            sandbox.stub(clientesRepository, 'findLoginByEmail').resolves({
+                id: 1,
+                email: 'client@test.com',
+                password_hash: 'hash',
+                ativo: 1,
+                is_verified: 0
+            } as any);
+
+            try {
+                await loginService.loginCliente(validPayload);
+                expect.fail('Should have thrown error');
+            } catch (err: any) {
+                expect(err.message).to.contain('Email não verificado');
+            }
+        });
+
         it('deve gerar um erro se a senha for inválida.', async () => {
             sandbox.stub(clientesRepository, 'findLoginByEmail').resolves({
                 id: 1,
                 email: 'client@test.com',
                 password_hash: 'hash',
-                ativo: 1
+                ativo: 1,
+                is_verified: 1
             } as any);
             sandbox.stub(bcrypt, 'compare').resolves(false as any);
 
