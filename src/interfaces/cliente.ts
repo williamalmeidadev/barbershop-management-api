@@ -34,6 +34,7 @@ export interface ClienteLoginRow {
   email: string
   password_hash: string
   ativo: number
+  is_verified: number
 }
 
 export interface ClienteResumo {

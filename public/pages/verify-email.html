@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifique seu E-mail - AlphaCuts</title>
+    <script>
+        if (window.location.pathname.startsWith('/server08')) {
+            const base = document.createElement('base');
+            base.href = '/server08/';
+            document.head.appendChild(base);
+        }
+    </script>
+    <script>
+        (function () {
+            try {
+                const theme = localStorage.getItem('theme');
+                if (theme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            } catch (e) { }
+        })();
+    </script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="components/basepath.js"></script>
+    <style>
+        .verification-container {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 2.5rem 2rem;
+
+            /* Glassmorphism Effect */
+            background: rgba(31, 28, 26, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-large {
+            font-size: 64px;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            /* Glow effect */
+            filter: drop-shadow(0 0 10px rgba(242, 93, 39, 0.3));
+        }
+
+        h2 {
+            font-size: var(--fs-section);
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        .countdown {
+            font-style: italic;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        #btn-resend {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        #btn-resend:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: var(--surface-active);
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+
+        .link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .form-input {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: var(--radius);
+            padding: 1rem;
+            width: 100%;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(242, 93, 39, 0.2);
+        }
+    </style>
+</head>
+
+<body class="dark-theme">
+    <div id="notification-container"></div>
+    <div class="auth-wrapper">
+        <div class="auth-card verification-container">
+            <span class="material-icons icon-large">mark_email_unread</span>
+            <h2>Verifique seu E-mail</h2>
+            <p style="margin-bottom: 2rem;">
+                Enviamos um link de verificação para o seu e-mail.<br>
+                Por favor, confira sua caixa de entrada (e spam).
+            </p>
+
+            <div class="form-group">
+                <input type="email" id="resend-email" placeholder="Seu e-mail cadastrado" class="form-input"
+                    style="text-align: center;">
+            </div>
+
+            <button id="btn-resend" class="btn btn-primary" style="width: 100%;">Reenviar E-mail</button>
+            <p id="countdown-display" class="countdown hidden"></p>
+
+            <div style="margin-top: 2rem;">
+                <a href="login" class="link">Voltar para Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="components/notifications.js"></script>
+    <script src="components/request.js"></script>
+    <script src="js/verify-email.js"></script>
+</body>
+
+</html>

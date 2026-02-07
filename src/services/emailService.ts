@@ -36,12 +36,14 @@ export class EmailService {
     }
 
     async sendAppointmentConfirmation(to: string, nome: string, data: string) {
-        const html = this.getTemplate('appointmentConfirmed.html', { nome, data });
+        const appLink = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const html = this.getTemplate('appointmentConfirmed.html', { nome, data, appLink });
         await this.send(to, "Agendamento Confirmado! ✂️", html);
     }
 
     async sendAdminNotification(details: string) {
-        const html = this.getTemplate('appointmentScheduling.html', { details });
+        const adminLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin`;
+        const html = this.getTemplate('appointmentScheduling.html', { details, adminLink });
         await this.send(process.env.ADMIN_EMAIL || '', "Novo Agendamento Recebido 📢", html);
     }
 

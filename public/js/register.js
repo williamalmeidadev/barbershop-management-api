@@ -146,7 +146,9 @@ form.addEventListener('submit', async (e) => {
 
         btnRegister.innerText = 'Sucesso! Redirecionando...';
         setTimeout(() => {
-      window.location.href = `${basePath}/login`;
+            setTimeout(() => {
+                window.location.href = `${basePath}/verify-email`;
+            }, 1000);
         }, 1000);
 
     } catch (err) {
