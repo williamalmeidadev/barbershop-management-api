@@ -98,7 +98,7 @@ const passwordChecklist = document.getElementById('password-checklist');
 function updatePasswordFeedback(password) {
     if (!passwordFeedbackEl || !passwordMeterFill || !passwordStrengthLabel || !passwordChecklist) return;
     const { score, label, tone, checks } = getPasswordStrength(password);
-    const percent = Math.max(8, Math.round((score / 5) * 100));
+    const percent = Math.min(100, Math.max(8, Math.round((score / 4) * 100)));
 
     passwordFeedbackEl.dataset.tone = tone;
     passwordMeterFill.style.width = `${percent}%`;
