@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            margin: 0;
+            padding: 0;
+            color: #ffffff !important;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .header {
+            background-color: #121212;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 2px solid #ff5722;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: bold;
+            color: #ffffff !important;
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: #ff5722 !important;
+        }
+
+        .content {
+            padding: 40px;
+            line-height: 1.6;
+            color: #ffffff !important;
+            text-align: center;
+        }
+
+        .highlight {
+            color: #ff5722 !important;
+            font-weight: bold;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #ff5722;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 25px;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+            background-color: #121212;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💈 Alpha<span>Cuts</span></div>
+        </div>
+        <div class="content">
+            <h1 style="color: #ffffff !important;">Bem-vindo ao Time! ✂️</h1>
+            <p>Olá, <span class="highlight">${nome}</span>!</p>
+            <p>Sua conta no <strong>AlphaCuts</strong> foi criada com sucesso. Agora você tem acesso ao nosso sistema de
+                agendamentos online e ao clube de fidelidade.</p>
+            <p>Estamos prontos para cuidar do seu visual com a agilidade que você merece.</p>
+
+            <a href="https://alphacuts.vercel.app/login" class="button">Acessar Minha Conta</a>
+        </div>
+        <div class="footer">
+            &copy; 2026 AlphaCuts - Management System
+        </div>
+    </div>
+</body>
+
+</html>

@@ -199,6 +199,11 @@
       text: 'Meus Agendamentos',
       attrs: { href: '#appointments', id: 'nav-appointments' }
     });
+    const navProfile = createEl('a', {
+      className: 'nav-link hidden', // Hidden by default, shown by app logic
+      text: 'Meu Perfil',
+      attrs: { href: `${basePath}/profile`, id: 'nav-profile' }
+    });
     const navAbout = createEl('a', {
       className: 'nav-link',
       text: 'Sobre',
@@ -212,7 +217,7 @@
 
     const themeBtn = createThemeToggle();
 
-    appendChildren(nav, [navHome, navAppointments, navAbout, authAction, themeBtn]);
+    appendChildren(nav, [navHome, navAppointments, navProfile, navAbout, authAction, themeBtn]);
 
     appendChildren(container, [logo, menuToggle, nav]);
     header.appendChild(container);

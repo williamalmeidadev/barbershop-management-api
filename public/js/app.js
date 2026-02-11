@@ -104,16 +104,74 @@ document.addEventListener('DOMContentLoaded', () => {
         setupNavigation();
         setupEventListeners();
         updateAuthUI();
+
+        // Restore state if returning from navigation
+        await restoreBookingState();
+
+        // Save state on unload
+        window.addEventListener('beforeunload', saveBookingState);
     }
 
     function updateAuthUI() {
         if (state.isLoggedIn) {
+            const navAppointments = document.getElementById('nav-appointments');
+            const navProfile = document.getElementById('nav-profile');
+
             if (navAppointments) navAppointments.classList.remove('hidden');
+            if (navProfile) navProfile.classList.remove('hidden');
+
             const authBtn = document.getElementById('auth-action');
             if (authBtn) {
                 authBtn.innerText = 'Sair';
                 authBtn.href = "#";
             }
+        }
+    }
+
+    function saveBookingState() {
+        if (!state.selectedProfessional && state.selectedServices.length === 0) return;
+
+        const bookingState = {
+            professionalId: state.selectedProfessional ? state.selectedProfessional.id : null,
+            serviceIds: state.selectedServices.map(s => s.id),
+            date: state.selectedDate,
+            time: state.selectedTime
+        };
+        sessionStorage.setItem('barber_booking_state', JSON.stringify(bookingState));
+    }
+
+    async function restoreBookingState() {
+        const saved = sessionStorage.getItem('barber_booking_state');
+        if (!saved) return;
+
+        try {
+            const bookingState = JSON.parse(saved);
+            if (!bookingState.professionalId) return;
+
+            // 1. Restore Professional
+            await showBarberProfile(bookingState.professionalId);
+
+            // 2. Restore selections
+            if (bookingState.serviceIds && bookingState.serviceIds.length > 0) {
+                state.selectedServices = state.services.filter(s => bookingState.serviceIds.includes(s.id));
+            }
+            state.selectedDate = bookingState.date || null;
+            state.selectedTime = bookingState.time || null;
+
+            // 3. Update UI
+            renderProfileServices();
+
+            if (state.selectedDate) {
+                renderDateSelector();
+                await loadProfileTimeSlots();
+            }
+
+            checkBookingReady();
+            updateBookingPreview();
+
+        } catch (error) {
+            console.error('Failed to restore booking state:', error);
+            sessionStorage.removeItem('barber_booking_state');
         }
     }
 
@@ -636,6 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
                         bookingWizardView.classList.add('hidden');
                         window.navigateTo('home');
+                        sessionStorage.removeItem('barber_booking_state'); // Clear state on success
                         confirmBtn.disabled = false;
                         confirmBtn.innerText = 'Confirmar Agora';
                     }, 2500);

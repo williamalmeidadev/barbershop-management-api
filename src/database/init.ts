@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 export function initDatabase() {
   db.serialize(() => {
     db.run('PRAGMA foreign_keys = ON')
-    
+
     db.run(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,6 +67,8 @@ export function initDatabase() {
         email TEXT UNIQUE NOT NULL,
         telefone TEXT,
         password_hash TEXT NOT NULL,
+        is_verified INTEGER DEFAULT 0 CHECK (is_verified IN (0,1)),
+        verification_token TEXT,
         concluidos_count INTEGER DEFAULT 0,
         desconto_disponivel_centavos INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -76,6 +78,16 @@ export function initDatabase() {
 
     db.run(`CREATE INDEX IF NOT EXISTS idx_clientes_email ON clientes(email);`)
     db.run(`CREATE INDEX IF NOT EXISTS idx_clientes_ativo ON clientes(ativo);`)
+    db.run(`ALTER TABLE clientes ADD COLUMN is_verified INTEGER DEFAULT 0 CHECK (is_verified IN (0,1))`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna is_verified em clientes:', err.message)
+      }
+    })
+    db.run(`ALTER TABLE clientes ADD COLUMN verification_token TEXT`, (err) => {
+      if (err && !String(err.message).includes('duplicate column')) {
+        console.error('Erro ao adicionar coluna verification_token em clientes:', err.message)
+      }
+    })
 
     db.run(`
       CREATE TABLE IF NOT EXISTS barbeiros (

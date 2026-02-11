@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #121212;
+            margin: 0;
+            padding: 0;
+            color: #ffffff !important;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .header {
+            background-color: #121212;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 2px solid #ff5722;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: bold;
+            color: #ffffff !important;
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: #ff5722 !important;
+        }
+
+        .content {
+            padding: 40px;
+            line-height: 1.6;
+            color: #ffffff !important;
+            text-align: center;
+        }
+
+        .highlight {
+            color: #ff5722 !important;
+            font-weight: bold;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #ff5722;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 25px;
+        }
+
+        .details-box {
+            background: #252525;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: left;
+            margin: 20px 0;
+            border-left: 4px solid #ff5722;
+            color: #ddd !important;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+            background-color: #121212;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💈 Alpha<span>Cuts</span></div>
+        </div>
+        <div class="content">
+            <h1 style="color: #ffffff !important;">Agendamento Confirmado! ✅</h1>
+            <p>Tudo certo, <span class="highlight">${nome}</span>!</p>
+            <p>Seu barbeiro aceitou sua solicitação e seu horário está garantido.</p>
+
+            <div class="details-box">
+                <p style="margin: 5px 0;">📅 <strong>Data e Hora:</strong> ${data}</p>
+                <p style="margin: 5px 0;">📍 <strong>Local:</strong> AlphaCuts Barbershop</p>
+            </div>
+
+            <p>Te esperamos no horário marcado. Se precisar cancelar, faça-o com pelo menos 1h de antecedência.</p>
+
+            <a href="${appLink}" class="button">Ver Meus Agendamentos</a>
+        </div>
+        <div class="footer">
+            &copy; 2026 AlphaCuts - Management System
+        </div>
+    </div>
+</body>
+
+</html>

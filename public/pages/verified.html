@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-mail Verificado! - AlphaCuts</title>
+    <script>
+        if (window.location.pathname.startsWith('/server08')) {
+            const base = document.createElement('base');
+            base.href = '/server08/';
+            document.head.appendChild(base);
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="components/basepath.js"></script>
+    <style>
+        .verified-container {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 3rem 2rem;
+
+            /* Glassmorphism Effect */
+            background: rgba(31, 28, 26, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .icon-success {
+            font-size: 80px;
+            color: var(--success);
+            /* Green from variables */
+            margin-bottom: 1.5rem;
+            animation: scaleCheck 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4));
+        }
+
+        h2 {
+            font-size: var(--fs-section);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 2.5rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            border-radius: var(--radius);
+            background-color: var(--primary);
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 4px 15px rgba(242, 93, 39, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(242, 93, 39, 0.4);
+        }
+
+        @keyframes scaleCheck {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            60% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="dark-theme">
+    <div class="auth-wrapper">
+        <div class="auth-card verified-container">
+            <span class="material-icons icon-success">check_circle</span>
+            <h2>E-mail Verificado!</h2>
+            <p style="margin-bottom: 2rem; color: var(--text-color-secondary);">
+                Sua conta foi ativada com sucesso.<br>
+                Agora você pode acessar o sistema.
+            </p>
+
+            <a href="login" class="btn btn-primary"
+                style="width: 100%; text-decoration: none; display: inline-block;">Ir para Login</a>
+        </div>
+    </div>
+</body>
+
+</html>

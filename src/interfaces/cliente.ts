@@ -6,6 +6,8 @@ export interface Cliente {
   ativo: number
   concluidos_count: number
   desconto_disponivel_centavos: number
+  is_verified: number
+  verification_token?: string | null
 }
 
 export interface ClienteCreatePayload {
@@ -32,6 +34,7 @@ export interface ClienteLoginRow {
   email: string
   password_hash: string
   ativo: number
+  is_verified: number
 }
 
 export interface ClienteResumo {
