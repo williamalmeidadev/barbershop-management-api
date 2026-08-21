@@ -16,8 +16,10 @@ describe('Agendamentos Route Integration (E2E)', function () {
     let barbeiroId: number;
     let servicoId: number;
     let canBindSocket = true;
-    // Data/Hora para o teste
-    const dataAgendamento = '2026-08-20';
+    // Data/Hora para o teste (dinâmico para sempre ser no futuro)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dataAgendamento = tomorrow.toISOString().split('T')[0];
     const horaInicio = '10:00';
     const horaFim = '10:30';
 
@@ -77,7 +79,7 @@ describe('Agendamentos Route Integration (E2E)', function () {
 
         // 2. Create Client
         clienteId = await new Promise<number>((resolve, reject) => {
-            db.run(`INSERT INTO clientes (nome, email, password_hash) VALUES ('Cliente E2E', 'teste@e2e.com', 'hash')`, function (err) {
+            db.run(`INSERT INTO clientes (nome, email, password_hash, is_verified) VALUES ('Cliente E2E', 'teste@e2e.com', 'hash', 1)`, function (err) {
                 if (err) reject(err); else resolve(this.lastID);
             });
         });

@@ -7,7 +7,7 @@ import { clientesRepository } from '../../../src/repositories/clientesRepository
 import { StatusAgendamento } from '../../../src/interfaces/agendamento';
 import { servicoService } from '../../../src/services/servicosService';
 import { vagasService } from '../../../src/services/vagasService';
-import * as transactionModule from '../../../src/repositories/transaction';
+import { transaction } from '../../../src/repositories/transaction';
 
 describe('AgendamentosService - Discount Refund', () => {
     let sandbox: sinon.SinonSandbox;
@@ -15,7 +15,7 @@ describe('AgendamentosService - Discount Refund', () => {
     beforeEach(() => {
         sandbox = sinon.createSandbox();
         // Mock transaction to just execute callback
-        sandbox.stub(transactionModule, 'runInTransaction').callsFake(async (callback) => callback());
+        sandbox.stub(transaction, 'runInTransaction').callsFake(async (callback) => callback());
     });
 
     afterEach(() => {

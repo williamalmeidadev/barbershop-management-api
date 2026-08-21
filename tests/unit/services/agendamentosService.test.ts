@@ -8,7 +8,7 @@ import { servicoService } from '../../../src/services/servicosService';
 import { vagasService } from '../../../src/services/vagasService';
 import { barbeirosService } from '../../../src/services/barbeirosService';
 import { configuracoesRepository } from '../../../src/repositories/configuracoesRepository';
-import * as transactionModule from '../../../src/repositories/transaction';
+import { transaction } from '../../../src/repositories/transaction';
 import { StatusAgendamento, CriarAgendamentoPayload, PagamentoTipo } from '../../../src/interfaces/agendamento';
 
 describe('AgendamentosService', () => {
@@ -16,7 +16,7 @@ describe('AgendamentosService', () => {
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
-        sandbox.stub(transactionModule, 'runInTransaction').callsFake(async (cb) => cb());
+        sandbox.stub(transaction, 'runInTransaction').callsFake(async (cb) => cb());
     });
 
     afterEach(() => {
@@ -51,11 +51,12 @@ describe('AgendamentosService', () => {
         it('deve criar um agendamento com sucesso com desconto', async () => {
             // Mocks
             sandbox.stub(servicoService, 'buscarPorIds').resolves(mockServicos as any);
-            sandbox.stub(clientesRepository, 'buscarResumo').resolves({
+            sandbox.stub(clientesRepository, 'findById').resolves({
                 id: 1,
                 nome: 'Cliente Teste',
                 email: 'teste@example.com',
                 telefone: '123456789',
+                is_verified: 1,
                 concluidos_count: 5,
                 desconto_disponivel_centavos: 1000 // Tem 10 reais de desconto
             } as any);
@@ -133,7 +134,12 @@ describe('AgendamentosService', () => {
 
         it('deve gerar um erro se não houver vagas disponíveis.', async () => {
             sandbox.stub(servicoService, 'buscarPorIds').resolves(mockServicos as any);
-            sandbox.stub(clientesRepository, 'buscarResumo').resolves({} as any);
+            sandbox.stub(clientesRepository, 'findById').resolves({
+                id: 1,
+                is_verified: 1,
+                concluidos_count: 5,
+                desconto_disponivel_centavos: 0
+            } as any);
             sandbox.stub(vagasService, 'selecionarVagasParaAgendamento').resolves([]); // Empty vagas
 
             try {
