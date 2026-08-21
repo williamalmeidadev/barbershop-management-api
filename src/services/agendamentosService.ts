@@ -133,7 +133,11 @@ export const bookingService = {
 
       if (agendamento.status === StatusAgendamento.CONCLUIDO) throw new Error('Agendamento já concluído.')
 
-      // ... (sua lógica de validação de datas e liberação de vagas)
+      const vagas = await agendamentosRepository.buscarVagasDoAgendamento(id)
+      const ids = vagas.map(v => v.id)
+      if (ids.length > 0) {
+        await vagasService.liberarVagasDoAgendamento(ids)
+      }
       const concluidoEm = new Date().toISOString()
       await agendamentosRepository.concluirAgendamento(id, concluidoEm, pagamentoTipo)
 
